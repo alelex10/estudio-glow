@@ -1,0 +1,39 @@
+{
+  "compilerOptions": {
+    // Ambiente y features modernas
+    "lib": ["ESNext"],
+    "target": "ESNext",
+
+    // Necesario para backend con Node-like APIs
+    "module": "ESNext",
+
+    // Bun recomienda esto:
+    "moduleResolution": "bundler",
+
+    "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": true,
+    "noEmit": true,
+
+    // Soporte JSX (no molesta si no usás React)
+    "jsx": "react-jsx",
+
+    "allowJs": true,
+
+    // Reglas estrictas recomendadas
+    "strict": true,
+    "skipLibCheck": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+
+    // NO marcar errores por variables que no usas (útil en desarrollo)
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "noPropertyAccessFromIndexSignature": false,
+
+    // 🔥 IMPORTANTE: dónde está tu código
+    "outDir": "dist"
+  },
+
+  "include": ["src"]
+}
