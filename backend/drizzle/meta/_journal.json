@@ -1,0 +1,13 @@
+{
+  "version": "7",
+  "dialect": "mysql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1763841435843,
+      "tag": "0000_premium_human_torch",
+      "breakpoints": true
+    }
+  ]
+}

@@ -1,12 +1,17 @@
 import express from "express";
 import cookieParser from "cookie-parser";
 import productRouter from "./routes/products";
+import 'dotenv/config';
+import { drizzle } from "drizzle-orm/mysql2";
 
 const app = express();
 const PORT = 3000;
 
 app.use(express.json());
 app.use(cookieParser());
+
+
+const db = drizzle({ connection: { uri: process.env.DATABASE_URL }});
 
 // Public route
 app.get("/", (req, res) => {
