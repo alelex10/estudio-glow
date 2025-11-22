@@ -1,0 +1,44 @@
+POST http://localhost:3000/auth/register
+CONTENT-TYPE: application/json
+
+{
+    "name": "Test User2",
+    "email": "test2@example.com",
+    "password": "password123",
+    "role": "admin"
+}
+    
+###
+POST http://localhost:3000/auth/login
+CONTENT-TYPE: application/json
+
+{
+    "email": "test2@example.com",
+    "password": "password123"
+}
+
+### 
+POST http://localhost:3000/auth/logout
+
+###
+GET http://localhost:3000/admin/products
+
+###
+POST http://localhost:3000/admin/products
+CONTENT-TYPE: application/json
+
+{
+    "name": "Test Product",
+    "description": "Test Product Description",
+    "price": 100,
+    "category": "test",
+    "imageUrl": "https://via.placeholder.com/150"
+}
+###
+PUT http://localhost:3000/admin/products/1
+CONTENT-TYPE: application/json
+
+{
+    "price": 200
+}
+

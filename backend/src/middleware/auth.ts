@@ -37,3 +37,10 @@ export function requireAdmin(req: Request, res: Response, next: NextFunction) {
   }
   next();
 }
+export function requireCustomer(req: Request, res: Response, next: NextFunction) {
+  const user = (req as any).user;
+  if (!user || user.role !== "customer") {
+    return res.status(403).json({ message: "Customer privileges required" });
+  }
+  next();
+}

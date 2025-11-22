@@ -18,6 +18,8 @@ router.use(authenticate, requireAdmin);
 router.get("/products", async (req: Request, res: Response) => {
   try {
     const result = await db.select().from(products);
+    if(result.length === 0)
+      return res.status(404).json({ message: "No products are available" });
     res.json(result);
   } catch (err) {
     console.error(err);
