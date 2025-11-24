@@ -3,6 +3,8 @@
 
 import type { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
+import dotenv from "dotenv";
+dotenv.config();
 
 // Expect JWT secret in environment variable
 const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";

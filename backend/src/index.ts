@@ -2,6 +2,7 @@ import express from "express";
 import cookieParser from "cookie-parser";
 import productRouter from "./routes/products";
 import { authRouter } from "./routes/auth";
+import productCostumerRouter from "./routes/productCustomer";
 
 const app = express();
 const PORT = 3000;
@@ -17,6 +18,7 @@ app.get("/", (req, res) => {
 // Admin routes (protected by auth middleware inside router)
 app.use("/admin", productRouter);
 app.use("/auth", authRouter);
+app.use("/customer", productCostumerRouter);
 
 app.listen(PORT, () => {
   console.log(`Servidor escuchando en http://localhost:${PORT}`);

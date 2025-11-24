@@ -6,12 +6,9 @@ import mysql from "mysql2/promise";
 async function main() {
   console.log("Running migrations...");
 
-  // We need to close the connection after migration, so we might need a separate connection or handle it carefully.
-  // Since db.ts exports a drizzle instance, we can use it.
-  // But for migration, it's often better to have a dedicated connection to close it properly.
-
-  // Re-using the db instance from ./db might keep the pool open.
-  // Let's try using the exported db.
+  // debemos cerrar la conexion despues de la migracion
+  // reutilizar la instancia de db para la migracion tal vez mantenga la pool de conexiones abiertas
+  // usaremos la db exportada de db.ts
 
   try {
     await migrate(db, { migrationsFolder: "./drizzle" });
