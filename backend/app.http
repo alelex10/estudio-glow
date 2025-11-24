@@ -48,3 +48,9 @@ GET http://localhost:3000/customer/products
 
 ### CUSTOMER - GET ONE PRODUCT
 GET http://localhost:3000/customer/products/3
+
+### ADMIN - SEARCH PRODUCTS
+GET http://localhost:3000/admin/search?name=Test Product
+
+### CUSTOMER - SEARCH PRODUCTS
+GET http://localhost:3000/customer/search?name=Test Product

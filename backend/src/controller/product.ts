@@ -21,6 +21,9 @@ export async function listProducts(req: Request, res: Response) {
 // GET product by ID
 export async function getProduct(req: Request, res: Response) {
   const id = Number(req.params.id);
+  if (isNaN(id)) {
+    return res.status(400).json({ message: "Invalid product ID" });
+  }
 
   try {
     const result = await db.select().from(products).where(eq(products.id, id));
@@ -69,6 +72,9 @@ export async function createProduct(req: Request, res: Response) {
 // UPDATE product
 export async function updateProduct(req: Request, res: Response) {
   const id = Number(req.params.id);
+  if (isNaN(id)) {
+    return res.status(400).json({ message: "Invalid product ID" });
+  }
   const data: Partial<NewProduct> = req.body;
 
   try {
@@ -92,6 +98,9 @@ export async function updateProduct(req: Request, res: Response) {
 // DELETE product
 export async function deleteProduct(req: Request, res: Response) {
   const id = Number(req.params.id);
+  if (isNaN(id)) {
+    return res.status(400).json({ message: "Invalid product ID" });
+  }
 
   try {
     await db.delete(products).where(eq(products.id, id));
