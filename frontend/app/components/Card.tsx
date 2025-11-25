@@ -1,4 +1,5 @@
 import clsx from "clsx"
+import { Button } from "./Button"
 
 
 interface ProductCardProps {
@@ -27,18 +28,7 @@ export function ProductCard({ imageSrc, title, price, buttonText = "Mas informac
                 <p className="text-lg text-black mb-6">${price}</p>
 
                 {/* CTA Button */}
-                <button
-                    className={clsx(
-                        "w-full py-3 px-6 rounded-full text-lg text-black font-medium",
-                        "hover:cursor-pointer",
-                        "bg-linear-to-bl",
-                        "from-primary-900 via-primary-200 to-primary-900",
-                        "hover:from-primary-800 hover:via-primary-100 hover:to-primary-800",
-                        "transition-all duration-300",
-                    )}
-                >
-                    {buttonText}
-                </button>
+                <Button variant="gold">{buttonText}</Button>
             </div>
         </div>
     )
