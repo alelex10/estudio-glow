@@ -10,7 +10,7 @@
   --font-poppins: "Poppins", ui-sans-serif, system-ui, sans-serif;
   --font-playfair: "Playfair Display", ui-sans-serif, system-ui, sans-serif;
 
-  --color-primary-100: oklch(0.950 0.067 91.2);
+  /* --color-primary-100: oklch(0.950 0.067 91.2);
   --color-primary-200: oklch(0.904 0.129 91.2);
   --color-primary-300: oklch(0.858 0.175 91.2);
   --color-primary-400: oklch(0.812 0.166 91.2);
@@ -18,15 +18,25 @@
   --color-primary-600: oklch(0.721 0.147 91.2);
   --color-primary-700: oklch(0.675 0.138 91.2);
   --color-primary-800: oklch(0.629 0.128 91.2);
-  --color-primary-900: oklch(0.583 0.119 91.2);
+  --color-primary-900: oklch(0.583 0.119 91.2); */
+
+  --color-primary-100: #FDEEC2;
+  --color-primary-200: #FAD257;
+  --color-primary-300: #E2BB3C;
+  --color-primary-400: #C7A433;
+  --color-primary-500: #AD8E2B;
+  --color-primary-600: #937923;
+  --color-primary-700: #7B641B;
+  --color-primary-800: #625015;
+  --color-primary-900: #4C3D0E;
 
 }
 
 html,
 body {
-  @apply bg-white dark:bg-gray-950;
+  /* @apply bg-white dark:bg-gray-950; */
 
-  @media (prefers-color-scheme: dark) {
+  /* @media (prefers-color-scheme: dark) {
     color-scheme: dark;
-  }
+  } */
 }
