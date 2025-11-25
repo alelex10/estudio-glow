@@ -11,7 +11,7 @@ export function meta({ }: Route.MetaArgs) {
 export default function Home() {
   return (
     <>
-      <ProductCard imageSrc="/product-1.webp" title="Product" price="100" />
+      <ProductCard imageSrc="/product-1.webp" title="Product Name" price="100" />
     </>
   );
 }
