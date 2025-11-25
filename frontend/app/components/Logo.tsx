@@ -1,6 +1,6 @@
 export const Logo = () => {
     return (
-        <div className="flex flex-col align-center">
+        <div className="flex flex-col justify-center">
             <div className="relative flex justify-center">
                 <div className="relative rounded-full border-[#D4AF37] p-2 shadow-2xl shadow-black/50">
 

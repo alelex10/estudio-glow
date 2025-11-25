@@ -11,7 +11,7 @@ export function meta({ }: Route.MetaArgs) {
 
 export default function Home() {
   return (
-    <main className="relative">
+    <main className="relative text-primary-100">
       <Navbar />
       <Hero />
     </main>
