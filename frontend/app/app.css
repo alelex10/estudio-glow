@@ -1,5 +1,16 @@
 @import url("https://fonts.googleapis.com/css2?family=Roboto&display=swap");
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap');
 @import "tailwindcss";
+
+@font-face {
+  font-family: "Playfair";
+  src: url("/fonts/PlayfairDisplay-Regular.woff2") format("woff2"),
+    url("/fonts/PlayfairDisplay-Regular.woff") format("woff");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
 
 
 @theme {
@@ -8,7 +19,7 @@
 
   --font-gabarito: "Gabarito", ui-sans-serif, system-ui, sans-serif;
   --font-poppins: "Poppins", ui-sans-serif, system-ui, sans-serif;
-  --font-playfair: "Playfair Display", ui-sans-serif, system-ui, sans-serif;
+  --font-playfair: "Playfair", ui-sans-serif, system-ui, sans-serif;
 
   /* --color-primary-100: oklch(0.950 0.067 91.2);
   --color-primary-200: oklch(0.904 0.129 91.2);
