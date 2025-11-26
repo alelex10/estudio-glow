@@ -1,6 +1,7 @@
 import { ProductCarousel } from "~/components/ProductCarousel";
 import type { Route } from "./+types/home";
 import Hero from "./components/Hero";
+import Footer from "~/components/Footer";
 
 export function meta({ }: Route.MetaArgs) {
   return [
@@ -30,6 +31,7 @@ export default function Home() {
         <ProductCarousel products={products} />
       </section>
 
+      <Footer />
     </main>
   );
 }
