@@ -14,7 +14,7 @@ interface ProductCarouselProps {
 
 export function ProductCarousel({ products }: ProductCarouselProps) {
     const [currentIndex, setCurrentIndex] = useState(0);
-    const colorDisabled = "bg-primary-600/70";
+    const colorDisabled = "bg-primary-600/10";
     const itemsPerPage = 4;
     const maxIndex = Math.max(0, products.length - itemsPerPage);
 
@@ -39,9 +39,9 @@ export function ProductCarousel({ products }: ProductCarouselProps) {
             </button>
 
             {/* Contenedor del carrusel */}
-            <div className="overflow-hidden mx-12 p-6">
+            <div className="overflow-hidden md:mx-12 p-6">
                 <div
-                    className="flex gap-3 transition-transform duration-500 ease-in-out"
+                    className="flex md:gap-3 transition-transform duration-500 ease-in-out"
                     style={{
                         transform: `translateX(-${currentIndex * (100 / itemsPerPage)}%)`,
                     }}
