@@ -3,14 +3,13 @@
 @import "tailwindcss";
 
 @font-face {
-  font-family: "Playfair";
-  src: url("/fonts/PlayfairDisplay-Regular.woff2") format("woff2"),
-    url("/fonts/PlayfairDisplay-Regular.woff") format("woff");
-  font-weight: normal;
-  font-style: normal;
+  font-family: 'Playfair Display';
+  font-style: italic;
+  font-weight: 400 900;
   font-display: swap;
+  src: url(https://fonts.gstatic.com/s/playfairdisplay/v40/nuFkD-vYSZviVYUb_rj3ij__anPXDTnohkk72xU.woff2) format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
 }
-
 
 
 @theme {
@@ -19,17 +18,7 @@
 
   --font-gabarito: "Gabarito", ui-sans-serif, system-ui, sans-serif;
   --font-poppins: "Poppins", ui-sans-serif, system-ui, sans-serif;
-  --font-playfair: "Playfair", ui-sans-serif, system-ui, sans-serif;
-
-  /* --color-primary-100: oklch(0.950 0.067 91.2);
-  --color-primary-200: oklch(0.904 0.129 91.2);
-  --color-primary-300: oklch(0.858 0.175 91.2);
-  --color-primary-400: oklch(0.812 0.166 91.2);
-  --color-primary-500: oklch(0.767 0.156 91.2);
-  --color-primary-600: oklch(0.721 0.147 91.2);
-  --color-primary-700: oklch(0.675 0.138 91.2);
-  --color-primary-800: oklch(0.629 0.128 91.2);
-  --color-primary-900: oklch(0.583 0.119 91.2); */
+  --font-playfair: "Playfair Display", ui-sans-serif, system-ui, sans-serif;
 
   --color-primary-100: #FDEEC2;
   --color-primary-200: #FAD257;

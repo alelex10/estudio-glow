@@ -13,7 +13,7 @@ export function ProductCard({ imageSrc, title, price, buttonText = "Mas informac
     return (
         <div className={clsx(" bg-primary-100 p-4 pb-6 h-full w-70",
             "border-5 border-primary-500",
-            "outline-3 outline- outline-offset-3",
+            "outline-3 outline-primary-500 outline-offset-3",
         )}>
             <div className="">
                 <img src={imageSrc} alt={title} className="w-full h-auto object-cover" />
