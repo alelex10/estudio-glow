@@ -1,29 +1,33 @@
 import { Link } from "react-router";
 
 export default function Footer() {
+    
     return (
         <footer className="w-full bg-linear-to-bl from-primary-500 via-primary-200 to-primary-500">
-            {/* Instagram Section */}
-            <div className="w-full py-12 md:py-16">
-                <div className="max-w-4xl mx-auto px-4">
-                    <div className="bg-white rounded-lg shadow-lg py-6 px-8 text-center">
-                        <p className="text-black text-base md:text-lg font-medium tracking-wide">
-                            FOLLOW OUR INSTAGRAM PAGE : {" "}
-                            <a
-                                href="https://instagram.com/glow_trends"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-primary-700 hover:text-primary-900 transition-colors font-semibold"
-                            >
-                                @GLOW_TRENDS
-                            </a>
-                        </p>
+            <div className="relative">
+                <div className="bg-[url(/img/common/footer-img.webp)] bg-cover bg-center bg-no-repeat h-[200px]"></div>
+
+                <div className="w-full absolute -bottom-10">
+                    <div className="max-w-4xl mx-auto px-4">
+                        <div className="bg-white rounded-lg shadow-lg py-6 px-8 text-center">
+                            <p className="text-black text-base md:text-lg font-medium tracking-wide">
+                                FOLLOW OUR INSTAGRAM PAGE : 
+                                <a
+                                    href="https://instagram.com/glow_trends"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-primary-700 hover:text-primary-900 transition-colors font-semibold"
+                                >
+                                    @GLOW_TRENDS
+                                </a>
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            {/* Navigation Links */}
-            <nav className="w-full py-8 border-t border-primary-400 text-primary-900">
+
+            <nav className="w-full py-8 border-t border-primary-400 text-primary-900 mt-10">
                 <div className="max-w-6xl mx-auto px-4">
                     <ul className="flex flex-wrap justify-center items-center gap-4 md:gap-8 text-sm md:text-base font-medium">
                         <li>
@@ -70,7 +74,6 @@ export default function Footer() {
                 </div>
             </nav>
 
-            {/* Copyright */}
             <div className="w-full py-6 border-t border-primary-400 text-primary-900">
                 <div className="max-w-6xl mx-auto px-4">
                     <p className="text-center text-sm md:text-base">

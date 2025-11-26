@@ -30,6 +30,10 @@ export default function Home() {
         <h2 className="font-playfair tracking-wide mb-10">Mas vendidos </h2>
         <ProductCarousel products={products} />
       </section>
+      <section className="text-center text-primary-800 text-3xl md:text-5xl py-10">
+        <h2 className="font-playfair tracking-wide mb-10">Lo mas nuevo </h2>
+        <ProductCarousel products={products} />
+      </section>
 
       <Footer />
     </main>

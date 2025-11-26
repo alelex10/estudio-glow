@@ -14,6 +14,7 @@ interface ProductCarouselProps {
 
 export function ProductCarousel({ products }: ProductCarouselProps) {
     const [currentIndex, setCurrentIndex] = useState(0);
+    const colorDisabled = "bg-primary-600/70";
     const itemsPerPage = 4;
     const maxIndex = Math.max(0, products.length - itemsPerPage);
 
@@ -31,7 +32,7 @@ export function ProductCarousel({ products }: ProductCarouselProps) {
             <button
                 onClick={handlePrevious}
                 disabled={currentIndex === 0}
-                className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-primary-500 hover:bg-primary-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-primary-100 p-3 rounded-full transition-all duration-300 shadow-lg"
+                className={`absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-primary-400 hover:bg-primary-600 disabled:${colorDisabled} disabled:cursor-not-allowed text-primary-100 p-3 rounded-full transition-all duration-300 shadow-lg`}
                 aria-label="Anterior"
             >
                 <ArrowLeftIcon className="w-6 h-6" />
@@ -65,7 +66,7 @@ export function ProductCarousel({ products }: ProductCarouselProps) {
             <button
                 onClick={handleNext}
                 disabled={currentIndex >= maxIndex}
-                className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-primary-500 hover:bg-primary-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-primary-100 p-3 rounded-full transition-all duration-300 shadow-lg"
+                className={`absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-primary-500 hover:bg-primary-600 disabled:${colorDisabled} disabled:cursor-not-allowed text-primary-100 p-3 rounded-full transition-all duration-300 shadow-lg`}
                 aria-label="Siguiente"
             >
                 <ArrowRightIcon className="w-6 h-6" />
@@ -77,7 +78,7 @@ export function ProductCarousel({ products }: ProductCarouselProps) {
                     <button
                         key={index}
                         onClick={() => setCurrentIndex(index)}
-                        className={`h-2 rounded-full transition-all duration-300 ${currentIndex === index ? "w-8 bg-primary-500" : "w-2 bg-gray-400"
+                        className={`h-2 rounded-full transition-all duration-300 ${currentIndex === index ? "w-8 bg-primary-500" : "w-2 bg-primary-300 cursor-pointer"
                             }`}
                         aria-label={`Ir a la página ${index + 1}`}
                     />
