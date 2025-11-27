@@ -1,7 +1,7 @@
-import { ProductCarousel } from "~/components/ProductCarousel";
+import { ProductCarousel } from "~/common/components/ProductCarousel";
 import type { Route } from "./+types/home";
 import Hero from "./components/Hero";
-import Footer from "~/components/Footer";
+import Footer from "~/common/components/Footer";
 
 export function meta({ }: Route.MetaArgs) {
   return [
