@@ -28,7 +28,6 @@ export function ProductCarousel({ products }: ProductCarouselProps) {
 
     return (
         <div className="relative w-full px-4">
-            {/* Botón anterior */}
             <button
                 onClick={handlePrevious}
                 disabled={currentIndex === 0}
@@ -38,7 +37,6 @@ export function ProductCarousel({ products }: ProductCarouselProps) {
                 <ArrowLeftIcon className="w-6 h-6" />
             </button>
 
-            {/* Contenedor del carrusel */}
             <div className="overflow-hidden md:mx-12 p-6">
                 <div
                     className="flex md:gap-3 transition-transform duration-500 ease-in-out"
@@ -62,7 +60,6 @@ export function ProductCarousel({ products }: ProductCarouselProps) {
                 </div>
             </div>
 
-            {/* Botón siguiente */}
             <button
                 onClick={handleNext}
                 disabled={currentIndex >= maxIndex}
@@ -72,7 +69,6 @@ export function ProductCarousel({ products }: ProductCarouselProps) {
                 <ArrowRightIcon className="w-6 h-6" />
             </button>
 
-            {/* Indicadores de posición */}
             <div className="flex justify-center gap-2 mt-6">
                 {Array.from({ length: maxIndex + 1 }).map((_, index) => (
                     <button

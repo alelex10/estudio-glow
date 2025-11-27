@@ -4,12 +4,12 @@ import { Button } from "./Button";
 
 export default function Navbar() {
     return (
-        <nav className="absolute top-0 left-0 w-full z-50 flex items-center justify-between px-8 py-6 text-primary-100">
+        <nav className="absolute top-0 left-0 w-full z-50 flex items-center justify-between px-8 py-6 text-primary-100 bg-primary-900">
 
             {/* Links */}
             <div className="hidden md:flex items-center gap-8 text-md font-medium text-white">
                 <Link to="/" className="hover:text-primary-100 transition-colors">Home</Link>
-                <Link to="/" className="hover:text-primary-100 transition-colors">Productos</Link>
+                <Link to="/products" className="hover:text-primary-100 transition-colors">Productos</Link>
             </div>
             {/* menu hamburgeza */}
             <div className="md:hidden flex items-center">
