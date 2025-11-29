@@ -12,8 +12,9 @@ interface ProductCardProps {
 export function ProductCard({ imageSrc, title, price, buttonText = "Mas informacion" }: ProductCardProps) {
     return (
         <div className={clsx("bg-clip-border from-cyan-500 to-blue-500 p-4 pb-6 h-full w-70",
-            "border-5 border-transparent",
+            "border-5 border-primary-500",
             "outline-3 outline-primary-500 outline-offset-3",
+            // "hover:border-primary-500/50 transition-colors hover:outline-primary-500/50 hover:scale-105",
         )}>
             <div className="">
                 <img src={imageSrc} alt={title} className="w-full h-auto object-cover" />

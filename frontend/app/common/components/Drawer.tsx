@@ -1,3 +1,4 @@
+import clsx from "clsx";
 import { X } from "lucide-react";
 import React from "react";
 
@@ -10,19 +11,22 @@ interface DrawerProps {
 export default function Drawer({ isOpen, onClose, children }: DrawerProps) {
     return (
         <div
-            className={`fixed inset-0 z-50 transition-all duration-500 ease-in-out ${isOpen ? "visible" : "invisible"
-                }`}
+            className={clsx("fixed inset-0 z-50 transition-all duration-500 ease-in-out",
+                isOpen ? "visible" : "invisible"
+            )}
             aria-hidden={!isOpen}
         >
             <div
-                className={`absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-500 ease-in-out ${isOpen ? "opacity-100" : "opacity-0"
-                    }`}
+                className={clsx("absolute inset-0 h-screen bg-black/60 backdrop-blur-sm transition-opacity duration-500 ease-in-out",
+                    isOpen ? "opacity-100" : "opacity-0"
+                )}
                 onClick={onClose}
             />
 
             <div
-                className={`absolute top-0 left-0 w-80 h-full bg-primary-700 shadow-2xl p-6 transform transition-transform duration-500 cubic-bezier(0.4, 0, 0.2, 1) ${isOpen ? "translate-x-0" : "-translate-x-full"
-                    }`}
+                className={clsx("absolute top-0 left-0 w-80 h-screen bg-primary-700 shadow-2xl p-6 transform transition-transform duration-500 cubic-bezier(0.4, 0, 0.2, 1) ",
+                    isOpen ? "translate-x-0" : "-translate-x-full"
+                )}
             >
                 <div className="flex justify-end mb-6">
                     <button

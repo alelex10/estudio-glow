@@ -6,7 +6,7 @@ export const Logo = () => {
             <div className="relative flex justify-center">
                 <div className="relative rounded-full border-primary-500 p-2 shadow-2xl shadow-black/50">
 
-                    <div className="w-70 rounded-full overflow-hidden ">
+                    <div className="rounded-full overflow-hidden w-60 sm:w-72">
                         <div className="w-fit m-auto">
                             <img src="/img/logo/logo-1.png" alt="logo" />
                         </div>

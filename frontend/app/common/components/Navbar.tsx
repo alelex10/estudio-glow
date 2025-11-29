@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { MenuIcon } from "lucide-react";
-import { Link } from "react-router";
+import { Link, useLocation } from "react-router";
 import { Button } from "./Button";
 import Drawer from "./Drawer";
 import clsx from "clsx";
+import { bgGradient } from "../constants/constants";
 
 const NAV_LINKS = [
     { href: "/", label: "Home" },
@@ -11,10 +12,16 @@ const NAV_LINKS = [
 ];
 
 export default function Navbar() {
+    const page = useLocation();
     const [drawerOpen, setDrawerOpen] = useState(false);
+    const background = page.pathname !== "/" ?
+        bgGradient :
+        "bg-transparent";
     return (
         <header className="">
-            <nav className={clsx(`absolute top-0 left-0 w-full z-50 flex items-center justify-between px-4 h-20 text-primary-100`, )}>
+            <nav className={clsx(`fixed top-0 left-0 w-full z-50 flex items-center justify-between px-4 h-20 text-primary-100`,
+                "bg-primary-900/50 backdrop-blur-sm"
+             )}>
 
                 {/* Links */}
                 <div className="hidden md:flex items-center gap-8 text-md font-medium text-white">
@@ -24,9 +31,8 @@ export default function Navbar() {
                         </Link>
                     ))}
                 </div>
-                {/* menu hamburgeza */}
                 <div className="md:hidden flex items-center">
-                    <button className="text-white" onClick={() => setDrawerOpen(true)} aria-label="Open menu">
+                    <button className="text-white hover:text-primary-100 transition-colors" onClick={() => setDrawerOpen(true)} aria-label="Open menu">
                         <MenuIcon size={30} />
                     </button>
                 </div>
@@ -36,7 +42,7 @@ export default function Navbar() {
                             <li key={link.href}>
                                 <Link
                                     to={link.href}
-                                    className={clsx("text-2xl font-gabarito text-white hover:text-primary-100 transition-colors block py-2",
+                                    className={clsx("text-xl font-gabarito text-white hover:text-primary-100 transition-colors block py-2",
                                         "border-b border-primary-900 hover:border-primary-100"
                                      )}
                                     onClick={() => setDrawerOpen(false)}

@@ -1,0 +1,1 @@
+export const bgGradient = "bg-linear-to-bl from-primary-500 via-primary-200 to-primary-500";
