@@ -15,12 +15,12 @@ export default function Navbar() {
     const page = useLocation();
     const [drawerOpen, setDrawerOpen] = useState(false);
     const background = page.pathname !== "/" ?
-        bgGradient :
+        "bg-primary-900/50" + " backdrop-blur-sm" :
         "bg-transparent";
     return (
         <header className="">
             <nav className={clsx(`fixed top-0 left-0 w-full z-50 flex items-center justify-between px-4 h-20 text-primary-100`,
-                "bg-primary-900/50 backdrop-blur-sm"
+                background,
              )}>
 
                 {/* Links */}

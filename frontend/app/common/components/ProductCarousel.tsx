@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { ProductCard } from "./Card";
 import { ArrowLeftIcon, ArrowRightIcon } from "lucide-react";
+import clsx from "clsx";
 
 interface Product {
     imageSrc: string;
@@ -26,6 +27,13 @@ export function ProductCarousel({ products }: ProductCarouselProps) {
         setCurrentIndex((prev) => Math.min(maxIndex, prev + 1));
     };
 
+    const transformX = [
+        `translate-x-60%`,
+        `translate-x-120%`,
+        `translate-x-180%`,
+        `translate-x-240%`,
+    ];
+
     return (
         <div className="relative w-full px-4">
             <button
@@ -37,18 +45,26 @@ export function ProductCarousel({ products }: ProductCarouselProps) {
                 <ArrowLeftIcon className="w-6 h-6" />
             </button>
 
-            <div className="overflow-hidden md:mx-12 p-6">
+            <div className="overflow-hidden md:mx-12 ">
                 <div
-                    className="flex md:gap-3 transition-transform duration-500 ease-in-out"
-                    style={{
-                        transform: `translateX(-${currentIndex * (100 / itemsPerPage)}%)`,
-                    }}
+                    className={clsx("flex md:gap-3 transition-transform duration-500 ease-in-out p-6",
+                        "transform",
+                        transformX[currentIndex]
+                    )}
+                    // style={{
+                    //     transform: `translateX(-${currentIndex * (100 / itemsPerPage)}%)`,
+                    // }}
                 >
                     {products.map((product, index) => (
                         <div
                             key={index}
-                            className="shrink-0"
-                            style={{ width: `calc(${100 / itemsPerPage}% - ${(6 * (itemsPerPage - 1)) / itemsPerPage}px)` }}
+                            className={clsx("shrink-0",
+                                "w-full",
+                                "md:w-1/2",
+                                "lg:w-1/3",
+                                "xl:w-1/4",
+                            )}
+                            // style={{ width: `calc(${100 / itemsPerPage}% - ${(6 * (itemsPerPage - 1)) / itemsPerPage}px)` }}
                         >
                             <ProductCard
                                 imageSrc={product.imageSrc}
