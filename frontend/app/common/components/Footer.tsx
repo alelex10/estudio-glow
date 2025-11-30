@@ -34,7 +34,7 @@ export default function Footer({className}: {className?: string}) {
                         <li>
                             <Link
                                 to="/men"
-                                className="hover:text-primary-600 transition-colors"
+                                className="hover:text-white transition-colors"
                             >
                                 Hombres
                             </Link>
@@ -42,15 +42,15 @@ export default function Footer({className}: {className?: string}) {
                         <li>
                             <Link
                                 to="/women"
-                                className="hover:text-primary-600 transition-colors"
+                                className="hover:text-white transition-colors"
                             >
-                                Mujeres
+                                Sobre Nosotros
                             </Link>
                         </li>
                         <li>
                             <Link
                                 to="/kids"
-                                className="hover:text-primary-600 transition-colors"
+                                className="hover:text-white transition-colors"
                             >
                                 Niños
                             </Link>
@@ -58,7 +58,7 @@ export default function Footer({className}: {className?: string}) {
                         <li>
                             <Link
                                 to="/collection"
-                                className="hover:text-primary-600 transition-colors"
+                                className="hover:text-white transition-colors"
                             >
                                 Colección
                             </Link>
@@ -66,7 +66,7 @@ export default function Footer({className}: {className?: string}) {
                         <li>
                             <Link
                                 to="/trends"
-                                className="hover:text-primary-600 transition-colors"
+                                className="hover:text-white transition-colors"
                             >
                                 Tendencias
                             </Link>

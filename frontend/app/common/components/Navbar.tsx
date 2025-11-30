@@ -10,22 +10,28 @@ const NAV_LINKS = [
     { href: "/products", label: "Productos" },
 ];
 
-export default function Navbar() {
+interface NavbarProps {
+    isHeroVisible?: boolean;
+}
+
+export default function Navbar({ isHeroVisible = true }: NavbarProps) {
     const page = useLocation();
     const [drawerOpen, setDrawerOpen] = useState(false);
-    const background = page.pathname !== "/" ?
-        "bg-gradient-to-r from-primary-800/50 via-primary-200/50 to-primary-800/50 backdrop-blur-sm" :
-        "bg-transparent";
-    return (
-        <header className="">
-            <nav className={clsx(`fixed top-0 left-0 w-full z-50 flex items-center justify-between px-4 h-20 text-primary-100`,
-                background,
-             )}>
 
-                {/* Links */}
-                <div className="hidden md:flex items-center gap-8 text-md font-medium text-white">
+    const isHome = page.pathname === "/";
+    const isProducts = page.pathname === "/products";
+
+    return (
+        <header >
+            <nav className={clsx(`fixed top-0 left-0 w-full z-50 flex items-center justify-between px-4 h-20 text-primary-100 transition-all duration-300`,
+                isHome && isHeroVisible ? "bg-transparent" : "bg-opacity-100 bg-linear-to-r from-primary-800/50 via-primary-200/50 to-primary-800/50 backdrop-blur-sm"
+            )}>
+                <div className="hidden md:block"></div>
+                <div className={clsx("hidden md:flex items-center gap-8 text-md font-medium",)}>
                     {NAV_LINKS.map((link) => (
-                        <Link key={link.href} to={link.href} className="hover:text-primary-100 transition-colors">
+                        <Link key={link.href} to={link.href} className={clsx("text-primary-900 hover:text-primary-700",
+                            isHome && isHeroVisible && "hover:text-primary-100 text-white"
+                        )}>
                             {link.label}
                         </Link>
                     ))}
@@ -43,7 +49,7 @@ export default function Navbar() {
                                     to={link.href}
                                     className={clsx("text-xl font-gabarito text-white hover:text-primary-100 transition-colors block py-2",
                                         "border-b border-primary-900 hover:border-primary-100"
-                                     )}
+                                    )}
                                     onClick={() => setDrawerOpen(false)}
                                 >
                                     {link.label}
@@ -52,7 +58,6 @@ export default function Navbar() {
                         ))}
                     </ul>
                 </Drawer>
-                {/* Icons */}
                 <div className="flex items-center gap-6 text-white">
                     <Button className="bg-primary-100">
                         Login
