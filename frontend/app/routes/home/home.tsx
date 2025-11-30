@@ -25,18 +25,18 @@ export default function Home() {
   return (
     <>
       <main className="relative text-primary-100">
-        <Hero />
+        <section id="hero">
+          <Hero />
+        </section>
         <img className="py-20" src="/img/home/home-2.webp" alt="" />
-        <section className="text-center text-primary-800 text-3xl md:text-5xl py-10">
+        <section id="mas-vendidos" className="text-center text-primary-800 text-3xl md:text-5xl py-10">
           <h2 className="font-playfair tracking-wide mb-10">Mas vendidos </h2>
           <ProductCarousel products={products} />
         </section>
-        <section className="text-center text-primary-800 text-3xl md:text-5xl py-10">
+        <section id="mas-nuevo" className="text-center text-primary-800 text-3xl md:text-5xl py-10">
           <h2 className="font-playfair tracking-wide mb-10">Lo mas nuevo </h2>
           <ProductCarousel products={products} />
         </section>
-
-
       </main>
       <Footer />
     </>

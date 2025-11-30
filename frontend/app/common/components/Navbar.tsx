@@ -4,7 +4,6 @@ import { Link, useLocation } from "react-router";
 import { Button } from "./Button";
 import Drawer from "./Drawer";
 import clsx from "clsx";
-import { bgGradient } from "../constants/constants";
 
 const NAV_LINKS = [
     { href: "/", label: "Home" },
@@ -15,7 +14,7 @@ export default function Navbar() {
     const page = useLocation();
     const [drawerOpen, setDrawerOpen] = useState(false);
     const background = page.pathname !== "/" ?
-        "bg-primary-900/50" + " backdrop-blur-sm" :
+        "bg-gradient-to-r from-primary-800/50 via-primary-200/50 to-primary-800/50 backdrop-blur-sm" :
         "bg-transparent";
     return (
         <header className="">

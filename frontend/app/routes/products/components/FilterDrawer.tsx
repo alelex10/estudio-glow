@@ -23,7 +23,7 @@ export function FilterDrawer({ isOpen, onClose }: FilterDrawerProps) {
         <Drawer isOpen={isOpen} onClose={onClose} >
             <div className="flex flex-col h-full text-primary-100">
                 <div className="flex items-center justify-between mb-8">
-                    <h2 className="text-2xl font-playfair tracking-wide">Filters</h2>
+                    <h2 className="text-2xl font-gabarito font-bold tracking-wide">Filtros</h2>
                 </div>
 
                 <div className="flex-1 overflow-y-auto space-y-6 pr-2">
@@ -33,7 +33,7 @@ export function FilterDrawer({ isOpen, onClose }: FilterDrawerProps) {
                                 onClick={() => toggleCategory(category.id)}
                                 className="flex items-center justify-between w-full text-left mb-4 hover:text-white transition-colors"
                             >
-                                <span className="text-lg font-medium tracking-wide">{category.name}</span>
+                                <span className="text-lg font-gabarito font-medium tracking-wide">{category.name}</span>
                                 {expandedCategories.includes(category.id) ? (
                                     <ChevronUp size={20} />
                                 ) : (
@@ -64,21 +64,6 @@ export function FilterDrawer({ isOpen, onClose }: FilterDrawerProps) {
                             </div>
                         </div>
                     ))}
-                </div>
-
-                <div className="mt-auto pt-6 border-t border-primary-100/20 flex gap-4">
-                    <button
-                        onClick={onClose}
-                        className="flex-1 py-3 px-4 border border-primary-100/30 text-primary-100 hover:bg-primary-100/10 transition-colors uppercase tracking-wider text-sm font-medium"
-                    >
-                        Clear All
-                    </button>
-                    <button
-                        onClick={onClose}
-                        className="flex-1 py-3 px-4 bg-primary-500 text-white hover:bg-primary-600 transition-colors uppercase tracking-wider text-sm font-medium shadow-lg"
-                    >
-                        Apply
-                    </button>
                 </div>
             </div>
         </Drawer>
