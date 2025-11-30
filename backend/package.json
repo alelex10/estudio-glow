@@ -18,6 +18,7 @@
     "typescript": "^5.9.3"
   },
   "dependencies": {
+    "@asteasolutions/zod-to-openapi": "^8.1.0",
     "@types/bcryptjs": "^3.0.0",
     "@types/cookie-parser": "^1.4.3",
     "@types/jsonwebtoken": "^9.0.5",
@@ -28,7 +29,9 @@
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.0",
     "mysql2": "^3.9.0",
+    "openapi3-ts": "^4.5.0",
     "swagger-jsdoc": "^6.2.8",
-    "swagger-ui-express": "^5.0.1"
+    "swagger-ui-express": "^5.0.1",
+    "zod": "^4.1.13"
   }
 }
