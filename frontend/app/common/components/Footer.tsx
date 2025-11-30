@@ -1,9 +1,10 @@
 import { Link } from "react-router";
+import clsx from "clsx";
 
-export default function Footer() {
+export default function Footer({className}: {className?: string}) {
     
     return (
-        <footer className="w-full bg-linear-to-bl from-primary-500 via-primary-200 to-primary-500">
+        <footer className={clsx("w-full bg-linear-to-bl from-primary-500 via-primary-200 to-primary-500", className)}>
             <div className="relative">
                 <div className="bg-[url(/img/common/footer-img.webp)] bg-cover bg-center bg-no-repeat h-[200px]"></div>
 
