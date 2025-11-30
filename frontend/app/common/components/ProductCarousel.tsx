@@ -2,6 +2,8 @@ import { useState } from "react";
 import { ProductCard } from "./Card";
 import { ArrowLeftIcon, ArrowRightIcon } from "lucide-react";
 import clsx from "clsx";
+import { useBreakpoint } from "../hooks/useBreakpoint";
+import { useEffect } from "react";
 
 interface Product {
     imageSrc: string;
@@ -14,9 +16,22 @@ interface ProductCarouselProps {
 }
 
 export function ProductCarousel({ products }: ProductCarouselProps) {
+    const breakpoint = useBreakpoint();
     const [currentIndex, setCurrentIndex] = useState(0);
+
+    const itemsPerPage = {
+        sm: 1,
+        md: 2,
+        lg: 3,
+        xl: 4,
+        '2xl': 4,
+    }[breakpoint];
+
+    useEffect(() => {
+        setCurrentIndex(0);
+    }, [itemsPerPage]);
+
     const colorDisabled = "bg-primary-600/10";
-    const itemsPerPage = 4;
     const maxIndex = Math.max(0, products.length - itemsPerPage);
 
     const handlePrevious = () => {
@@ -27,19 +42,14 @@ export function ProductCarousel({ products }: ProductCarouselProps) {
         setCurrentIndex((prev) => Math.min(maxIndex, prev + 1));
     };
 
-    const transformX = [
-        `translate-x-60%`,
-        `translate-x-120%`,
-        `translate-x-180%`,
-        `translate-x-240%`,
-    ];
-
     return (
         <div className="relative w-full px-4">
             <button
                 onClick={handlePrevious}
                 disabled={currentIndex === 0}
-                className={`absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-primary-400 hover:bg-primary-600 disabled:${colorDisabled} disabled:cursor-not-allowed text-primary-100 p-3 rounded-full transition-all duration-300 shadow-lg`}
+                className={clsx(`absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-primary-400 disabled:${colorDisabled} disabled:cursor-not-allowed text-primary-100 p-3 rounded-full transition-all duration-300 shadow-lg`,
+                    "hover:bg-primary-600 hover:cursor-pointer"
+                )}
                 aria-label="Anterior"
             >
                 <ArrowLeftIcon className="w-6 h-6" />
@@ -47,24 +57,22 @@ export function ProductCarousel({ products }: ProductCarouselProps) {
 
             <div className="overflow-hidden md:mx-12 ">
                 <div
-                    className={clsx("flex md:gap-3 transition-transform duration-500 ease-in-out p-6",
-                        "transform",
-                        transformX[currentIndex]
+                    className={clsx("flex transition-transform duration-500 ease-in-out",
+                        "transform"
                     )}
-                    // style={{
-                    //     transform: `translateX(-${currentIndex * (100 / itemsPerPage)}%)`,
-                    // }}
+                    style={{
+                        transform: `translateX(-${currentIndex * (100 / itemsPerPage)}%)`,
+                    }}
                 >
                     {products.map((product, index) => (
                         <div
                             key={index}
-                            className={clsx("shrink-0",
+                            className={clsx("shrink-0 flex justify-center",
                                 "w-full",
                                 "md:w-1/2",
                                 "lg:w-1/3",
                                 "xl:w-1/4",
                             )}
-                            // style={{ width: `calc(${100 / itemsPerPage}% - ${(6 * (itemsPerPage - 1)) / itemsPerPage}px)` }}
                         >
                             <ProductCard
                                 imageSrc={product.imageSrc}
@@ -79,7 +87,8 @@ export function ProductCarousel({ products }: ProductCarouselProps) {
             <button
                 onClick={handleNext}
                 disabled={currentIndex >= maxIndex}
-                className={`absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-primary-500 hover:bg-primary-600 disabled:${colorDisabled} disabled:cursor-not-allowed text-primary-100 p-3 rounded-full transition-all duration-300 shadow-lg`}
+                className={clsx(`absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-primary-500 hover:bg-primary-600 disabled:${colorDisabled} disabled:cursor-not-allowed text-primary-100 p-3 rounded-full transition-all duration-300 shadow-lg`,
+                    "hover:cursor-pointer")}
                 aria-label="Siguiente"
             >
                 <ArrowRightIcon className="w-6 h-6" />
