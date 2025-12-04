@@ -2,7 +2,7 @@ import { ProductCarousel } from "~/common/components/ProductCarousel";
 import type { Route } from "./+types/home";
 import Hero from "./components/Hero";
 import Footer from "~/common/components/Footer";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import Navbar from "~/common/components/Navbar";
 
 export function meta({ }: Route.MetaArgs) {
@@ -14,7 +14,6 @@ export function meta({ }: Route.MetaArgs) {
 
 export default function Home() {
   const [isHeroVisible, setIsHeroVisible] = useState(true);
-  const heroRef = useRef<HTMLElement>(null);
 
   const products = [
     { imageSrc: "/img/product-test/product-1.webp", title: "Product 1", price: 100 },
@@ -28,31 +27,23 @@ export default function Home() {
   ];
 
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        setIsHeroVisible(entry.isIntersecting);
-      },
-      {
-        threshold: 0.1, // Se activa cuando el 10% del hero es visible
-      }
-    );
+    const handleScroll = () => {
+      // El navbar cambia de fondo apenas se hace scroll hacia abajo
+      setIsHeroVisible(window.scrollY === 0);
+    };
 
-    if (heroRef.current) {
-      observer.observe(heroRef.current);
-    }
+    window.addEventListener('scroll', handleScroll);
 
     return () => {
-      if (heroRef.current) {
-        observer.unobserve(heroRef.current);
-      }
+      window.removeEventListener('scroll', handleScroll);
     };
   }, []);
 
   return (
     <>
-      <Navbar isHeroVisible={isHeroVisible} />
+      <Navbar isBackgroundVisible={isHeroVisible} />
       <main className="relative text-primary-100">
-        <section id="hero" ref={heroRef}>
+        <section id="hero">
           <Hero />
         </section>
         <img className="py-20" src="/img/home/home-2.webp" alt="" />

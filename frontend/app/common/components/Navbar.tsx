@@ -11,10 +11,10 @@ const NAV_LINKS = [
 ];
 
 interface NavbarProps {
-    isHeroVisible?: boolean;
+    isBackgroundVisible?: boolean;
 }
 
-export default function Navbar({ isHeroVisible = true }: NavbarProps) {
+export default function Navbar({ isBackgroundVisible = true }: NavbarProps) {
     const page = useLocation();
     const [drawerOpen, setDrawerOpen] = useState(false);
 
@@ -24,13 +24,13 @@ export default function Navbar({ isHeroVisible = true }: NavbarProps) {
     return (
         <header >
             <nav className={clsx(`fixed top-0 left-0 w-full z-50 flex items-center justify-between px-4 h-20 text-primary-100 transition-all duration-300`,
-                isHome && isHeroVisible ? "bg-transparent" : "bg-opacity-100 bg-linear-to-r from-primary-800/50 via-primary-200/50 to-primary-800/50 backdrop-blur-sm"
+                isHome && isBackgroundVisible ? "bg-transparent" : "bg-opacity-100 bg-linear-to-r from-primary-800/50 via-primary-200/50 to-primary-800/50 backdrop-blur-sm"
             )}>
                 <div className="hidden md:block"></div>
                 <div className={clsx("hidden md:flex items-center gap-8 text-md font-medium",)}>
                     {NAV_LINKS.map((link) => (
                         <Link key={link.href} to={link.href} className={clsx("text-primary-900 hover:text-primary-700",
-                            isHome && isHeroVisible && "hover:text-primary-100 text-white"
+                            isHome && isBackgroundVisible && "hover:text-primary-100 text-white"
                         )}>
                             {link.label}
                         </Link>
