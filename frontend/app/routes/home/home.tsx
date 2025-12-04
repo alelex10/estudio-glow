@@ -16,14 +16,14 @@ export default function Home() {
   const [isHeroVisible, setIsHeroVisible] = useState(true);
 
   const products = [
-    { imageSrc: "/img/product-test/product-1.webp", title: "Product 1", price: 100 },
-    { imageSrc: "/img/product-test/product-1.webp", title: "Product 2", price: 150 },
-    { imageSrc: "/img/product-test/product-1.webp", title: "Product 3", price: 200 },
-    { imageSrc: "/img/product-test/product-1.webp", title: "Product 4", price: 120 },
-    { imageSrc: "/img/product-test/product-1.webp", title: "Product 5", price: 180 },
-    { imageSrc: "/img/product-test/product-1.webp", title: "Product 6", price: 220 },
-    { imageSrc: "/img/product-test/product-1.webp", title: "Product 7", price: 160 },
-    { imageSrc: "/img/product-test/product-1.webp", title: "Product 8", price: 190 },
+    { id: 1, imageSrc: "/img/product-test/product-1.webp", title: "Product 1", price: 100 },
+    { id: 2, imageSrc: "/img/product-test/product-1.webp", title: "Product 2", price: 150 },
+    { id: 3, imageSrc: "/img/product-test/product-1.webp", title: "Product 3", price: 200 },
+    { id: 4, imageSrc: "/img/product-test/product-1.webp", title: "Product 4", price: 120 },
+    { id: 5, imageSrc: "/img/product-test/product-1.webp", title: "Product 5", price: 180 },
+    { id: 6, imageSrc: "/img/product-test/product-1.webp", title: "Product 6", price: 220 },
+    { id: 7, imageSrc: "/img/product-test/product-1.webp", title: "Product 7", price: 160 },
+    { id: 8, imageSrc: "/img/product-test/product-1.webp", title: "Product 8", price: 190 },
   ];
 
   useEffect(() => {

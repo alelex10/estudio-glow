@@ -6,6 +6,7 @@ import { useBreakpoint } from "../hooks/useBreakpoint";
 import { useEffect } from "react";
 
 interface Product {
+    id?: number | string;
     imageSrc: string;
     title: string;
     price: number;
@@ -75,6 +76,7 @@ export function ProductCarousel({ products }: ProductCarouselProps) {
                             )}
                         >
                             <ProductCard
+                                productId={product.id}
                                 imageSrc={product.imageSrc}
                                 title={product.title}
                                 price={product.price}

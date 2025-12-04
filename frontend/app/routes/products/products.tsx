@@ -22,7 +22,7 @@ export default function Products() {
     return (
         <>
             <main className="flex justify-center min-h-screen pt-24 px-4 bg-primary-100">
-               
+
                 <section className="max-w-7xl">
 
                     {/* Controls */}
@@ -53,6 +53,7 @@ export default function Products() {
                             {PRODUCTS.map((product) => (
                                 <div key={product.id}>
                                     <ProductCard
+                                        productId={product.id}
                                         imageSrc={product.imageSrc}
                                         title={product.title}
                                         price={product.price}
