@@ -1,6 +1,20 @@
 import clsx from "clsx"
 
-export const Logo = () => {
+interface LogoProps {
+    className?: string;
+    variant?: "full" | "icon";
+}
+
+export const Logo = ({ className, variant = "full" }: LogoProps) => {
+    // Versión solo icono para espacios pequeños
+    if (variant === "icon") {
+        return (
+            <div className={clsx("rounded-full overflow-hidden", className)}>
+                <img src="/img/logo/logo-1.png" alt="Estudio Glow" className="w-full h-full object-contain" />
+            </div>
+        );
+    }
+
     return (
         <div className="flex flex-col justify-center">
             <div className="relative flex justify-center">
