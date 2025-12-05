@@ -12,11 +12,11 @@ export const CreateProductSchema = z.object({
     example: 'Laptop de alto rendimiento para gaming',
     description: 'Descripción del producto'
   }),
-  price: z.number().positive().openapi({
+  price: z.coerce.number().positive().openapi({
     example: 1500.99,
     description: 'Precio del producto'
   }),
-  stock: z.number().int().min(0).openapi({
+  stock: z.coerce.number().int().min(0).openapi({
     example: 50,
     description: 'Cantidad en stock'
   }),

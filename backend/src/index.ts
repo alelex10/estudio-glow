@@ -7,10 +7,13 @@ import { authRouter } from "./routes/auth";
 import productCostumerRouter from "./routes/productCustomer";
 import multer from "multer";
 import type { FileFilterCallback } from "multer";
+import { optimizeImage } from "./middleware/optimize";
+import cors from "cors";
 
 const app = express();
 const PORT = 3000;
 
+app.use(cors());
 app.use(express.json());
 app.use(cookieParser());
 const upload = multer({ 
@@ -35,7 +38,7 @@ app.get("/", (req, res) => {
 });
 
 // Admin routes (protected by auth middleware inside router)
-app.use("/admin", upload.single('image'), productRouter);
+app.use("/admin", upload.single('image'),optimizeImage, productRouter);
 app.use("/auth", authRouter);
 app.use("/customer", productCostumerRouter);
 
