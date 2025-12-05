@@ -1,10 +1,16 @@
 import type { Request, Response } from "express";
-import { eq, like, and, gte, lte } from "drizzle-orm";
+import { eq, like, and, gte, lte, Name } from "drizzle-orm";
 import { db } from "../db";
 import { products } from "../models/product";
-import type { NewProduct } from "../models/product";
+import type { NewProduct, Product } from "../models/product";
 import { validateBody, validateQuery } from "../middleware/validation";
 import { CreateProductSchema, UpdateProductSchema, SearchProductSchema } from "../schemas/product";
+import cloudinaryConfig from "../cloudfile";
+import { v2 as cloudinary } from "cloudinary";
+import type { UploadApiResponse } from "cloudinary";
+import type { ListFormat } from "typescript";
+
+cloudinary.config(cloudinaryConfig);
 
 // GET all products
 export async function listProducts(req: Request, res: Response) {
@@ -44,21 +50,48 @@ export async function getProduct(req: Request, res: Response) {
 export const createProduct = [
   validateBody(CreateProductSchema),
   async (req: Request, res: Response) => {
-    const data: NewProduct = req.body;
-
     try {
+      const {name, description, price, stock, category} = req.body;
       const exists = await db
         .select()
         .from(products)
-        .where(eq(products.name, data.name));
+        .where(eq(products.name, name));
 
       if (exists.length > 0)
         return res.status(400).json({
           message:
             "El producto de nombre " +
-            data.name +
+            name +
             " ya existe solo se le puede subir o bajar el stock",
         });
+      
+      if(!req.file){
+        return res.status(400).json({ message: "Imagen requerida" });
+      }
+      // Subir imagen a Cloudinary desde buffer
+      const cloudinaryResult: UploadApiResponse = await new Promise((resolve, reject) => {
+          cloudinary.uploader.upload_stream(
+              {
+                  folder: 'products',
+                  public_id: `product_${Date.now()}`,
+                  resource_type: 'image'
+              },
+              (error, result) => {
+                  if (error) reject(error);
+                  else if (result) resolve(result);
+                  else reject(new Error('Upload failed: No result returned'));
+              }
+          ).end(req.file!.buffer);
+      });
+
+      const data = {
+        name,
+        description,
+        price,
+        stock,
+        category,
+        imageUrl: cloudinaryResult.secure_url
+      };
 
       const [result] = await db.insert(products).values(data);
       const created = await db
@@ -85,15 +118,59 @@ export const updateProduct = [
     const data: Partial<NewProduct> = req.body;
 
     try {
-      await db.update(products).set(data).where(eq(products.id, id));
+      const existing : Product[]= await db
+        .select()
+        .from(products)
+        .where(eq(products.id, id));
+      
+      if (existing.length === 0) {
+        return res.status(404).json({ message: "Product already exists" });
+      }
+      const product = existing[0];
+      let imageUrl = product?.imageUrl;
+
+        if (req.file) {
+                // Eliminar imagen anterior de Cloudinary si existe
+                if (product?.imageUrl) {
+                    const fileName = product.imageUrl.split('/').pop();
+                    if (fileName) {
+                        const publicId = fileName.split('.')[0];
+                        await cloudinary.uploader.destroy(`products/${publicId}`);
+                    }
+                }
+                
+                // Subir nueva imagen desde buffer
+                const result = await new Promise<UploadApiResponse>((resolve, reject) => {
+                    cloudinary.uploader.upload_stream(
+                        {
+                            folder: 'products',
+                            public_id: `product_${Date.now()}`,
+                            resource_type: 'image'
+                        },
+                        (error, result) => {
+                            if (error) reject(error);
+                            else if (result) resolve(result);
+                            else reject(new Error('Upload failed: No result returned'));
+                        }
+                    ).end(req.file!.buffer);
+                });
+                imageUrl = result.secure_url;
+            }
+      const productoData ={
+        name: data.name || existing[0]?.name,
+        description: data.description || existing[0]?.description,
+        price: data.price !== undefined ? data.price : existing[0]?.price,
+        stock: data.stock !== undefined ? data.stock : existing[0]?.stock,
+        category: data.category !== undefined ? data.category : existing[0]?.category,
+        imageUrl: imageUrl || existing[0]?.imageUrl
+      }
+      
+      await db.update(products).set(productoData).where(eq(products.id, id));
 
       const result = await db
         .select()
         .from(products)
         .where(eq(products.id, id));
-
-      if (result.length === 0)
-        return res.status(404).json({ message: "Product not found" });
 
       res.json(result[0]);
     } catch (err) {

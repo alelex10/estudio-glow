@@ -5,12 +5,25 @@ import { generateOpenApi } from "./docs/openapi";
 import productRouter from "./routes/products";
 import { authRouter } from "./routes/auth";
 import productCostumerRouter from "./routes/productCustomer";
+import multer from "multer";
+import type { FileFilterCallback } from "multer";
 
 const app = express();
 const PORT = 3000;
 
 app.use(express.json());
 app.use(cookieParser());
+const upload = multer({ 
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
+  fileFilter: (req, file, cb: FileFilterCallback) => {
+    if (file.mimetype.startsWith('image/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Solo se permiten archivos de imagen'));
+    }
+  }
+});
 
 // Swagger documentation
 const openApiDocument = generateOpenApi();
@@ -22,7 +35,7 @@ app.get("/", (req, res) => {
 });
 
 // Admin routes (protected by auth middleware inside router)
-app.use("/admin", productRouter);
+app.use("/admin", upload.single('image'), productRouter);
 app.use("/auth", authRouter);
 app.use("/customer", productCostumerRouter);
 
