@@ -13,7 +13,10 @@ import cors from "cors";
 const app = express();
 const PORT = 3000;
 
-app.use(cors());
+app.use(cors({
+  credentials: true,
+  origin: process.env.FRONTEND_URL || 'http://localhost:5173'
+}));
 app.use(express.json());
 app.use(cookieParser());
 const upload = multer({ 

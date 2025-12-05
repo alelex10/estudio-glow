@@ -59,9 +59,12 @@ export default function Navbar({ isBackgroundVisible = true }: NavbarProps) {
                     </ul>
                 </Drawer>
                 <div className="flex items-center gap-6 text-white">
-                    <Button className="bg-primary-100">
-                        Login
-                    </Button>
+                    <Link to={"admin/login"}>
+                        <Button className="bg-primary-100">
+                            Login
+                        </Button>
+                    </Link>
+
                 </div>
             </nav>
         </header>
