@@ -81,7 +81,7 @@ export default function ProductDetail() {
                         </div>
 
                         {/* Product Info */}
-                        <div className="bg-linear-to-b from-primary-300/40 to-primary-400/40 p-6 lg:p-8">
+                        <div className="bg-linear-to-b from-primary-300/40 to-primary-400/40 p-6 lg:p-8 h-fit">
                             {/* Title */}
                             <h1 className="text-3xl lg:text-4xl font-playfair text-primary-900 mb-4">
                                 {product.title}
@@ -156,7 +156,7 @@ export default function ProductDetail() {
                     </div>
                 </div>
             </main>
-            <Footer className="mt-20" />
+            <Footer />
         </>
     );
 }
