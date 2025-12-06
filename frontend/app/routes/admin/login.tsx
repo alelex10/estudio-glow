@@ -1,9 +1,26 @@
 import { useState } from "react";
-import { useNavigate } from "react-router";
+import { Form, redirect, useNavigate } from "react-router";
 import clsx from "clsx";
 import { authService } from "~/common/services/authService";
 import { Logo } from "~/common/components/Logo";
 import { LoadingSpinner } from "~/common/components/admin/LoadingSpinner";
+import type { Route } from "./+types/login";
+import { contextProvider, userContext } from "~/common/context";
+
+export async function action({ request }: Route.ActionArgs) {
+    const formData = await request.formData();
+    const email = formData.get("email") as string;
+    const password = formData.get("password") as string;
+
+    const response = await authService.login({ email, password });
+
+    contextProvider.set(userContext, response.user);
+
+    console.log(response);
+
+    return redirect("/admin");
+
+}
 
 export default function AdminLogin() {
     const navigate = useNavigate();
@@ -67,7 +84,7 @@ export default function AdminLogin() {
                 </div>
 
                 {/* Formulario */}
-                <form onSubmit={handleSubmit} className="space-y-5">
+                <Form method="post" className="space-y-5">
                     {/* Email */}
                     <div>
                         <label className="block text-sm font-medium text-gray-300 mb-2">
@@ -78,6 +95,7 @@ export default function AdminLogin() {
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             required
+                            name="email"
                             className={clsx(
                                 "w-full px-4 py-3 rounded-xl",
                                 "bg-white/5 border border-white/10",
@@ -99,6 +117,7 @@ export default function AdminLogin() {
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             required
+                            name="password"
                             className={clsx(
                                 "w-full px-4 py-3 rounded-xl",
                                 "bg-white/5 border border-white/10",
@@ -135,7 +154,7 @@ export default function AdminLogin() {
                         {isLoading && <LoadingSpinner size="sm" />}
                         {isLoading ? "Ingresando..." : "Ingresar"}
                     </button>
-                </form>
+                </Form>
 
                 {/* Link a tienda */}
                 <p className="mt-6 text-center text-sm text-gray-400">
