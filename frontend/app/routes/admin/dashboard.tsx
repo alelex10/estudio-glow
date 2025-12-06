@@ -14,6 +14,8 @@ interface Stats {
     totalValue: number;
 }
 
+
+
 export default function AdminDashboard() {
     const [stats, setStats] = useState<Stats | null>(null);
     const [recentProducts, setRecentProducts] = useState<Product[]>([]);

@@ -4,6 +4,7 @@ import clsx from "clsx";
 import { Sidebar } from "./Sidebar";
 import { AdminHeader } from "./AdminHeader";
 import { ToastContainer } from "./Toast";
+import type { User } from "~/common/types";
 
 // Mapeo de rutas a títulos
 const pageTitles: Record<string, { title: string; subtitle?: string }> = {
@@ -12,7 +13,11 @@ const pageTitles: Record<string, { title: string; subtitle?: string }> = {
     "/admin/products/new": { title: "Nuevo Producto", subtitle: "Agregar al catálogo" },
 };
 
-export function AdminLayout() {
+interface AdminLayoutProps {
+    user: User;
+}
+
+export function AdminLayout({ user }: AdminLayoutProps) {
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const location = useLocation();
 
@@ -43,6 +48,7 @@ export function AdminLayout() {
                     title={pageInfo.title}
                     subtitle={pageInfo.subtitle}
                     onMenuClick={() => setSidebarOpen(true)}
+                    user={user}
                 />
 
                 {/* Page content */}

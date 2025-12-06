@@ -1,17 +1,18 @@
 import clsx from "clsx";
 import { authService } from "../../services/authService";
 import { useNavigate } from "react-router";
+import type { User } from "~/common/types";
 
 interface AdminHeaderProps {
     title: string;
     subtitle?: string;
     onMenuClick: () => void;
     actions?: React.ReactNode;
+    user: User;
 }
 
-export function AdminHeader({ title, subtitle, onMenuClick, actions }: AdminHeaderProps) {
+export function AdminHeader({ title, subtitle, onMenuClick, actions, user }: AdminHeaderProps) {
     const navigate = useNavigate();
-    const user = authService.getStoredUser();
 
     const handleLogout = async () => {
         try {
