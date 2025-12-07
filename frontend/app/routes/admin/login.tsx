@@ -7,19 +7,19 @@ import { LoadingSpinner } from "~/common/components/admin/LoadingSpinner";
 import type { Route } from "./+types/login";
 import { contextProvider, userContext } from "~/common/context";
 
-export async function action({ request }: Route.ActionArgs) {
+
+
+export async function clientAction({ request }: Route.ClientActionArgs) {
     const formData = await request.formData();
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
 
-    const response = await authService.login({ email, password });
+    const data = await authService.login({ email, password });
 
-    contextProvider.set(userContext, response.user);
+    contextProvider.set(userContext, data.user);
 
-    console.log(response);
 
     return redirect("/admin");
-
 }
 
 export default function AdminLogin() {
@@ -29,34 +29,8 @@ export default function AdminLogin() {
     const [error, setError] = useState("");
     const [isLoading, setIsLoading] = useState(false);
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setError("");
-        setIsLoading(true);
-
-        try {
-            const response = await authService.login({ email, password });
-
-            // Verificar que sea admin
-            if (response.user.role !== "admin") {
-                setError("No tienes permisos de administrador");
-                return;
-            }
-
-            // Guardar usuario
-            authService.storeUser(response.user);
-
-            // Redirigir al dashboard
-            navigate("/admin");
-        } catch (err) {
-            setError(err instanceof Error ? err.message : "Error al iniciar sesión");
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center p-4">
+        <div className="min-h-screen bg-linear-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center p-4">
             {/* Fondo decorativo */}
             <div className="absolute inset-0 overflow-hidden">
                 <div className="absolute -top-40 -right-40 w-80 h-80 bg-primary-500/20 rounded-full blur-3xl" />
@@ -75,7 +49,7 @@ export default function AdminLogin() {
                 {/* Logo y título */}
                 <div className="text-center mb-8">
                     <div className="flex justify-center mb-4">
-                        <div className="p-4 bg-gradient-to-br from-primary-400 to-primary-600 rounded-2xl shadow-lg shadow-primary-500/30">
+                        <div className="p-4 bg-linear-to-br from-primary-400 to-primary-600 rounded-2xl shadow-lg shadow-primary-500/30">
                             <Logo variant="icon" className="w-12 h-12" />
                         </div>
                     </div>
@@ -142,7 +116,7 @@ export default function AdminLogin() {
                         disabled={isLoading}
                         className={clsx(
                             "w-full py-3 px-4 rounded-xl",
-                            "bg-gradient-to-r from-primary-500 to-primary-600",
+                            "bg-linear-to-r from-primary-500 to-primary-600",
                             "text-white font-semibold",
                             "hover:from-primary-600 hover:to-primary-700",
                             "focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 focus:ring-offset-gray-900",
