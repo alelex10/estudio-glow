@@ -9,22 +9,6 @@ import { FormButton } from "~/common/components/Form/FormButton";
 import { FormError } from "~/common/components/Form/FormError";
 import { loginSchema, type LoginFormData } from "~/common/schemas/auth";
 import type { Route } from "./+types/login";
-import { userContextProvider, userContext, tokenContextProvider, tokenContext } from "~/common/context";
-
-async function authMiddleware({ request}: { request: Request, },
-    next: () => Promise<Response>
-) {
-    let response = await next();
-    console.log("response", response)
-    console.log(userContextProvider.get(userContext))
-    console.log("token provider", tokenContextProvider.get(tokenContext))
-    response.headers.set("set-cookie", tokenContextProvider.get(tokenContext) as string);
-    return response;
-}
-
-export const middleware: Route.MiddlewareFunction[] = [
-    authMiddleware,
-];
 
 export default function AdminLogin({ actionData }: Route.ComponentProps) {
     const data = actionData;

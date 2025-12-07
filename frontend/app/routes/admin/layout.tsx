@@ -3,10 +3,13 @@ import { AdminLayout } from "~/common/components/admin/AdminLayout";
 import type { Route } from "./+types/layout";
 import { authService } from "~/common/services/authService";
 import { userContextProvider, userContext } from "~/common/context";
+import { authMiddleware } from "~/common/middleware/tokenMiddleware";
 
-export async function loader({context}:Route.LoaderArgs) {
+export const middleware: Route.MiddlewareFunction[] = [
+    authMiddleware,
+];
+export async function loader() {
     const user = userContextProvider.get(userContext);
-    
     return { user };
 }
 
