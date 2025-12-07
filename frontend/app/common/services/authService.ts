@@ -1,4 +1,5 @@
 import { API_BASE_URL, API_ENDPOINTS } from '../config/api';
+import { tokenContext, tokenContextProvider } from '../context';
 import type { LoginCredentials, RegisterData, LoginResponse, MessageResponse, User } from '../types';
 
 /**
@@ -20,6 +21,7 @@ class AuthService {
       credentials: 'include', // Importante para cookies
       body: JSON.stringify(credentials),
     });
+    tokenContextProvider.set(tokenContext, response.headers.get("set-cookie"));
 
     if (!response.ok) {
       const error = await response.json();

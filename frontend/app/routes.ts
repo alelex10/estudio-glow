@@ -15,6 +15,7 @@ export default [
 
   // Rutas del admin
   route("admin/login", "./routes/admin/login.tsx"),
+  route("admin/login-action", "./routes/admin/login-action.ts"),
   layout("./routes/admin/layout.tsx", [
     route("admin", "./routes/admin/dashboard.tsx"),
     route("admin/products", "./routes/admin/products.tsx"),

@@ -1,33 +1,52 @@
-import { useState } from "react";
-import { Form, redirect, useNavigate } from "react-router";
+import { useCallback, useState } from "react";
+import { Form, redirect, useActionData, useNavigate, useSubmit } from "react-router";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import clsx from "clsx";
-import { authService } from "~/common/services/authService";
 import { Logo } from "~/common/components/Logo";
-import { LoadingSpinner } from "~/common/components/admin/LoadingSpinner";
+import { FormInput } from "~/common/components/Form/FormInput";
+import { FormButton } from "~/common/components/Form/FormButton";
+import { FormError } from "~/common/components/Form/FormError";
+import { loginSchema, type LoginFormData } from "~/common/schemas/auth";
 import type { Route } from "./+types/login";
-import { contextProvider, userContext } from "~/common/context";
+import { userContextProvider, userContext, tokenContextProvider, tokenContext } from "~/common/context";
 
-
-
-export async function clientAction({ request }: Route.ClientActionArgs) {
-    const formData = await request.formData();
-    const email = formData.get("email") as string;
-    const password = formData.get("password") as string;
-
-    const data = await authService.login({ email, password });
-
-    contextProvider.set(userContext, data.user);
-
-
-    return redirect("/admin");
+async function authMiddleware({ request}: { request: Request, },
+    next: () => Promise<Response>
+) {
+    let response = await next();
+    console.log("response", response)
+    console.log(userContextProvider.get(userContext))
+    console.log("token provider", tokenContextProvider.get(tokenContext))
+    response.headers.set("set-cookie", tokenContextProvider.get(tokenContext) as string);
+    return response;
 }
 
-export default function AdminLogin() {
-    const navigate = useNavigate();
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [error, setError] = useState("");
+export const middleware: Route.MiddlewareFunction[] = [
+    authMiddleware,
+];
+
+export default function AdminLogin({ actionData }: Route.ComponentProps) {
+    const data = actionData;
     const [isLoading, setIsLoading] = useState(false);
+    let submit = useSubmit();
+
+
+    let cb = useCallback(async (data: LoginFormData) => {
+        submit(
+            data,
+            { action: "/admin/login-action", method: "post", navigate: false },
+        );
+    }, []);
+
+    const {
+        register,
+        handleSubmit,
+        formState: { errors },
+        setError
+    } = useForm<LoginFormData>({
+        resolver: zodResolver(loginSchema)
+    });
 
     return (
         <div className="min-h-screen bg-linear-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center p-4">
@@ -58,76 +77,54 @@ export default function AdminLogin() {
                 </div>
 
                 {/* Formulario */}
-                <Form method="post" className="space-y-5">
+                <Form
+                    className="space-y-5"
+                    onSubmit={handleSubmit(async (data) => {
+                        setIsLoading(true);
+                        cb(data)
+                        setIsLoading(false);
+
+                        // try {
+                        //     cb(data)
+                        // } catch (err) {
+                        //     setError("root", {
+                        //         message: err instanceof Error ? err.message : "Error al iniciar sesión"
+                        //     });
+                        // } finally {
+                        //     setIsLoading(false);
+                        // }
+                    })}
+                >
                     {/* Email */}
-                    <div>
-                        <label className="block text-sm font-medium text-gray-300 mb-2">
-                            Email
-                        </label>
-                        <input
-                            type="email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            required
-                            name="email"
-                            className={clsx(
-                                "w-full px-4 py-3 rounded-xl",
-                                "bg-white/5 border border-white/10",
-                                "text-white placeholder:text-gray-500",
-                                "focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent",
-                                "transition-all duration-200"
-                            )}
-                            placeholder="admin@estudioglow.com"
-                        />
-                    </div>
+                    <FormInput
+                        label="Email"
+                        type="email"
+                        placeholder="admin@estudioglow.com"
+                        register={register}
+                        name="email"
+                        errors={errors}
+                    />
 
                     {/* Password */}
-                    <div>
-                        <label className="block text-sm font-medium text-gray-300 mb-2">
-                            Contraseña
-                        </label>
-                        <input
-                            type="password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            required
-                            name="password"
-                            className={clsx(
-                                "w-full px-4 py-3 rounded-xl",
-                                "bg-white/5 border border-white/10",
-                                "text-white placeholder:text-gray-500",
-                                "focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent",
-                                "transition-all duration-200"
-                            )}
-                            placeholder="••••••••"
-                        />
-                    </div>
+                    <FormInput
+                        label="Contraseña"
+                        type="password"
+                        placeholder="••••••••"
+                        register={register}
+                        name="password"
+                        errors={errors}
+                    />
 
                     {/* Error */}
-                    {error && (
-                        <div className="p-3 rounded-lg bg-red-500/20 border border-red-500/30 text-red-200 text-sm">
-                            {error}
-                        </div>
-                    )}
+                    <FormError message={errors.root?.message} />
 
                     {/* Submit */}
-                    <button
-                        type="submit"
-                        disabled={isLoading}
-                        className={clsx(
-                            "w-full py-3 px-4 rounded-xl",
-                            "bg-linear-to-r from-primary-500 to-primary-600",
-                            "text-white font-semibold",
-                            "hover:from-primary-600 hover:to-primary-700",
-                            "focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 focus:ring-offset-gray-900",
-                            "transition-all duration-200",
-                            "disabled:opacity-50 disabled:cursor-not-allowed",
-                            "flex items-center justify-center gap-2"
-                        )}
+                    <FormButton
+                        isLoading={isLoading}
+                        loadingText="Ingresando..."
                     >
-                        {isLoading && <LoadingSpinner size="sm" />}
-                        {isLoading ? "Ingresando..." : "Ingresar"}
-                    </button>
+                        Ingresar
+                    </FormButton>
                 </Form>
 
                 {/* Link a tienda */}
