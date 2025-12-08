@@ -5,12 +5,10 @@ import { generateOpenApi } from "./docs/openapi";
 import productRouter from "./routes/products";
 import categoryRouter from "./routes/categories";
 import { authRouter } from "./routes/auth";
-import productCostumerRouter from "./routes/productCustomer";
 import multer from "multer";
 import type { FileFilterCallback } from "multer";
 import { optimizeImage } from "./middleware/optimize";
 import cors from "cors";
-import publicRouter from "./routes/public";
 
 const app = express();
 const PORT = 3000;
@@ -45,11 +43,9 @@ app.get("/", (req, res) => {
 });
 
 // Admin routes (protected by auth middleware inside router)
-app.use("/admin", upload.single("image"), optimizeImage, productRouter);
-app.use("/admin", categoryRouter);
+app.use("/products", upload.single("image"), optimizeImage, productRouter);
+app.use("/categories", categoryRouter);
 app.use("/auth", authRouter);
-app.use("/customer", productCostumerRouter);
-app.use("/public", publicRouter);
 
 app.listen(PORT, () => {
   console.log(`Servidor escuchando en http://localhost:${PORT}`);

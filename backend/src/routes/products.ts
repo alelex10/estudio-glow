@@ -8,18 +8,17 @@ import {
   updateProduct,
   deleteProduct,
   searchProducts,
+  listProductsPaginated,
 } from "../controller/product";
 
 const router = Router();
 
-// Solo admins
-router.use(authenticate, requireAdmin);
-
-router.get("/products", listProducts);
-router.get("/products/:id", getProduct);
-router.post("/products", createProduct);
-router.put("/products/:id", updateProduct);
-router.delete("/products/:id", deleteProduct);
+router.get("/", listProducts);
 router.get("/search", searchProducts);
+router.get("/paginated", listProductsPaginated);
+router.post("/", authenticate, requireAdmin, createProduct);
+router.put("/:id", authenticate, requireAdmin, updateProduct);
+router.delete("/:id", authenticate, requireAdmin, deleteProduct);
+router.get("/:id", getProduct);
 
 export default router;

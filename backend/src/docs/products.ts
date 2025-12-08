@@ -15,7 +15,7 @@ import {
 // Product endpoints (Admin)
 registry.registerPath({
   method: "get",
-  path: "/admin/products",
+  path: "/products",
   tags: ["Products (Admin)"],
   responses: {
     200: {
@@ -32,7 +32,7 @@ registry.registerPath({
 
 registry.registerPath({
   method: "get",
-  path: "/admin/products/{id}",
+  path: "/products/{id}",
   tags: ["Products (Admin)"],
   request: {
     params: z.object({
@@ -69,7 +69,7 @@ registry.registerPath({
 
 registry.registerPath({
   method: "post",
-  path: "/admin/products",
+  path: "/products",
   tags: ["Products (Admin)"],
   request: {
     body: {
@@ -111,7 +111,7 @@ registry.registerPath({
 
 registry.registerPath({
   method: "put",
-  path: "/admin/products/{id}",
+  path: "/products/{id}",
   tags: ["Products (Admin)"],
   request: {
     params: z.object({
@@ -163,7 +163,7 @@ registry.registerPath({
 
 registry.registerPath({
   method: "delete",
-  path: "/admin/products/{id}",
+  path: "/products/{id}",
   tags: ["Products (Admin)"],
   request: {
     params: z.object({
@@ -198,85 +198,10 @@ registry.registerPath({
   security: [{ bearerAuth: [] }],
 });
 
-registry.registerPath({
-  method: "get",
-  path: "/admin/search",
-  tags: ["Products (Admin)"],
-  request: {
-    query: SearchProductSchema,
-  },
-  responses: {
-    200: {
-      description: "Resultados de búsqueda",
-      content: {
-        "application/json": {
-          schema: ProductListResponseSchema,
-        },
-      },
-    },
-  },
-  security: [{ bearerAuth: [] }],
-});
-
-// Product endpoints (Customer)
-registry.registerPath({
-  method: "get",
-  path: "/customer/products",
-  tags: ["Products (Customer)"],
-  responses: {
-    200: {
-      description: "Lista de productos",
-      content: {
-        "application/json": {
-          schema: ProductListResponseSchema,
-        },
-      },
-    },
-  },
-  security: [{ bearerAuth: [] }],
-});
-
-registry.registerPath({
-  method: "get",
-  path: "/customer/products/{id}",
-  tags: ["Products (Customer)"],
-  request: {
-    params: z.object({
-      id: z.string().openapi({
-        param: {
-          name: "id",
-          in: "path",
-        },
-        example: "1",
-        description: "ID del producto",
-      }),
-    }),
-  },
-  responses: {
-    200: {
-      description: "Producto encontrado",
-      content: {
-        "application/json": {
-          schema: ProductResponseSchema,
-        },
-      },
-    },
-    404: {
-      description: "Producto no encontrado",
-      content: {
-        "application/json": {
-          schema: ErrorResponseSchema,
-        },
-      },
-    },
-  },
-  security: [{ bearerAuth: [] }],
-});
-
 // Public endpoints
 registry.registerPath({
   method: "get",
-  path: "/public/search",
+  path: "/products/search",
   tags: ["Products (Public)"],
   request: {
     query: SearchProductSchema,
@@ -296,7 +221,7 @@ registry.registerPath({
 
 registry.registerPath({
   method: "get",
-  path: "/public/products/paginated",
+  path: "/products/paginated",
   tags: ["Products (Public)"],
   request: {
     query: PaginationQuerySchema,

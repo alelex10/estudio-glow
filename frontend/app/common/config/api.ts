@@ -1,24 +1,31 @@
 // Configuración de la API
-export const API_BASE_URL = 'http://localhost:3000';
+export const API_BASE_URL = "http://localhost:3000";
 
 // Endpoints
 export const API_ENDPOINTS = {
   // Auth
   AUTH: {
-    LOGIN: '/auth/login',
-    REGISTER: '/auth/register',
-    LOGOUT: '/auth/logout',
+    LOGIN: "/auth/login",
+    REGISTER: "/auth/register",
+    LOGOUT: "/auth/logout",
   },
   // Admin Products
   ADMIN: {
-    PRODUCTS: '/admin/products',
-    PRODUCT: (id: number | string) => `/admin/products/${id}`,
-    SEARCH: '/admin/search',
+    PRODUCTS: {
+      EDIT: (id: number | string) => `/products/${id}`,
+      CREATE: "/products",
+      DELETE: (id: number | string) => `/products/${id}`,
+    },
+    CATEGORIES: {
+      EDIT: (id: number | string) => `/categories/${id}`,
+      CREATE: "/categories",
+      DELETE: (id: number | string) => `/categories/${id}`,
+    },
   },
   // Public Products
   PUBLIC: {
-    PRODUCTS: '/public/products/paginated',
-    PRODUCT: (id: number | string) => `/public/products/${id}`,
-    SEARCH: '/public/search',
+    PRODUCT: (id: number | string) => `/products/${id}`,
+    PRODUCTS: "/products/paginated",
+    SEARCH: "/search",
   },
 } as const;

@@ -11,13 +11,12 @@ import {
 
 const router = Router();
 
-// Solo admins
-router.use(authenticate, requireAdmin);
+// Solo admins en post, put y delete
 
 router.get("/categories", listCategories);
 router.get("/categories/:id", getCategory);
-router.post("/categories", createCategory);
-router.put("/categories/:id", updateCategory);
-router.delete("/categories/:id", deleteCategory);
+router.post("/categories", authenticate, requireAdmin, createCategory);
+router.put("/categories/:id", authenticate, requireAdmin, updateCategory);
+router.delete("/categories/:id", authenticate, requireAdmin, deleteCategory);
 
 export default router;

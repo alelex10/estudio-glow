@@ -43,7 +43,6 @@ export function validateQuery<T>(schema: z.ZodSchema<T>) {
         });
       }
       return res.status(400).json({
-        // Send a simple string message to avoid serializing the error object.
         message: error instanceof Error ? error.message : String(error),
       });
     }
