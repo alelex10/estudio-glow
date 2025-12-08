@@ -56,24 +56,22 @@ export function StatCard({
                 "rounded-xl p-6 shadow-lg",
                 "border border-gray-100",
                 "transition-transform duration-200 hover:scale-[1.02]",
+                "h-32",
                 styles.bg,
                 className
             )}
         >
-            <div className="flex items-start justify-between">
-                <div>
+            <div className="flex justify-between flex-col ">
+                <div className="flex justify-between ">
                     <p
                         className={clsx(
-                            "text-sm font-medium mb-1",
+                            "text-sm font-medium mb-1 self-center",
                             variant === "default" ? "text-gray-500" : "text-white/80"
                         )}
                     >
                         {title}
                     </p>
-                    <p className={clsx("text-3xl font-bold", styles.text)}>
-                        {typeof value === "number" ? value.toLocaleString() : value}
-                    </p>
-
+                    <div className={clsx("p-3 rounded-xl", styles.icon)}>{icon}</div>
                     {trend && (
                         <div className="flex items-center gap-1 mt-2">
                             <span
@@ -105,8 +103,11 @@ export function StatCard({
                         </div>
                     )}
                 </div>
+                <p className={clsx("text-3xl font-bold", styles.text)}>
+                    {typeof value === "number" ? value.toLocaleString() : value}
+                </p>
 
-                <div className={clsx("p-3 rounded-xl", styles.icon)}>{icon}</div>
+
             </div>
         </div>
     );

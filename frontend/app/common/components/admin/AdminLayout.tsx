@@ -33,12 +33,14 @@ export function AdminLayout({user}:{user:User | null}) {
     const pageInfo = getPageInfo();
 
     return (
-        <div className="min-h-screen bg-gray-50">
+        <div className={clsx("min-h-screen bg-gray-50",
+            "md:flex"
+        )}>
             {/* Sidebar */}
             <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
             {/* Main content */}
-            <div className="lg:ml-64 min-h-screen flex flex-col">
+            <div className="min-h-screen flex flex-col md:m-auto">
                 {/* Header */}
                 <AdminHeader
                     user={user}

@@ -51,7 +51,7 @@ export default function AdminDashboard() {
     return (
         <div className="space-y-8">
             {/* Stats Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
                 <StatCard
                     title="Total Productos"
                     value={stats?.total || 0}
@@ -106,7 +106,24 @@ export default function AdminDashboard() {
                             ${stats?.totalValue.toLocaleString("es-AR", { minimumFractionDigits: 2 }) || "0.00"}
                         </p>
                     </div>
-                    <div className="p-4 bg-gradient-to-br from-primary-100 to-primary-200 rounded-xl">
+                    <div className="p-4 bg-linear-to-br from-primary-400 via-primary-200 to-primary-400 rounded-xl">
+                        <svg className="w-8 h-8 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            {/* Valor total de ventas*/}
+            <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                <div className="flex items-center justify-between">
+                    <div>
+                        <p className="text-sm text-gray-500 font-medium">Valor Total de Ventas</p>
+                        <p className="text-3xl font-bold text-gray-900 mt-1">
+                            ${stats?.totalValue.toLocaleString("es-AR", { minimumFractionDigits: 2 }) || "0.00"}
+                        </p>
+                    </div>
+                    <div className="p-4 bg-linear-to-br from-primary-400 via-primary-200 to-primary-400 rounded-xl">
                         <svg className="w-8 h-8 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
