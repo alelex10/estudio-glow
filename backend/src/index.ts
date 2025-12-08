@@ -9,31 +9,34 @@ import multer from "multer";
 import type { FileFilterCallback } from "multer";
 import { optimizeImage } from "./middleware/optimize";
 import cors from "cors";
+import publicRouter from "./routes/public";
 
 const app = express();
 const PORT = 3000;
 
-app.use(cors({
-  credentials: true,
-  origin: process.env.FRONTEND_URL || 'http://localhost:5173'
-}));
+app.use(
+  cors({
+    credentials: true,
+    origin: process.env.FRONTEND_URL || "http://localhost:5173",
+  })
+);
 app.use(express.json());
 app.use(cookieParser());
-const upload = multer({ 
+const upload = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
   fileFilter: (req, file, cb: FileFilterCallback) => {
-    if (file.mimetype.startsWith('image/')) {
+    if (file.mimetype.startsWith("image/")) {
       cb(null, true);
     } else {
-      cb(new Error('Solo se permiten archivos de imagen'));
+      cb(new Error("Solo se permiten archivos de imagen"));
     }
-  }
+  },
 });
 
 // Swagger documentation
 const openApiDocument = generateOpenApi();
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(openApiDocument));
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(openApiDocument));
 
 // Public route
 app.get("/", (req, res) => {
@@ -41,9 +44,10 @@ app.get("/", (req, res) => {
 });
 
 // Admin routes (protected by auth middleware inside router)
-app.use("/admin", upload.single('image'),optimizeImage, productRouter);
+app.use("/admin", upload.single("image"), optimizeImage, productRouter);
 app.use("/auth", authRouter);
 app.use("/customer", productCostumerRouter);
+app.use("/public", publicRouter);
 
 app.listen(PORT, () => {
   console.log(`Servidor escuchando en http://localhost:${PORT}`);

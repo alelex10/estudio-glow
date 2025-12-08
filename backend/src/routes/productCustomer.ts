@@ -12,6 +12,5 @@ router.use(authenticate, requireCustomer);
 
 router.get("/products", listProducts);
 router.get("/products/:id", getProduct);
-router.get("/search", searchProducts);
 
 export default router;

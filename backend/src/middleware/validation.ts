@@ -1,25 +1,25 @@
-import type { Request, Response, NextFunction } from 'express';
-import type { z } from 'zod';
+import type { Request, Response, NextFunction } from "express";
+import type { z } from "zod";
 
 export function validateBody<T>(schema: z.ZodSchema<T>) {
   return (req: Request, res: Response, next: NextFunction) => {
     try {
       const validatedData = schema.parse(req.body);
-      req.body = validatedData;
+      Object.assign(req.body, validatedData);
       next();
     } catch (error) {
-      if (error instanceof Error && 'issues' in error) {
+      if (error instanceof Error && "issues" in error) {
         const validationErrors = (error as any).issues.map((issue: any) => ({
-          field: issue.path.join('.'),
-          message: issue.message
+          field: issue.path.join("."),
+          message: issue.message,
         }));
         return res.status(400).json({
-          message: 'Validation error',
-          errors: validationErrors
+          message: "Validation error",
+          errors: validationErrors,
         });
       }
       return res.status(400).json({
-        message: 'Invalid request data'
+        message: "Invalid request data",
       });
     }
   };
@@ -29,21 +29,22 @@ export function validateQuery<T>(schema: z.ZodSchema<T>) {
   return (req: Request, res: Response, next: NextFunction) => {
     try {
       const validatedData = schema.parse(req.query);
-      req.query = validatedData as any;
+      Object.assign(req.query, validatedData);
       next();
     } catch (error) {
-      if (error instanceof Error && 'issues' in error) {
+      if (error instanceof Error && "issues" in error) {
         const validationErrors = (error as any).issues.map((issue: any) => ({
-          field: issue.path.join('.'),
-          message: issue.message
+          field: issue.path.join("."),
+          message: issue.message,
         }));
         return res.status(400).json({
-          message: 'Validation error',
-          errors: validationErrors
+          message: "Validation error",
+          errors: validationErrors,
         });
       }
       return res.status(400).json({
-        message: 'Invalid query parameters'
+        // Send a simple string message to avoid serializing the error object.
+        message: error instanceof Error ? error.message : String(error),
       });
     }
   };

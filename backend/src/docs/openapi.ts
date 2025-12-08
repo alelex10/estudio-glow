@@ -1,5 +1,8 @@
-import { OpenAPIRegistry, OpenApiGeneratorV3 } from '@asteasolutions/zod-to-openapi';
-import { z } from 'zod';
+import {
+  OpenAPIRegistry,
+  OpenApiGeneratorV3,
+} from "@asteasolutions/zod-to-openapi";
+import { z } from "zod";
 import {
   RegisterSchema,
   LoginSchema,
@@ -10,27 +13,29 @@ import {
   UpdateProductSchema,
   ProductResponseSchema,
   ProductListResponseSchema,
-  SearchProductSchema
-} from '../schemas';
+  SearchProductSchema,
+  PaginationQuerySchema,
+  PaginatedProductsResponseSchema,
+} from "../schemas";
 
 const registry = new OpenAPIRegistry();
 
 // Register schemas
-registry.register('AuthResponse', AuthResponseSchema);
-registry.register('UserResponse', UserResponseSchema);
-registry.register('ErrorResponse', ErrorResponseSchema);
-registry.register('ProductResponse', ProductResponseSchema);
-registry.register('ProductListResponse', ProductListResponseSchema);
+registry.register("AuthResponse", AuthResponseSchema);
+registry.register("UserResponse", UserResponseSchema);
+registry.register("ErrorResponse", ErrorResponseSchema);
+registry.register("ProductResponse", ProductResponseSchema);
+registry.register("ProductListResponse", ProductListResponseSchema);
 
 // Auth endpoints
 registry.registerPath({
-  method: 'post',
-  path: '/auth/register',
-  tags: ['Authentication'],
+  method: "post",
+  path: "/auth/register",
+  tags: ["Authentication"],
   request: {
     body: {
       content: {
-        'application/json': {
+        "application/json": {
           schema: RegisterSchema,
         },
       },
@@ -38,25 +43,25 @@ registry.registerPath({
   },
   responses: {
     201: {
-      description: 'Usuario registrado exitosamente',
+      description: "Usuario registrado exitosamente",
       content: {
-        'application/json': {
+        "application/json": {
           schema: AuthResponseSchema,
         },
       },
     },
     400: {
-      description: 'Error en la solicitud',
+      description: "Error en la solicitud",
       content: {
-        'application/json': {
+        "application/json": {
           schema: ErrorResponseSchema,
         },
       },
     },
     500: {
-      description: 'Error del servidor',
+      description: "Error del servidor",
       content: {
-        'application/json': {
+        "application/json": {
           schema: ErrorResponseSchema,
         },
       },
@@ -65,13 +70,13 @@ registry.registerPath({
 });
 
 registry.registerPath({
-  method: 'post',
-  path: '/auth/login',
-  tags: ['Authentication'],
+  method: "post",
+  path: "/auth/login",
+  tags: ["Authentication"],
   request: {
     body: {
       content: {
-        'application/json': {
+        "application/json": {
           schema: LoginSchema,
         },
       },
@@ -79,25 +84,25 @@ registry.registerPath({
   },
   responses: {
     200: {
-      description: 'Login exitoso',
+      description: "Login exitoso",
       content: {
-        'application/json': {
+        "application/json": {
           schema: AuthResponseSchema,
         },
       },
     },
     400: {
-      description: 'Credenciales inválidas',
+      description: "Credenciales inválidas",
       content: {
-        'application/json': {
+        "application/json": {
           schema: ErrorResponseSchema,
         },
       },
     },
     500: {
-      description: 'Error del servidor',
+      description: "Error del servidor",
       content: {
-        'application/json': {
+        "application/json": {
           schema: ErrorResponseSchema,
         },
       },
@@ -106,14 +111,14 @@ registry.registerPath({
 });
 
 registry.registerPath({
-  method: 'post',
-  path: '/auth/logout',
-  tags: ['Authentication'],
+  method: "post",
+  path: "/auth/logout",
+  tags: ["Authentication"],
   responses: {
     200: {
-      description: 'Logout exitoso',
+      description: "Logout exitoso",
       content: {
-        'application/json': {
+        "application/json": {
           schema: AuthResponseSchema,
         },
       },
@@ -123,14 +128,14 @@ registry.registerPath({
 
 // Product endpoints (Admin)
 registry.registerPath({
-  method: 'get',
-  path: '/admin/products',
-  tags: ['Products (Admin)'],
+  method: "get",
+  path: "/admin/products",
+  tags: ["Products (Admin)"],
   responses: {
     200: {
-      description: 'Lista de productos',
+      description: "Lista de productos",
       content: {
-        'application/json': {
+        "application/json": {
           schema: ProductListResponseSchema,
         },
       },
@@ -140,34 +145,34 @@ registry.registerPath({
 });
 
 registry.registerPath({
-  method: 'get',
-  path: '/admin/products/{id}',
-  tags: ['Products (Admin)'],
+  method: "get",
+  path: "/admin/products/{id}",
+  tags: ["Products (Admin)"],
   request: {
     params: z.object({
       id: z.string().openapi({
         param: {
-          name: 'id',
-          in: 'path',
+          name: "id",
+          in: "path",
         },
-        example: '1',
-        description: 'ID del producto',
+        example: "1",
+        description: "ID del producto",
       }),
     }),
   },
   responses: {
     200: {
-      description: 'Producto encontrado',
+      description: "Producto encontrado",
       content: {
-        'application/json': {
+        "application/json": {
           schema: ProductResponseSchema,
         },
       },
     },
     404: {
-      description: 'Producto no encontrado',
+      description: "Producto no encontrado",
       content: {
-        'application/json': {
+        "application/json": {
           schema: ErrorResponseSchema,
         },
       },
@@ -177,13 +182,13 @@ registry.registerPath({
 });
 
 registry.registerPath({
-  method: 'post',
-  path: '/admin/products',
-  tags: ['Products (Admin)'],
+  method: "post",
+  path: "/admin/products",
+  tags: ["Products (Admin)"],
   request: {
     body: {
       content: {
-        'application/json': {
+        "application/json": {
           schema: CreateProductSchema,
         },
       },
@@ -191,25 +196,25 @@ registry.registerPath({
   },
   responses: {
     201: {
-      description: 'Producto creado exitosamente',
+      description: "Producto creado exitosamente",
       content: {
-        'application/json': {
+        "application/json": {
           schema: ProductResponseSchema,
         },
       },
     },
     400: {
-      description: 'Error en la solicitud',
+      description: "Error en la solicitud",
       content: {
-        'application/json': {
+        "application/json": {
           schema: ErrorResponseSchema,
         },
       },
     },
     500: {
-      description: 'Error del servidor',
+      description: "Error del servidor",
       content: {
-        'application/json': {
+        "application/json": {
           schema: ErrorResponseSchema,
         },
       },
@@ -219,23 +224,23 @@ registry.registerPath({
 });
 
 registry.registerPath({
-  method: 'put',
-  path: '/admin/products/{id}',
-  tags: ['Products (Admin)'],
+  method: "put",
+  path: "/admin/products/{id}",
+  tags: ["Products (Admin)"],
   request: {
     params: z.object({
       id: z.string().openapi({
         param: {
-          name: 'id',
-          in: 'path',
+          name: "id",
+          in: "path",
         },
-        example: '1',
-        description: 'ID del producto',
+        example: "1",
+        description: "ID del producto",
       }),
     }),
     body: {
       content: {
-        'application/json': {
+        "application/json": {
           schema: UpdateProductSchema,
         },
       },
@@ -243,25 +248,25 @@ registry.registerPath({
   },
   responses: {
     200: {
-      description: 'Producto actualizado exitosamente',
+      description: "Producto actualizado exitosamente",
       content: {
-        'application/json': {
+        "application/json": {
           schema: ProductResponseSchema,
         },
       },
     },
     404: {
-      description: 'Producto no encontrado',
+      description: "Producto no encontrado",
       content: {
-        'application/json': {
+        "application/json": {
           schema: ErrorResponseSchema,
         },
       },
     },
     400: {
-      description: 'Error en la solicitud',
+      description: "Error en la solicitud",
       content: {
-        'application/json': {
+        "application/json": {
           schema: ErrorResponseSchema,
         },
       },
@@ -271,34 +276,34 @@ registry.registerPath({
 });
 
 registry.registerPath({
-  method: 'delete',
-  path: '/admin/products/{id}',
-  tags: ['Products (Admin)'],
+  method: "delete",
+  path: "/admin/products/{id}",
+  tags: ["Products (Admin)"],
   request: {
     params: z.object({
       id: z.string().openapi({
         param: {
-          name: 'id',
-          in: 'path',
+          name: "id",
+          in: "path",
         },
-        example: '1',
-        description: 'ID del producto',
+        example: "1",
+        description: "ID del producto",
       }),
     }),
   },
   responses: {
     200: {
-      description: 'Producto eliminado exitosamente',
+      description: "Producto eliminado exitosamente",
       content: {
-        'application/json': {
+        "application/json": {
           schema: AuthResponseSchema,
         },
       },
     },
     404: {
-      description: 'Producto no encontrado',
+      description: "Producto no encontrado",
       content: {
-        'application/json': {
+        "application/json": {
           schema: ErrorResponseSchema,
         },
       },
@@ -308,17 +313,17 @@ registry.registerPath({
 });
 
 registry.registerPath({
-  method: 'get',
-  path: '/admin/search',
-  tags: ['Products (Admin)'],
+  method: "get",
+  path: "/admin/search",
+  tags: ["Products (Admin)"],
   request: {
     query: SearchProductSchema,
   },
   responses: {
     200: {
-      description: 'Resultados de búsqueda',
+      description: "Resultados de búsqueda",
       content: {
-        'application/json': {
+        "application/json": {
           schema: ProductListResponseSchema,
         },
       },
@@ -329,14 +334,14 @@ registry.registerPath({
 
 // Product endpoints (Customer)
 registry.registerPath({
-  method: 'get',
-  path: '/customer/products',
-  tags: ['Products (Customer)'],
+  method: "get",
+  path: "/customer/products",
+  tags: ["Products (Customer)"],
   responses: {
     200: {
-      description: 'Lista de productos',
+      description: "Lista de productos",
       content: {
-        'application/json': {
+        "application/json": {
           schema: ProductListResponseSchema,
         },
       },
@@ -346,34 +351,34 @@ registry.registerPath({
 });
 
 registry.registerPath({
-  method: 'get',
-  path: '/customer/products/{id}',
-  tags: ['Products (Customer)'],
+  method: "get",
+  path: "/customer/products/{id}",
+  tags: ["Products (Customer)"],
   request: {
     params: z.object({
       id: z.string().openapi({
         param: {
-          name: 'id',
-          in: 'path',
+          name: "id",
+          in: "path",
         },
-        example: '1',
-        description: 'ID del producto',
+        example: "1",
+        description: "ID del producto",
       }),
     }),
   },
   responses: {
     200: {
-      description: 'Producto encontrado',
+      description: "Producto encontrado",
       content: {
-        'application/json': {
+        "application/json": {
           schema: ProductResponseSchema,
         },
       },
     },
     404: {
-      description: 'Producto no encontrado',
+      description: "Producto no encontrado",
       content: {
-        'application/json': {
+        "application/json": {
           schema: ErrorResponseSchema,
         },
       },
@@ -383,46 +388,66 @@ registry.registerPath({
 });
 
 registry.registerPath({
-  method: 'get',
-  path: '/customer/search',
-  tags: ['Products (Customer)'],
+  method: "get",
+  path: "/public/search",
+  tags: ["Products (Public)"],
   request: {
     query: SearchProductSchema,
   },
   responses: {
     200: {
-      description: 'Resultados de búsqueda',
+      description: "Resultados de búsqueda",
       content: {
-        'application/json': {
-          schema: ProductListResponseSchema,
+        "application/json": {
+          schema: PaginatedProductsResponseSchema,
         },
       },
     },
   },
-  security: [{ bearerAuth: [] }],
+  security: [],
+});
+
+registry.registerPath({
+  method: "get",
+  path: "/public/products/paginated",
+  tags: ["Products (Public)"],
+  request: {
+    query: PaginationQuerySchema,
+  },
+  responses: {
+    200: {
+      description: "Lista de productos paginada",
+      content: {
+        "application/json": {
+          schema: PaginatedProductsResponseSchema,
+        },
+      },
+    },
+  },
+  security: [],
 });
 
 // Generate OpenAPI specification
 export function generateOpenApi() {
   const config = {
-    openapi: '3.0.0',
+    openapi: "3.0.0",
     info: {
-      title: 'API de E-commerce',
-      version: '1.0.0',
-      description: 'API backend para gestión de productos y autenticación',
+      title: "API de E-commerce",
+      version: "1.0.0",
+      description: "API backend para gestión de productos y autenticación",
     },
     servers: [
       {
-        url: 'http://localhost:3000',
-        description: 'Servidor de desarrollo',
+        url: "http://localhost:3000",
+        description: "Servidor de desarrollo",
       },
     ],
     components: {
       securitySchemes: {
         bearerAuth: {
-          type: 'http',
-          scheme: 'bearer',
-          bearerFormat: 'JWT',
+          type: "http",
+          scheme: "bearer",
+          bearerFormat: "JWT",
         },
       },
     },
