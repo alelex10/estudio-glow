@@ -25,9 +25,10 @@ export const CreateProductSchema = z
       example: "Electrónica",
       description: "Categoría del producto",
     }),
-    imageUrl: z.url().optional().openapi({
-      example: "https://example.com/image.jpg",
-      description: "URL de la imagen del producto",
+    image: z.any().openapi({
+      type: "string",
+      format: "binary",
+      description: "Imagen del producto",
     }),
   })
   .openapi("CreateProductRequest");

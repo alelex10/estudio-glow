@@ -188,7 +188,7 @@ registry.registerPath({
   request: {
     body: {
       content: {
-        "application/json": {
+        "multipart/form-data": {
           schema: CreateProductSchema,
         },
       },
@@ -387,6 +387,7 @@ registry.registerPath({
   security: [{ bearerAuth: [] }],
 });
 
+// Public endpoints
 registry.registerPath({
   method: "get",
   path: "/public/search",
