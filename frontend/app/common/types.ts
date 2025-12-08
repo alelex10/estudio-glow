@@ -4,11 +4,11 @@
 export interface Product {
   id: number;
   name: string;
-  description: string | null;
+  description: string;
   price: number;
   stock: number;
   category: string;
-  imageUrl: string | null;
+  imageUrl: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -41,7 +41,7 @@ export interface User {
   id: number;
   name: string;
   email: string;
-  role: 'admin' | 'customer';
+  role: "admin" | "customer";
 }
 
 export interface LoginCredentials {
@@ -53,7 +53,7 @@ export interface RegisterData {
   name: string;
   email: string;
   password: string;
-  role?: 'admin' | 'customer';
+  role?: "admin" | "customer";
 }
 
 // ========== RESPUESTAS API ==========

@@ -4,6 +4,9 @@ import { FilterDrawer } from "./components/FilterDrawer";
 import { SlidersHorizontal, ChevronDown } from "lucide-react";
 import { FilterSideBar } from "./components/FilterSideBar";
 import Footer from "~/common/components/Footer";
+import { productService } from "~/common/services/productService";
+import { useLoaderData } from "react-router";
+import type { PaginationResponse, Product } from "~/common/types";
 
 const PRODUCTS = [
     { id: 1, imageSrc: "/img/product-test/product-1.webp", title: "Bronzeador", price: 55.00 },
@@ -16,8 +19,14 @@ const PRODUCTS = [
     { id: 8, imageSrc: "/img/product-test/product-1.webp", title: "Bronzeador", price: 55.00 },
 ];
 
+export async function loader() {
+    const products = await productService.getProductsPaginated(1, 10);
+    return products;
+}
+
 export default function Products() {
     const [isFilterOpen, setIsFilterOpen] = useState(false);
+    const products: PaginationResponse<Product> = useLoaderData();
 
     return (
         <>
@@ -50,12 +59,12 @@ export default function Products() {
                         </div>
                         {/* Product Grid */}
                         <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-x-4 gap-y-8">
-                            {PRODUCTS.map((product) => (
+                            {products.data.map((product) => (
                                 <div key={product.id}>
                                     <ProductCard
                                         productId={product.id}
-                                        imageSrc={product.imageSrc}
-                                        title={product.title}
+                                        imageSrc={product.imageUrl}
+                                        title={product.name}
                                         price={product.price}
                                     />
                                 </div>

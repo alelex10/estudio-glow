@@ -3,6 +3,7 @@ import cookieParser from "cookie-parser";
 import swaggerUi from "swagger-ui-express";
 import { generateOpenApi } from "./docs/openapi";
 import productRouter from "./routes/products";
+import categoryRouter from "./routes/categories";
 import { authRouter } from "./routes/auth";
 import productCostumerRouter from "./routes/productCustomer";
 import multer from "multer";
@@ -45,6 +46,7 @@ app.get("/", (req, res) => {
 
 // Admin routes (protected by auth middleware inside router)
 app.use("/admin", upload.single("image"), optimizeImage, productRouter);
+app.use("/admin", categoryRouter);
 app.use("/auth", authRouter);
 app.use("/customer", productCostumerRouter);
 app.use("/public", publicRouter);

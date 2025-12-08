@@ -21,9 +21,9 @@ export const CreateProductSchema = z
       example: 50,
       description: "Cantidad en stock",
     }),
-    category: z.string().min(1).max(100).openapi({
-      example: "Electrónica",
-      description: "Categoría del producto",
+    categoryId: z.coerce.number().int().positive().openapi({
+      example: 1,
+      description: "ID de la categoría del producto",
     }),
     image: z.any().openapi({
       type: "string",
@@ -59,9 +59,9 @@ export const ProductResponseSchema = z
       example: 50,
       description: "Cantidad en stock",
     }),
-    category: z.string().openapi({
-      example: "Electrónica",
-      description: "Categoría del producto",
+    categoryId: z.number().openapi({
+      example: 1,
+      description: "ID de la categoría del producto",
     }),
     imageUrl: z.string().nullable().openapi({
       example: "https://example.com/image.jpg",
@@ -92,9 +92,9 @@ export const SearchProductSchema = z
       example: "laptop",
       description: "Término de búsqueda",
     }),
-    category: z.string().optional().openapi({
-      example: "Electrónica",
-      description: "Filtrar por categoría",
+    categoryId: z.coerce.number().int().positive().optional().openapi({
+      example: 1,
+      description: "Filtrar por ID de categoría",
     }),
     minPrice: z.coerce.number().positive().optional().openapi({
       example: 100,

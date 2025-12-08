@@ -15,6 +15,13 @@
       "when": 1763840580469,
       "tag": "0001_tidy_thunderball",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1765232666862,
+      "tag": "0002_unique_jack_power",
+      "breakpoints": true
     }
   ]
 }

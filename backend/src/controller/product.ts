@@ -13,6 +13,7 @@ import {
 } from "drizzle-orm";
 import { db } from "../db";
 import { products } from "../models/product";
+import { categories } from "../models/category";
 import type { NewProduct, Product } from "../models/product";
 import { validateBody, validateQuery } from "../middleware/validation";
 import {
@@ -133,7 +134,18 @@ export const createProduct = [
   validateBody(CreateProductSchema),
   async (req: Request, res: Response) => {
     try {
-      const { name, description, price, stock, category } = req.body;
+      const { name, description, price, stock, categoryId } = req.body;
+
+      // Validate that category exists
+      const categoryExists = await db
+        .select()
+        .from(categories)
+        .where(eq(categories.id, categoryId));
+
+      if (categoryExists.length === 0) {
+        return res.status(404).json({ message: "Category not found" });
+      }
+
       const exists = await db
         .select()
         .from(products)
@@ -175,7 +187,7 @@ export const createProduct = [
         description,
         price,
         stock,
-        category,
+        categoryId,
         imageUrl: cloudinaryResult.secure_url,
       };
 
@@ -246,13 +258,27 @@ export const updateProduct = [
         );
         imageUrl = result.secure_url;
       }
+      // Validate categoryId if provided
+      if (data.categoryId !== undefined) {
+        const categoryExists = await db
+          .select()
+          .from(categories)
+          .where(eq(categories.id, data.categoryId));
+
+        if (categoryExists.length === 0) {
+          return res.status(404).json({ message: "Category not found" });
+        }
+      }
+
       const productoData = {
         name: data.name || existing[0]?.name,
         description: data.description || existing[0]?.description,
         price: data.price !== undefined ? data.price : existing[0]?.price,
         stock: data.stock !== undefined ? data.stock : existing[0]?.stock,
-        category:
-          data.category !== undefined ? data.category : existing[0]?.category,
+        categoryId:
+          data.categoryId !== undefined
+            ? data.categoryId
+            : existing[0]?.categoryId,
         imageUrl: imageUrl || existing[0]?.imageUrl,
       };
 
@@ -291,9 +317,9 @@ export async function deleteProduct(req: Request, res: Response) {
 export const searchProducts = [
   validateQuery(SearchProductSchema),
   async (req: Request, res: Response) => {
-    const { q, category, minPrice, maxPrice } = req.query as {
+    const { q, categoryId, minPrice, maxPrice } = req.query as {
       q?: string;
-      category?: string;
+      categoryId?: number;
       minPrice?: number;
       maxPrice?: number;
     };
@@ -301,7 +327,7 @@ export const searchProducts = [
     try {
       const conditions = [];
       if (q) conditions.push(like(products.name, `%${q}%`));
-      if (category) conditions.push(eq(products.category, category));
+      if (categoryId) conditions.push(eq(products.categoryId, categoryId));
       if (minPrice) conditions.push(gte(products.price, minPrice));
       if (maxPrice) conditions.push(lte(products.price, maxPrice));
 
