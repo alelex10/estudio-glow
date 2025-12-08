@@ -1,6 +1,6 @@
 import clsx from "clsx";
 import { authService } from "../../services/authService";
-import { useNavigate } from "react-router";
+import { useNavigate, useSubmit } from "react-router";
 import type { User } from "~/common/types";
 
 interface AdminHeaderProps {
@@ -13,12 +13,12 @@ interface AdminHeaderProps {
 
 export function AdminHeader({ title, subtitle, onMenuClick, actions, user }: AdminHeaderProps) {
     const navigate = useNavigate();
+    const submit = useSubmit();
 
     const handleLogout = async () => {
         try {
             await authService.logout();
-            authService.clearStoredUser();
-            navigate("/admin/login");
+            submit(null, { action: "/admin/logout", method: "post", navigate: false });
         } catch (error) {
             console.error("Error al cerrar sesión:", error);
         }

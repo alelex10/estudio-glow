@@ -3,7 +3,7 @@ import { AdminLayout } from "~/common/components/admin/AdminLayout";
 import type { Route } from "./+types/layout";
 import { authService } from "~/common/services/authService";
 import { userContextProvider, userContext } from "~/common/context";
-import { authMiddleware } from "~/common/middleware/tokenMiddleware";
+import { authMiddleware } from "~/common/middleware/authMiddleware";
 
 export const middleware: Route.MiddlewareFunction[] = [
     authMiddleware,

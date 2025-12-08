@@ -14,8 +14,9 @@ export default [
   ]),
 
   // Rutas del admin
-  route("admin/login", "./routes/admin/login.tsx"),
-  route("admin/login-action", "./routes/admin/login-action.ts"),
+  route("admin/login", "./routes/auth/login.tsx"),
+  route("admin/login-action", "./routes/auth/login-action.ts"),
+  route("admin/logout", "./routes/admin/logout.ts"),
   layout("./routes/admin/layout.tsx", [
     route("admin", "./routes/admin/dashboard.tsx"),
     route("admin/products", "./routes/admin/products.tsx"),
@@ -23,4 +24,3 @@ export default [
     route("admin/products/:id", "./routes/admin/product.$id.tsx"),
   ]),
 ] satisfies RouteConfig;
-
