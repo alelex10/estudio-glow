@@ -309,10 +309,10 @@ export const searchProducts = [
 
       if (conditions.length > 0) {
         if (conditions.length === 1) {
-          query.where(conditions[0]);
+          query.where(conditions[0]).limit(10);
         } else {
           // @ts-ignore
-          query.where(and(...conditions));
+          query.where(and(...conditions)).limit(10);
         }
       }
 

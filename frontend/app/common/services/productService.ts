@@ -1,5 +1,5 @@
 import { API_BASE_URL, API_ENDPOINTS } from '../config/api';
-import type { Product, CreateProductData, UpdateProductData, SearchProductParams } from '../types';
+import type { PaginationResponse, Product, CreateProductData, UpdateProductData, SearchProductParams } from '../types';
 
 /**
  * Servicio de productos para administración
@@ -11,7 +11,7 @@ class ProductService {
   /**
    * Obtener todos los productos
    */
-  async getProducts(): Promise<Product[]> {
+  async getProducts(): Promise<PaginationResponse<Product>> {
     const response = await fetch(`${this.baseUrl}${API_ENDPOINTS.ADMIN.PRODUCTS}`, {
       method: 'GET',
       credentials: 'include',
@@ -19,7 +19,7 @@ class ProductService {
 
     if (!response.ok) {
       if (response.status === 404) {
-        return []; // No hay productos
+        return { data: [], pagination: { page: 0, limit: 0, totalItems: 0, totalPages: 0, hasNextPage: false, hasPreviousPage: false } };
       }
       const error = await response.json();
       throw new Error(error.message || 'Error al obtener productos');
@@ -78,7 +78,7 @@ class ProductService {
    */
   async updateProduct(id: number | string, data: UpdateProductData, image?: File): Promise<Product> {
     const formData = new FormData();
-    
+
     if (data.name) formData.append('name', data.name);
     if (data.description) formData.append('description', data.description);
     if (data.price !== undefined) formData.append('price', data.price.toString());
@@ -122,14 +122,14 @@ class ProductService {
    */
   async searchProducts(params: SearchProductParams): Promise<Product[]> {
     const queryParams = new URLSearchParams();
-    
+
     if (params.q) queryParams.append('q', params.q);
     if (params.category) queryParams.append('category', params.category);
     if (params.minPrice) queryParams.append('minPrice', params.minPrice.toString());
     if (params.maxPrice) queryParams.append('maxPrice', params.maxPrice.toString());
 
     const url = `${this.baseUrl}${API_ENDPOINTS.ADMIN.SEARCH}?${queryParams.toString()}`;
-    
+
     const response = await fetch(url, {
       method: 'GET',
       credentials: 'include',
@@ -148,7 +148,7 @@ class ProductService {
    */
   async getCategories(): Promise<string[]> {
     const products = await this.getProducts();
-    const categories = [...new Set(products.map(p => p.category))];
+    const categories = [...new Set(products.data.map(p => p.category))];
     return categories.sort();
   }
 
@@ -163,13 +163,13 @@ class ProductService {
     totalValue: number;
   }> {
     const products = await this.getProducts();
-    
+
     return {
-      total: products.length,
-      lowStock: products.filter(p => p.stock > 0 && p.stock <= 10).length,
-      outOfStock: products.filter(p => p.stock === 0).length,
-      categories: new Set(products.map(p => p.category)).size,
-      totalValue: products.reduce((acc, p) => acc + (p.price * p.stock), 0),
+      total: products.data.length,
+      lowStock: products.data.filter(p => p.stock > 0 && p.stock <= 10).length,
+      outOfStock: products.data.filter(p => p.stock === 0).length,
+      categories: new Set(products.data.map(p => p.category)).size,
+      totalValue: products.data.reduce((acc, p) => acc + (p.price * p.stock), 0),
     };
   }
 }

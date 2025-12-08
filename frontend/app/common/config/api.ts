@@ -15,10 +15,10 @@ export const API_ENDPOINTS = {
     PRODUCT: (id: number | string) => `/admin/products/${id}`,
     SEARCH: '/admin/search',
   },
-  // Customer Products
-  CUSTOMER: {
-    PRODUCTS: '/customer/products',
-    PRODUCT: (id: number | string) => `/customer/products/${id}`,
-    SEARCH: '/customer/search',
+  // Public Products
+  PUBLIC: {
+    PRODUCTS: '/public/products/paginated',
+    PRODUCT: (id: number | string) => `/public/products/${id}`,
+    SEARCH: '/public/search',
   },
 } as const;

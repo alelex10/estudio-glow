@@ -68,6 +68,18 @@ export interface LoginResponse {
   user: User;
 }
 
+export interface PaginationResponse<T> {
+  data: T[];
+  pagination: {
+    page: number;
+    limit: number;
+    totalItems: number;
+    totalPages: number;
+    hasNextPage: boolean;
+    hasPreviousPage: boolean;
+  };
+}
+
 export interface MessageResponse {
   message: string;
 }
