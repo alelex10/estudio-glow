@@ -8,21 +8,10 @@ import { productService } from "~/common/services/productService";
 import type { PaginationResponse } from "~/common/types/response";
 import type { Category, Product } from "~/common/types/product-types";
 
-const PRODUCTS = [
-    { id: 1, imageSrc: "/img/product-test/product-1.webp", title: "Bronzeador", price: 55.00 },
-    { id: 2, imageSrc: "/img/product-test/product-1.webp", title: "Bronzeador", price: 55.00 },
-    { id: 3, imageSrc: "/img/product-test/product-1.webp", title: "Bronzeador", price: 55.00 },
-    { id: 4, imageSrc: "/img/product-test/product-1.webp", title: "Bronzeador", price: 55.00 },
-    { id: 5, imageSrc: "/img/product-test/product-1.webp", title: "Bronzeador", price: 55.00 },
-    { id: 6, imageSrc: "/img/product-test/product-1.webp", title: "Bronzeador", price: 55.00 },
-    { id: 7, imageSrc: "/img/product-test/product-1.webp", title: "Bronzeador", price: 55.00 },
-    { id: 8, imageSrc: "/img/product-test/product-1.webp", title: "Bronzeador", price: 55.00 },
-];
-
 export async function loader() {
     const products = await productService.getProductsPaginated(1, 10);
     const categories = await productService.getCategories();
-    return { products, categories };
+    return { products, categories: categories.data };
 }
 interface Props {
     loaderData: { products: PaginationResponse<Product>; categories: Category[] };
@@ -60,7 +49,7 @@ export default function Products({ loaderData }: Props) {
 
                     <div className="flex gap-10">
                         <div className="hidden md:block">
-                            <FilterSideBar />
+                            <FilterSideBar categories={categories} />
                         </div>
                         {/* Product Grid */}
                         <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-x-4 gap-y-8">
@@ -78,13 +67,12 @@ export default function Products({ loaderData }: Props) {
                     </div>
                     <div className="md:hidden">
                         <FilterDrawer
+                            categories={categories}
                             isOpen={isFilterOpen}
                             onClose={() => setIsFilterOpen(false)}
                         />
                     </div>
-
                 </section>
-
 
             </main>
             <Footer className="mt-20" />

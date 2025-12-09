@@ -12,7 +12,9 @@ export const Button = ({ children, className, variant = "primary", size = "md", 
     const variants = {
         primary: "bg-white text-primary-900 hover:bg-primary-100",
         secondary: "bg-primary-100 text-primary-900 hover:bg-primary-200",
-        outline: "bg-transparent text-primary-900 border border-primary-900 hover:bg-primary-100 hover:text-primary-700 hover:border-primary-700",
+        outline: clsx("bg-transparent text-primary-900  hover:text-primary-700 hover:border-primary-700",
+            "border border-primary-500 hover:border-primary-700 transition-colors hover:bg-primary-100",
+        ),
         gold: clsx("bg-linear-to-bl",
             "from-primary-500 via-primary-200 to-primary-500",
             "hover:from-primary-300 hover:via-primary-100 hover:to-primary-300"),
@@ -33,6 +35,7 @@ export const Button = ({ children, className, variant = "primary", size = "md", 
             roundedBtn[rounded],
             variants[variant],
             sizes[size],
+            "active:scale-95",
             className)}>{children}</button>
     )
 }

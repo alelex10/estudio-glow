@@ -7,7 +7,9 @@ import {
   CategoryListResponseSchema,
   ErrorResponseSchema,
 } from "../schemas";
-
+import { ResponseSchema } from "../schemas/response";
+import { extendZodWithOpenApi } from "@asteasolutions/zod-to-openapi";
+extendZodWithOpenApi(z);
 // Category endpoints (Admin)
 registry.registerPath({
   method: "get",
@@ -18,7 +20,9 @@ registry.registerPath({
       description: "Lista de categorías",
       content: {
         "application/json": {
-          schema: CategoryListResponseSchema,
+          schema: ResponseSchema.extend({
+            data: CategoryListResponseSchema,
+          }),
         },
       },
     },
@@ -97,7 +101,9 @@ registry.registerPath({
       description: "Categoría creada exitosamente",
       content: {
         "application/json": {
-          schema: CategoryResponseSchema,
+          schema: ResponseSchema.extend({
+            data: CategoryResponseSchema,
+          }),
         },
       },
     },

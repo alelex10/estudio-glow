@@ -5,16 +5,23 @@ import { categories } from "../models/category";
 import type { Category, NewCategory } from "../models/category";
 import { validateBody } from "../middleware/validation";
 import {
+  CategoryListResponseSchema,
   CreateCategorySchema,
   UpdateCategorySchema,
 } from "../schemas/category";
 import { products } from "../models/product";
+import { ResponseSchema } from "../schemas/response";
 
 // GET all categories
 export const listCategories = async (req: Request, res: Response) => {
   try {
     const result = await db.select().from(categories);
-    res.json({ categories: result });
+    res.json(
+      ResponseSchema.parse({
+        message: "Categories fetched successfully",
+        data: CategoryListResponseSchema.parse(result),
+      })
+    );
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Failed to fetch categories" });
@@ -76,7 +83,12 @@ export const createCategory = [
         .from(categories)
         .where(eq(categories.id, result.insertId));
 
-      res.status(201).json(created[0]);
+      res.status(201).json(
+        ResponseSchema.parse({
+          message: "Category created successfully",
+          data: created[0],
+        })
+      );
     } catch (err) {
       console.error(err);
       res.status(400).json({ message: "Failed to create category" });

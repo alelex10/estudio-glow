@@ -1,7 +1,6 @@
 import "dotenv/config";
 import { migrate } from "drizzle-orm/mysql2/migrator";
 import { db } from "./db";
-import mysql from "mysql2/promise";
 
 async function main() {
   console.log("Running migrations...");

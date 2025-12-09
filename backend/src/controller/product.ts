@@ -27,6 +27,7 @@ import { v2 as cloudinary } from "cloudinary";
 import type { UploadApiResponse } from "cloudinary";
 import type { ListFormat } from "typescript";
 import { PaginationHelper, type PaginatedResponse } from "../types/pagination";
+import { ResponseSchema } from "../schemas/response";
 
 cloudinary.config(cloudinaryConfig);
 
@@ -136,6 +137,8 @@ export const createProduct = [
     try {
       const { name, description, price, stock, categoryId } = req.body;
 
+      console.log("req.body", req.body);
+
       // Validate that category exists
       const categoryExists = await db
         .select()
@@ -182,7 +185,7 @@ export const createProduct = [
         }
       );
 
-      const data = {
+      const data: NewProduct = {
         name,
         description,
         price,
@@ -197,7 +200,12 @@ export const createProduct = [
         .from(products)
         .where(eq(products.id, result.insertId));
 
-      res.status(201).json(created[0]);
+      res.status(201).json(
+        ResponseSchema.parse({
+          data: created[0],
+          message: "Product created successfully",
+        })
+      );
     } catch (err) {
       console.error(err);
       res.status(400).json({ message: "Failed to create product" });

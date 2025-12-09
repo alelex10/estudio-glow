@@ -1,6 +1,6 @@
 import { API_BASE_URL, API_ENDPOINTS } from "../config/api";
 import type { Category } from "../types/product-types";
-import type { PaginationResponse } from "../types/response";
+import type { PaginationResponse, ResponseSchema } from "../types/response";
 import type {
   Product,
   CreateProductData,
@@ -219,7 +219,7 @@ class ProductService {
   /**
    * Obtener categorías únicas de los productos
    */
-  async getCategories(): Promise<Category[]> {
+  async getCategories(): Promise<ResponseSchema<Category[]>> {
     const response = await fetch(
       `${this.baseUrl}${API_ENDPOINTS.PUBLIC.CATEGORIES.GET}`,
       {

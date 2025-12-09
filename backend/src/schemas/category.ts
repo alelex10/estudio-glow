@@ -34,11 +34,11 @@ export const CategoryResponseSchema = z
       example: "Productos electrónicos y tecnológicos",
       description: "Descripción de la categoría",
     }),
-    createdAt: z.string().datetime().openapi({
+    createdAt: z.date().openapi({
       example: "2024-01-15T10:30:00Z",
       description: "Fecha de creación",
     }),
-    updatedAt: z.string().datetime().openapi({
+    updatedAt: z.date().openapi({
       example: "2024-01-15T10:30:00Z",
       description: "Fecha de actualización",
     }),
@@ -46,9 +46,8 @@ export const CategoryResponseSchema = z
   .openapi("CategoryResponse");
 
 export const CategoryListResponseSchema = z
-  .object({
-    categories: z.array(CategoryResponseSchema).openapi({
-      description: "Lista de categorías",
-    }),
+  .array(CategoryResponseSchema)
+  .openapi({
+    description: "Lista de categorías",
   })
   .openapi("CategoryListResponse");

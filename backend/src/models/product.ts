@@ -1,6 +1,3 @@
-// src/models/product.ts
-// Drizzler schema for the Product entity
-
 import {
   mysqlTable,
   serial,
@@ -17,7 +14,7 @@ export const products = mysqlTable("product", {
   description: varchar("description", { length: 500 }),
   price: int("price").notNull(),
   stock: int("stock").notNull().default(0),
-  categoryId: bigint("category_id", { mode: "number" })
+  categoryId: bigint("category_id", { mode: "number", unsigned: true })
     .notNull()
     .references(() => categories.id),
   imageUrl: varchar("image_url", { length: 255 }),
