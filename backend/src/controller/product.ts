@@ -21,6 +21,8 @@ import {
   UpdateProductSchema,
   SearchProductSchema,
   PaginationQuerySchema,
+  FilterProductsSchema,
+  type FilterProducts,
 } from "../schemas/product";
 import cloudinaryConfig from "../cloudfile";
 import { v2 as cloudinary } from "cloudinary";
@@ -136,8 +138,6 @@ export const createProduct = [
   async (req: Request, res: Response) => {
     try {
       const { name, description, price, stock, categoryId } = req.body;
-
-      console.log("req.body", req.body);
 
       // Validate that category exists
       const categoryExists = await db
@@ -355,6 +355,100 @@ export const searchProducts = [
     } catch (err) {
       console.error(err);
       res.status(500).json({ message: "Search failed" });
+    }
+  },
+];
+
+// FILTER products
+export const filterProducts = [
+  validateQuery(FilterProductsSchema),
+  async (req: Request, res: Response) => {
+    try {
+      // Extraer parámetros validados del query
+      const { page, limit, sortBy, sortOrder, categoryId } =
+        FilterProductsSchema.parse(req.query);
+
+      // Calcular offset
+      const offset = PaginationHelper.calculateOffset(page, limit);
+
+      // Construir condiciones de filtrado
+      const conditions = [];
+      if (categoryId) {
+        conditions.push(eq(products.categoryId, categoryId));
+      }
+
+      // Obtener total de productos con filtros aplicados
+      const totalResult =
+        conditions.length > 0
+          ? await db
+              .select({ total: count() })
+              .from(products)
+              // @ts-ignore
+              .where(and(...conditions))
+          : await db.select({ total: count() }).from(products);
+
+      const total = totalResult[0]?.total || 0;
+
+      // Construir y ejecutar query con filtros, ordenamiento y paginación
+      let result: Product[] = [];
+
+      if (conditions.length > 0) {
+        // Con filtros
+        if (sortBy) {
+          const orderFn = sortOrder === "asc" ? asc : desc;
+          result = await db
+            .select()
+            .from(products)
+            .where(and(...conditions))
+            .orderBy(orderFn(products[sortBy]))
+            .limit(limit)
+            .offset(offset);
+        } else {
+          result = await db
+            .select()
+            .from(products)
+            .where(and(...conditions))
+            .orderBy(desc(products.createdAt))
+            .limit(limit)
+            .offset(offset);
+        }
+      } else {
+        // Sin filtros
+        if (sortBy) {
+          const orderFn = sortOrder === "asc" ? asc : desc;
+          result = await db
+            .select()
+            .from(products)
+            .orderBy(orderFn(products[sortBy]))
+            .limit(limit)
+            .offset(offset);
+        } else {
+          result = await db
+            .select()
+            .from(products)
+            .orderBy(desc(products.createdAt))
+            .limit(limit)
+            .offset(offset);
+        }
+      }
+
+      // Calcular metadatos de paginación
+      const paginationMetadata = PaginationHelper.calculateMetadata(
+        page,
+        limit,
+        total
+      );
+
+      // Construir respuesta paginada
+      const response: PaginatedResponse<Product> = {
+        data: result,
+        pagination: paginationMetadata,
+      };
+
+      res.json(response);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: "Failed to filter products" });
     }
   },
 ];

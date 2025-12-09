@@ -118,11 +118,15 @@ export const PaginationQuerySchema = z
       example: 10,
       description: "Cantidad de productos por página (máximo 100)",
     }),
-    sortBy: z.enum(["name", "price", "createdAt", "stock"]).optional().openapi({
-      example: "createdAt",
-      description: "Campo por el cual ordenar",
-    }),
-    sortOrder: z.enum(["asc", "desc"]).default("desc").openapi({
+    sortBy: z
+      .enum(["name", "price", "createdAt", "stock"])
+      .default("createdAt")
+      .optional()
+      .openapi({
+        example: "createdAt",
+        description: "Campo por el cual ordenar",
+      }),
+    sortOrder: z.enum(["asc", "desc"]).default("desc").optional().openapi({
       example: "desc",
       description: "Orden ascendente o descendente",
     }),
@@ -168,8 +172,19 @@ export const PaginatedProductsResponseSchema = z
   })
   .openapi("PaginatedProductsResponse");
 
+export const FilterProductsSchema = z
+  .object({
+    categoryId: z.coerce.number().optional().openapi({
+      example: 1,
+      description: "ID de la categoría del producto",
+    }),
+  })
+  .extend(PaginationQuerySchema.shape)
+  .openapi("FilterProductsRequest");
+
 // Tipos TypeScript exportados
 export type PaginationQuery = z.infer<typeof PaginationQuerySchema>;
 export type PaginatedProductsResponse = z.infer<
   typeof PaginatedProductsResponseSchema
 >;
+export type FilterProducts = z.infer<typeof FilterProductsSchema>;

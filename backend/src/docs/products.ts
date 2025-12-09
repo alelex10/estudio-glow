@@ -10,6 +10,7 @@ import {
   PaginatedProductsResponseSchema,
   ErrorResponseSchema,
   AuthResponseSchema,
+  FilterProductsSchema,
 } from "../schemas";
 
 // Product endpoints (Admin)
@@ -225,6 +226,26 @@ registry.registerPath({
   tags: ["Products (Public)"],
   request: {
     query: PaginationQuerySchema,
+  },
+  responses: {
+    200: {
+      description: "Lista de productos paginada",
+      content: {
+        "application/json": {
+          schema: PaginatedProductsResponseSchema,
+        },
+      },
+    },
+  },
+  security: [],
+});
+
+registry.registerPath({
+  method: "get",
+  path: "/products/filter",
+  tags: ["Products (Public)"],
+  request: {
+    query: FilterProductsSchema,
   },
   responses: {
     200: {
