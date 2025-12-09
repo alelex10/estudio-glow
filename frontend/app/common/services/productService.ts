@@ -1,11 +1,12 @@
 import { API_BASE_URL, API_ENDPOINTS } from "../config/api";
+import type { Category } from "../types/product-types";
+import type { PaginationResponse } from "../types/response";
 import type {
-  PaginationResponse,
   Product,
   CreateProductData,
   UpdateProductData,
   SearchProductParams,
-} from "../types";
+} from "../types/product-types";
 
 /**
  * Servicio de productos para administración
@@ -52,7 +53,7 @@ class ProductService {
     limit: number
   ): Promise<PaginationResponse<Product>> {
     const response = await fetch(
-      `${this.baseUrl}${API_ENDPOINTS.PUBLIC.PRODUCTS}?page=${page}&limit=${limit}`,
+      `${this.baseUrl}${API_ENDPOINTS.PUBLIC.PRODUCTS.GET_PAGINATED}?page=${page}&limit=${limit}`,
       {
         method: "GET",
         credentials: "include",
@@ -85,7 +86,7 @@ class ProductService {
    */
   async getProduct(id: number | string): Promise<Product> {
     const response = await fetch(
-      `${this.baseUrl}${API_ENDPOINTS.ADMIN.PRODUCT(id)}`,
+      `${this.baseUrl}${API_ENDPOINTS.PUBLIC.PRODUCTS.GET_ID(id)}`,
       {
         method: "GET",
         credentials: "include",
@@ -151,7 +152,7 @@ class ProductService {
     if (image) formData.append("image", image);
 
     const response = await fetch(
-      `${this.baseUrl}${API_ENDPOINTS.ADMIN.PRODUCT(id)}`,
+      `${this.baseUrl}${API_ENDPOINTS.ADMIN.PRODUCTS.EDIT(id)}`,
       {
         method: "PUT",
         credentials: "include",
@@ -172,7 +173,7 @@ class ProductService {
    */
   async deleteProduct(id: number | string): Promise<{ message: string }> {
     const response = await fetch(
-      `${this.baseUrl}${API_ENDPOINTS.ADMIN.PRODUCT(id)}`,
+      `${this.baseUrl}${API_ENDPOINTS.ADMIN.PRODUCTS.DELETE(id)}`,
       {
         method: "DELETE",
         credentials: "include",
@@ -200,7 +201,7 @@ class ProductService {
     if (params.maxPrice)
       queryParams.append("maxPrice", params.maxPrice.toString());
 
-    const url = `${this.baseUrl}${API_ENDPOINTS.ADMIN.SEARCH}?${queryParams.toString()}`;
+    const url = `${this.baseUrl}${API_ENDPOINTS.PUBLIC.PRODUCTS.SEARCH}?${queryParams.toString()}`;
 
     const response = await fetch(url, {
       method: "GET",
@@ -218,10 +219,21 @@ class ProductService {
   /**
    * Obtener categorías únicas de los productos
    */
-  async getCategories(): Promise<string[]> {
-    const products = await this.getProducts();
-    const categories = [...new Set(products.data.map((p) => p.category))];
-    return categories.sort();
+  async getCategories(): Promise<Category[]> {
+    const response = await fetch(
+      `${this.baseUrl}${API_ENDPOINTS.PUBLIC.CATEGORIES.GET}`,
+      {
+        method: "GET",
+        credentials: "include",
+      }
+    );
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Error al obtener categorías");
+    }
+
+    return response.json();
   }
 
   /**

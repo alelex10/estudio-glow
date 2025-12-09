@@ -11,7 +11,7 @@ import {
 // Category endpoints (Admin)
 registry.registerPath({
   method: "get",
-  path: "/admin/categories",
+  path: "/categories",
   tags: ["Categories (Admin)"],
   responses: {
     200: {
@@ -36,7 +36,7 @@ registry.registerPath({
 
 registry.registerPath({
   method: "get",
-  path: "/admin/categories/{id}",
+  path: "/categories/{id}",
   tags: ["Categories (Admin)"],
   request: {
     params: z.object({
@@ -81,7 +81,7 @@ registry.registerPath({
 
 registry.registerPath({
   method: "post",
-  path: "/admin/categories",
+  path: "/categories",
   tags: ["Categories (Admin)"],
   request: {
     body: {
@@ -131,7 +131,7 @@ registry.registerPath({
 
 registry.registerPath({
   method: "put",
-  path: "/admin/categories/{id}",
+  path: "/categories/{id}",
   tags: ["Categories (Admin)"],
   request: {
     params: z.object({
@@ -199,7 +199,7 @@ registry.registerPath({
 
 registry.registerPath({
   method: "delete",
-  path: "/admin/categories/{id}",
+  path: "/categories/{id}",
   tags: ["Categories (Admin)"],
   request: {
     params: z.object({

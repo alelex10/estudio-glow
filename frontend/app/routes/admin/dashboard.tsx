@@ -4,7 +4,7 @@ import clsx from "clsx";
 import { productService } from "~/common/services/productService";
 import { StatCard } from "~/common/components/admin/StatCard";
 import { LoadingSpinner } from "~/common/components/admin/LoadingSpinner";
-import type { Product } from "~/common/types";
+import type { Product } from "~/common/types/response";
 
 interface Stats {
     total: number;

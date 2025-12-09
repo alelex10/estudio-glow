@@ -1,7 +1,4 @@
-import {
-  userContextProvider,
-  userContext,
-} from "~/common/context";
+import { userContextProvider, userContext } from "~/common/context/context";
 import { redirect, type ActionFunctionArgs } from "react-router";
 import { API_BASE_URL, API_ENDPOINTS } from "~/common/config/api";
 

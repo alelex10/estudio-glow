@@ -5,8 +5,8 @@ import { SlidersHorizontal, ChevronDown } from "lucide-react";
 import { FilterSideBar } from "./components/FilterSideBar";
 import Footer from "~/common/components/Footer";
 import { productService } from "~/common/services/productService";
-import { useLoaderData } from "react-router";
-import type { PaginationResponse, Product } from "~/common/types";
+import type { PaginationResponse } from "~/common/types/response";
+import type { Category, Product } from "~/common/types/product-types";
 
 const PRODUCTS = [
     { id: 1, imageSrc: "/img/product-test/product-1.webp", title: "Bronzeador", price: 55.00 },
@@ -21,12 +21,16 @@ const PRODUCTS = [
 
 export async function loader() {
     const products = await productService.getProductsPaginated(1, 10);
-    return products;
+    const categories = await productService.getCategories();
+    return { products, categories };
+}
+interface Props {
+    loaderData: { products: PaginationResponse<Product>; categories: Category[] };
 }
 
-export default function Products() {
+export default function Products({ loaderData }: Props) {
     const [isFilterOpen, setIsFilterOpen] = useState(false);
-    const products: PaginationResponse<Product> = useLoaderData();
+    const { products, categories } = loaderData;
 
     return (
         <>
@@ -53,6 +57,7 @@ export default function Products() {
                             </button>
                         </div>
                     </div>
+
                     <div className="flex gap-10">
                         <div className="hidden md:block">
                             <FilterSideBar />
@@ -71,15 +76,15 @@ export default function Products() {
                             ))}
                         </div>
                     </div>
-
+                    <div className="md:hidden">
+                        <FilterDrawer
+                            isOpen={isFilterOpen}
+                            onClose={() => setIsFilterOpen(false)}
+                        />
+                    </div>
 
                 </section>
-                <div className="md:hidden">
-                    <FilterDrawer
-                        isOpen={isFilterOpen}
-                        onClose={() => setIsFilterOpen(false)}
-                    />
-                </div>
+
 
             </main>
             <Footer className="mt-20" />

@@ -24,8 +24,13 @@ export const API_ENDPOINTS = {
   },
   // Public Products
   PUBLIC: {
-    PRODUCT: (id: number | string) => `/products/${id}`,
-    PRODUCTS: "/products/paginated",
-    SEARCH: "/search",
+    PRODUCTS: {
+      GET_ID: (id: number | string) => `/products/${id}`,
+      GET_PAGINATED: "/products/paginated",
+      SEARCH: "products/search",
+    },
+    CATEGORIES: {
+      GET: "/categories",
+    },
   },
 } as const;

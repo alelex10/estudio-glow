@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import clsx from "clsx";
-import type { CreateProductData, UpdateProductData, Product } from "../../types";
+import type { CreateProductData, UpdateProductData, Product } from "../../types/response";
 import { LoadingSpinner } from "./LoadingSpinner";
 
 interface ProductFormProps {

@@ -6,7 +6,7 @@ import { DataTable, ActionButton } from "~/common/components/admin/DataTable";
 import { SearchInput } from "~/common/components/admin/SearchInput";
 import { ConfirmModal } from "~/common/components/admin/ConfirmModal";
 import { toast } from "~/common/components/admin/Toast";
-import type { Product } from "~/common/types";
+import type { Product } from "~/common/types/response";
 
 export default function AdminProducts() {
     const navigate = useNavigate();

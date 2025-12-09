@@ -3,7 +3,7 @@ import { useNavigate } from "react-router";
 import { productService } from "~/common/services/productService";
 import { ProductForm } from "~/common/components/admin/ProductForm";
 import { toast } from "~/common/components/admin/Toast";
-import type { CreateProductData, UpdateProductData } from "~/common/types";
+import type { CreateProductData, UpdateProductData } from "~/common/types/response";
 
 export default function AdminProductNew() {
     const navigate = useNavigate();

@@ -1,6 +1,7 @@
-import { API_BASE_URL, API_ENDPOINTS } from '../config/api';
-import { tokenContext, tokenContextProvider } from '../context';
-import type { LoginCredentials, RegisterData, LoginResponse, MessageResponse, User } from '../types';
+import { API_BASE_URL, API_ENDPOINTS } from "../config/api";
+import { tokenContext, tokenContextProvider } from "../context/context";
+import type { LoginCredentials, RegisterData, User } from "../types/user-types";
+import type { LoginResponse, MessageResponse } from "../types/response";
 
 /**
  * Servicio de autenticación
@@ -14,18 +15,18 @@ class AuthService {
    */
   async login(credentials: LoginCredentials): Promise<LoginResponse> {
     const response = await fetch(`${this.baseUrl}${API_ENDPOINTS.AUTH.LOGIN}`, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
-      credentials: 'include', // Importante para cookies
+      credentials: "include", // Importante para cookies
       body: JSON.stringify(credentials),
     });
     tokenContextProvider.set(tokenContext, response.headers.get("set-cookie"));
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.message || 'Error al iniciar sesión');
+      throw new Error(error.message || "Error al iniciar sesión");
     }
 
     return response.json();
@@ -35,18 +36,21 @@ class AuthService {
    * Registrar nuevo usuario
    */
   async register(data: RegisterData): Promise<MessageResponse> {
-    const response = await fetch(`${this.baseUrl}${API_ENDPOINTS.AUTH.REGISTER}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      credentials: 'include',
-      body: JSON.stringify(data),
-    });
+    const response = await fetch(
+      `${this.baseUrl}${API_ENDPOINTS.AUTH.REGISTER}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify(data),
+      }
+    );
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.message || 'Error al registrar usuario');
+      throw new Error(error.message || "Error al registrar usuario");
     }
 
     return response.json();
@@ -56,14 +60,17 @@ class AuthService {
    * Cerrar sesión
    */
   async logout(): Promise<MessageResponse> {
-    const response = await fetch(`${this.baseUrl}${API_ENDPOINTS.AUTH.LOGOUT}`, {
-      method: 'POST',
-      credentials: 'include',
-    });
+    const response = await fetch(
+      `${this.baseUrl}${API_ENDPOINTS.AUTH.LOGOUT}`,
+      {
+        method: "POST",
+        credentials: "include",
+      }
+    );
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.message || 'Error al cerrar sesión');
+      throw new Error(error.message || "Error al cerrar sesión");
     }
 
     return response.json();
@@ -73,7 +80,7 @@ class AuthService {
    * Obtener usuario almacenado en localStorage
    */
   getStoredUser(): User | null {
-    const userStr = localStorage.getItem('admin_user');
+    const userStr = localStorage.getItem("admin_user");
     if (userStr) {
       try {
         return JSON.parse(userStr);
@@ -88,14 +95,14 @@ class AuthService {
    * Guardar usuario en localStorage
    */
   storeUser(user: User): void {
-    localStorage.setItem('admin_user', JSON.stringify(user));
+    localStorage.setItem("admin_user", JSON.stringify(user));
   }
 
   /**
    * Eliminar usuario de localStorage
    */
   clearStoredUser(): void {
-    localStorage.removeItem('admin_user');
+    localStorage.removeItem("admin_user");
   }
 
   /**
@@ -110,7 +117,7 @@ class AuthService {
    */
   isAdmin(): boolean {
     const user = this.getStoredUser();
-    return user?.role === 'admin';
+    return user?.role === "admin";
   }
 }
 
