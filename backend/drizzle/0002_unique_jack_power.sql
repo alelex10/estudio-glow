@@ -1,1 +1,0 @@
-ALTER TABLE `product` MODIFY COLUMN `category_id` bigint NOT NULL;

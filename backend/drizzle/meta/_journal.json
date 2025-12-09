@@ -5,22 +5,8 @@
     {
       "idx": 0,
       "version": "5",
-      "when": 1763840094421,
-      "tag": "0000_organic_madripoor",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "5",
-      "when": 1763840580469,
-      "tag": "0001_tidy_thunderball",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "5",
-      "when": 1765232666862,
-      "tag": "0002_unique_jack_power",
+      "when": 1765286500934,
+      "tag": "0000_thick_tarot",
       "breakpoints": true
     }
   ]
