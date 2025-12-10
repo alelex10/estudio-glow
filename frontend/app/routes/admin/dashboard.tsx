@@ -4,7 +4,7 @@ import clsx from "clsx";
 import { productService } from "~/common/services/productService";
 import { StatCard } from "~/common/components/admin/StatCard";
 import { LoadingSpinner } from "~/common/components/admin/LoadingSpinner";
-import type { Product } from "~/common/types/response";
+import type { Product } from "~/common/types/product-types";
 
 interface Stats {
     total: number;
@@ -24,7 +24,7 @@ export default function AdminDashboard() {
             try {
                 const [statsData, products] = await Promise.all([
                     productService.getProductStats(),
-                    productService.getProducts(),
+                    (await productService.getProductsPaginated(1, 5)).data,
                 ]);
 
                 setStats(statsData);

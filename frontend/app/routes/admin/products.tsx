@@ -6,7 +6,7 @@ import { DataTable, ActionButton } from "~/common/components/admin/DataTable";
 import { SearchInput } from "~/common/components/admin/SearchInput";
 import { ConfirmModal } from "~/common/components/admin/ConfirmModal";
 import { toast } from "~/common/components/admin/Toast";
-import type { Product } from "~/common/types/response";
+import type { Product } from "~/common/types/product-types";
 
 export default function AdminProducts() {
     const navigate = useNavigate();
@@ -22,9 +22,9 @@ export default function AdminProducts() {
 
     const loadProducts = useCallback(async () => {
         try {
-            const data = await productService.getProducts();
-            setProducts(data);
-            setFilteredProducts(data);
+            const data = await productService.getProductsPaginated(1, 10);
+            setProducts(data.data);
+            setFilteredProducts(data.data);
         } catch (error) {
             toast("error", "Error al cargar productos");
             console.error(error);

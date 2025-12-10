@@ -4,7 +4,7 @@ import { productService } from "~/common/services/productService";
 import { ProductForm } from "~/common/components/admin/ProductForm";
 import { LoadingSpinner } from "~/common/components/admin/LoadingSpinner";
 import { toast } from "~/common/components/admin/Toast";
-import type { Product, UpdateProductData } from "~/common/types/response";
+import type { Product, UpdateProductData } from "~/common/types/product-types";
 
 export default function AdminProductEdit() {
     const navigate = useNavigate();

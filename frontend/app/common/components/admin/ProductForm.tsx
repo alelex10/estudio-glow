@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import clsx from "clsx";
-import type { CreateProductData, UpdateProductData, Product } from "../../types/response";
+import type { CreateProductData, UpdateProductData, Product } from "../../types/product-types";
 import { LoadingSpinner } from "./LoadingSpinner";
 
 interface ProductFormProps {
@@ -23,7 +23,7 @@ export function ProductForm({
         description: "",
         price: 0,
         stock: 0,
-        category: "",
+        categoryId: 0,
     });
     const [image, setImage] = useState<File | null>(null);
     const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -36,7 +36,7 @@ export function ProductForm({
                 description: initialData.description || "",
                 price: initialData.price,
                 stock: initialData.stock,
-                category: initialData.category,
+                categoryId: initialData.categoryId,
             });
             if (initialData.imageUrl) {
                 setImagePreview(initialData.imageUrl);
@@ -68,8 +68,8 @@ export function ProductForm({
         if (formData.stock < 0) {
             newErrors.stock = "El stock no puede ser negativo";
         }
-        if (!formData.category.trim()) {
-            newErrors.category = "La categoría es requerida";
+        if (!formData.categoryId) {
+            newErrors.categoryId = "La categoría es requerida";
         }
         if (mode === "create" && !image) {
             newErrors.image = "La imagen es requerida";
@@ -167,13 +167,13 @@ export function ProductForm({
                     Categoría *
                 </label>
                 <input
-                    type="text"
-                    value={formData.category}
-                    onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                    className={inputClassName(!!errors.category)}
+                    type="number"
+                    value={formData.categoryId}
+                    onChange={(e) => setFormData({ ...formData, categoryId: parseInt(e.target.value) || 0 })}
+                    className={inputClassName(!!errors.categoryId)}
                     placeholder="Ej: Cuidado facial"
                 />
-                {errors.category && <p className="mt-1 text-sm text-red-500">{errors.category}</p>}
+                {errors.categoryId && <p className="mt-1 text-sm text-red-500">{errors.categoryId}</p>}
             </div>
 
             {/* Imagen */}

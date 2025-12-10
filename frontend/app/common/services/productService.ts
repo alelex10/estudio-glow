@@ -15,39 +15,6 @@ import type {
 class ProductService {
   private baseUrl = API_BASE_URL;
 
-  /**
-   * Obtener todos los productos
-   */
-  async getProducts(): Promise<PaginationResponse<Product>> {
-    const response = await fetch(
-      `${this.baseUrl}${API_ENDPOINTS.ADMIN.PRODUCTS}`,
-      {
-        method: "GET",
-        credentials: "include",
-      }
-    );
-
-    if (!response.ok) {
-      if (response.status === 404) {
-        return {
-          data: [],
-          pagination: {
-            page: 0,
-            limit: 0,
-            totalItems: 0,
-            totalPages: 0,
-            hasNextPage: false,
-            hasPreviousPage: false,
-          },
-        };
-      }
-      const error = await response.json();
-      throw new Error(error.message || "Error al obtener productos");
-    }
-
-    return response.json();
-  }
-
   async getProductsPaginated(
     page: number,
     limit: number
@@ -289,7 +256,7 @@ class ProductService {
     categories: number;
     totalValue: number;
   }> {
-    const products = await this.getProducts();
+    const products = await this.getProductsPaginated(1, 100);
 
     return {
       total: products.data.length,
