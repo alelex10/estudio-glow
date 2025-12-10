@@ -23,6 +23,7 @@ import {
   PaginationQuerySchema,
   FilterProductsSchema,
   type FilterProducts,
+  type ProductResponse,
 } from "../schemas/product";
 import cloudinaryConfig from "../cloudfile";
 import { v2 as cloudinary } from "cloudinary";
@@ -72,24 +73,36 @@ export const listProductsPaginated = [
       const total = totalResult[0]?.total || 0;
 
       // Construir y ejecutar query con ordenamiento
-      let result: Product[] = [];
+      let dbResult: {
+        product: Product;
+        category: { id: number; name: string };
+      }[] = [];
 
       if (sortBy) {
         const orderFn = sortOrder === "asc" ? asc : desc;
-        result = await db
+        dbResult = await db
           .select()
           .from(products)
           .orderBy(orderFn(products[sortBy]))
+          .innerJoin(categories, eq(products.categoryId, categories.id))
           .limit(limit)
           .offset(offset);
       } else {
-        result = await db
+        dbResult = await db
           .select()
           .from(products)
+          .innerJoin(categories, eq(products.categoryId, categories.id))
           .orderBy(desc(products.createdAt))
           .limit(limit)
           .offset(offset);
       }
+
+      const result: ProductResponse[] = dbResult.map((row) => ({
+        ...row.product,
+        category: row.category,
+        createdAt: row.product.createdAt.toISOString(),
+        updatedAt: row.product.updatedAt.toISOString(),
+      }));
 
       // Calcular metadatos de paginación
       const paginationMetadata = PaginationHelper.calculateMetadata(
@@ -99,7 +112,7 @@ export const listProductsPaginated = [
       );
 
       // Construir respuesta paginada
-      const response: PaginatedResponse<Product> = {
+      const response: PaginatedResponse<ProductResponse> = {
         data: result,
         pagination: paginationMetadata,
       };

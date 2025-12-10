@@ -1,5 +1,5 @@
 import { API_BASE_URL, API_ENDPOINTS } from "../config/api";
-import type { Category } from "../types/product-types";
+import type { Category, ProductResponse } from "../types/product-types";
 import type { PaginationResponse, ResponseSchema } from "../types/response";
 import type {
   Product,
@@ -18,7 +18,7 @@ class ProductService {
   async getProductsPaginated(
     page: number,
     limit: number
-  ): Promise<PaginationResponse<Product>> {
+  ): Promise<PaginationResponse<ProductResponse>> {
     const response = await fetch(
       `${this.baseUrl}${API_ENDPOINTS.PUBLIC.PRODUCTS.GET_PAGINATED}?page=${page}&limit=${limit}`,
       {
@@ -53,7 +53,7 @@ class ProductService {
     limit?: number,
     category?: string,
     sortOrder?: string,
-    sortBy?: string,
+    sortBy?: string
   ): Promise<PaginationResponse<Product>> {
     const params = new URLSearchParams();
     if (page) params.append("page", page.toString());
@@ -68,7 +68,6 @@ class ProductService {
         credentials: "include",
       }
     );
-
 
     if (!response.ok) {
       if (response.status === 404) {
@@ -119,14 +118,14 @@ class ProductService {
     formData.append("name", data.name);
     formData.append("price", data.price.toString());
     formData.append("stock", data.stock.toString());
-    formData.append("category", data.category);
+    formData.append("categoryId", data.categoryId.toString());
     if (data.description) {
       formData.append("description", data.description);
     }
     formData.append("image", image);
 
     const response = await fetch(
-      `${this.baseUrl}${API_ENDPOINTS.ADMIN.PRODUCTS}`,
+      `${this.baseUrl}${API_ENDPOINTS.ADMIN.PRODUCTS.CREATE}`,
       {
         method: "POST",
         credentials: "include",
@@ -263,7 +262,7 @@ class ProductService {
       lowStock: products.data.filter((p) => p.stock > 0 && p.stock <= 10)
         .length,
       outOfStock: products.data.filter((p) => p.stock === 0).length,
-      categories: new Set(products.data.map((p) => p.category)).size,
+      categories: new Set(products.data.map((p) => p.category.name)).size,
       totalValue: products.data.reduce((acc, p) => acc + p.price * p.stock, 0),
     };
   }

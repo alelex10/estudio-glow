@@ -6,15 +6,15 @@ import { DataTable, ActionButton } from "~/common/components/admin/DataTable";
 import { SearchInput } from "~/common/components/admin/SearchInput";
 import { ConfirmModal } from "~/common/components/admin/ConfirmModal";
 import { toast } from "~/common/components/admin/Toast";
-import type { Product } from "~/common/types/product-types";
+import type { ProductResponse } from "~/common/types/product-types";
 
 export default function AdminProducts() {
     const navigate = useNavigate();
-    const [products, setProducts] = useState<Product[]>([]);
-    const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
+    const [products, setProducts] = useState<ProductResponse[]>([]);
+    const [filteredProducts, setFilteredProducts] = useState<ProductResponse[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState("");
-    const [deleteModal, setDeleteModal] = useState<{ isOpen: boolean; product: Product | null }>({
+    const [deleteModal, setDeleteModal] = useState<{ isOpen: boolean; product: ProductResponse | null }>({
         isOpen: false,
         product: null,
     });
@@ -47,7 +47,7 @@ export default function AdminProducts() {
                 products.filter(
                     (p) =>
                         p.name.toLowerCase().includes(query) ||
-                        p.category.toLowerCase().includes(query)
+                        p.category.name.toLowerCase().includes(query)
                 )
             );
         }
@@ -74,7 +74,7 @@ export default function AdminProducts() {
         {
             key: "image" as const,
             header: "Imagen",
-            render: (product: Product) => (
+            render: (product: ProductResponse) => (
                 <div className="w-12 h-12 rounded-lg overflow-hidden bg-gray-100">
                     {product.imageUrl ? (
                         <img
@@ -95,7 +95,7 @@ export default function AdminProducts() {
         {
             key: "name",
             header: "Nombre",
-            render: (product: Product) => (
+            render: (product: ProductResponse) => (
                 <div>
                     <p className="font-medium text-gray-900">{product.name}</p>
                     <p className="text-sm text-gray-500 truncate max-w-xs">{product.description}</p>
@@ -105,23 +105,23 @@ export default function AdminProducts() {
         {
             key: "category",
             header: "Categoría",
-            render: (product: Product) => (
+            render: (product: ProductResponse) => (
                 <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary-100 text-primary-800">
-                    {product.category}
+                    {product.category.name}
                 </span>
             ),
         },
         {
             key: "price",
             header: "Precio",
-            render: (product: Product) => (
+            render: (product: ProductResponse) => (
                 <span className="font-medium text-gray-900">${product.price.toFixed(2)}</span>
             ),
         },
         {
             key: "stock",
             header: "Stock",
-            render: (product: Product) => (
+            render: (product: ProductResponse) => (
                 <span
                     className={clsx(
                         "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium",

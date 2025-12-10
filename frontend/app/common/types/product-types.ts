@@ -11,6 +11,21 @@ export interface Product {
   updatedAt: string;
 }
 
+export interface ProductResponse {
+  id: number;
+  name: string;
+  description: string;
+  price: number;
+  stock: number;
+  category: {
+    id: number;
+    name: string;
+  };
+  imageUrl: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface CreateProductData {
   name: string;
   description?: string;

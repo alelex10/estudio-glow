@@ -59,10 +59,24 @@ export const ProductResponseSchema = z
       example: 50,
       description: "Cantidad en stock",
     }),
-    categoryId: z.number().openapi({
-      example: 1,
-      description: "ID de la categoría del producto",
-    }),
+    category: z
+      .object({
+        id: z.number().openapi({
+          example: 1,
+          description: "ID de la categoría",
+        }),
+        name: z.string().openapi({
+          example: "Electrónica",
+          description: "Nombre de la categoría",
+        }),
+      })
+      .openapi({
+        example: {
+          id: 1,
+          name: "Electrónica",
+        },
+        description: "Categoría del producto",
+      }),
     imageUrl: z.string().nullable().openapi({
       example: "https://example.com/image.jpg",
       description: "URL de la imagen del producto",
@@ -184,6 +198,7 @@ export const FilterProductsSchema = z
 
 // Tipos TypeScript exportados
 export type PaginationQuery = z.infer<typeof PaginationQuerySchema>;
+export type ProductResponse = z.infer<typeof ProductResponseSchema>;
 export type PaginatedProductsResponse = z.infer<
   typeof PaginatedProductsResponseSchema
 >;

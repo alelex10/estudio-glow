@@ -4,7 +4,7 @@ import clsx from "clsx";
 import { productService } from "~/common/services/productService";
 import { StatCard } from "~/common/components/admin/StatCard";
 import { LoadingSpinner } from "~/common/components/admin/LoadingSpinner";
-import type { Product } from "~/common/types/product-types";
+import type { Product, ProductResponse } from "~/common/types/product-types";
 
 interface Stats {
     total: number;
@@ -16,7 +16,7 @@ interface Stats {
 
 export default function AdminDashboard() {
     const [stats, setStats] = useState<Stats | null>(null);
-    const [recentProducts, setRecentProducts] = useState<Product[]>([]);
+    const [recentProducts, setRecentProducts] = useState<ProductResponse[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
@@ -184,7 +184,7 @@ export default function AdminDashboard() {
                                 {/* Info */}
                                 <div className="flex-1 min-w-0">
                                     <p className="font-medium text-gray-900 truncate">{product.name}</p>
-                                    <p className="text-sm text-gray-500">{product.category}</p>
+                                    <p className="text-sm text-gray-500">{product.category.name}</p>
                                 </div>
 
                                 {/* Precio y stock */}
