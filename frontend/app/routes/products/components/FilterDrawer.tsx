@@ -32,19 +32,22 @@ export function FilterDrawer({ categories, isOpen, onClose }: Props) {
                                     "max-h-96 opacity-100"
                                 )}
                             >
+                                <label className="flex items-center gap-3 cursor-pointer group">
+                                    <div className="relative flex items-center">
+                                        <input
+                                            type="radio"
+                                            className={clsx(
+                                                "peer appearance-none w-5 h-5 border border-primary-100/50 rounded-sm checked:bg-primary-500 checked:border-primary-500 transition-all"
+                                            )}
+                                            value={category.id}
+                                        />
+                                        {/* <Check className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white opacity-0 peer-checked:opacity-100 pointer-events-none transition-opacity" /> */}
+                                    </div>
+                                    <span className="text-primary-100/80 group-hover:text-white transition-colors">
+                                        {category.name}
+                                    </span>
+                                </label>
                             </div>
-                            <label className="flex items-center gap-3 cursor-pointer group">
-                                <div className="relative flex items-center">
-                                    <input
-                                        type="checkbox"
-                                        className="peer appearance-none w-5 h-5 border border-primary-100/50 rounded-sm checked:bg-primary-500 checked:border-primary-500 transition-all"
-                                    />
-                                    <Check className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white opacity-0 peer-checked:opacity-100 pointer-events-none transition-opacity" />
-                                </div>
-                                <span className="text-primary-100/80 group-hover:text-white transition-colors">
-                                    {category.name}
-                                </span>
-                            </label>
                         </div>
                     ))}
                 </div>

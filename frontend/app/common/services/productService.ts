@@ -81,6 +81,49 @@ class ProductService {
     return response.json();
   }
 
+  async getProductsFilter(
+    page?: number,
+    limit?: number,
+    category?: string,
+    sortOrder?: string,
+    sortBy?: string,
+  ): Promise<PaginationResponse<Product>> {
+    const params = new URLSearchParams();
+    if (page) params.append("page", page.toString());
+    if (limit) params.append("limit", limit.toString());
+    if (category) params.append("category", category);
+    if (sortOrder) params.append("sortOrder", sortOrder);
+    if (sortBy) params.append("sortBy", sortBy);
+    const response = await fetch(
+      `${this.baseUrl}${API_ENDPOINTS.PUBLIC.PRODUCTS.FILTER}?${params.toString()}`,
+      {
+        method: "GET",
+        credentials: "include",
+      }
+    );
+
+
+    if (!response.ok) {
+      if (response.status === 404) {
+        return {
+          data: [],
+          pagination: {
+            page: 0,
+            limit: 0,
+            totalItems: 0,
+            totalPages: 0,
+            hasNextPage: false,
+            hasPreviousPage: false,
+          },
+        };
+      }
+      const error = await response.json();
+      throw new Error(error.message || "Error al obtener productos");
+    }
+
+    return response.json();
+  }
+
   /**
    * Obtener un producto por ID
    */
