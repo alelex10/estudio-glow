@@ -37,7 +37,34 @@ export const UpdateProductSchema = CreateProductSchema.partial().openapi(
   "UpdateProductRequest"
 );
 
-export const ProductResponseSchema = z
+export const ProductBaseSchema = z.object({
+  id: z.number().openapi({
+    example: 1,
+    description: "ID del producto",
+  }),
+  name: z.string().openapi({
+    example: "Laptop Gaming",
+    description: "Nombre del producto",
+  }),
+  description: z.string().nullable().openapi({
+    example: "Laptop de alto rendimiento para gaming",
+    description: "Descripción del producto",
+  }),
+  price: z.number().openapi({
+    example: 1500.99,
+    description: "Precio del producto",
+  }),
+  stock: z.number().openapi({
+    example: 50,
+    description: "Cantidad en stock",
+  }),
+  categoryId: z.number().openapi({
+    example: 1,
+    description: "ID de la categoría del producto",
+  }),
+});
+
+export const ProductWithCategoryResponseSchema = z
   .object({
     id: z.number().openapi({
       example: 1,
@@ -94,7 +121,7 @@ export const ProductResponseSchema = z
 
 export const ProductListResponseSchema = z
   .object({
-    products: z.array(ProductResponseSchema).openapi({
+    products: z.array(ProductWithCategoryResponseSchema).openapi({
       description: "Lista de productos",
     }),
   })
@@ -150,7 +177,7 @@ export const PaginationQuerySchema = z
 // Schema de respuesta paginada
 export const PaginatedProductsResponseSchema = z
   .object({
-    data: z.array(ProductResponseSchema).openapi({
+    data: z.array(ProductWithCategoryResponseSchema).openapi({
       description: "Lista de productos de la página actual",
     }),
     pagination: z
@@ -196,9 +223,12 @@ export const FilterProductsSchema = z
   .extend(PaginationQuerySchema.shape)
   .openapi("FilterProductsRequest");
 
+export const GetNewProductsSchema = z.array(ProductBaseSchema);
+
 // Tipos TypeScript exportados
 export type PaginationQuery = z.infer<typeof PaginationQuerySchema>;
-export type ProductResponse = z.infer<typeof ProductResponseSchema>;
+export type ProductResponse = z.infer<typeof ProductWithCategoryResponseSchema>;
+export type GetNewProducts = z.infer<typeof GetNewProductsSchema>;
 export type PaginatedProductsResponse = z.infer<
   typeof PaginatedProductsResponseSchema
 >;

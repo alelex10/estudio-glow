@@ -3,7 +3,7 @@ import { z } from "zod";
 import {
   CreateProductSchema,
   UpdateProductSchema,
-  ProductResponseSchema,
+  ProductWithCategoryResponseSchema,
   ProductListResponseSchema,
   SearchProductSchema,
   PaginationQuerySchema,
@@ -11,7 +11,9 @@ import {
   ErrorResponseSchema,
   AuthResponseSchema,
   FilterProductsSchema,
+  ProductBaseSchema,
 } from "../schemas";
+import { ResponseSchema } from "../schemas/response";
 
 // Product endpoints (Admin)
 registry.registerPath({
@@ -52,7 +54,7 @@ registry.registerPath({
       description: "Producto encontrado",
       content: {
         "application/json": {
-          schema: ProductResponseSchema,
+          schema: ProductWithCategoryResponseSchema,
         },
       },
     },
@@ -86,7 +88,7 @@ registry.registerPath({
       description: "Producto creado exitosamente",
       content: {
         "application/json": {
-          schema: ProductResponseSchema,
+          schema: ProductWithCategoryResponseSchema,
         },
       },
     },
@@ -138,7 +140,7 @@ registry.registerPath({
       description: "Producto actualizado exitosamente",
       content: {
         "application/json": {
-          schema: ProductResponseSchema,
+          schema: ProductWithCategoryResponseSchema,
         },
       },
     },
@@ -259,3 +261,24 @@ registry.registerPath({
   },
   security: [],
 });
+
+registry.registerPath({
+  method: "get",
+  path: "/products/news",
+  tags: ["Products (Public)"],
+  responses: {
+    200: {
+      description: "Nuevos productos",
+      content: {
+        "application/json": {
+          schema: ResponseSchema.extend({
+            message: z.string(),
+            data: z.array(ProductBaseSchema),
+          }),
+        },
+      },
+    },
+  },
+  security: [],
+});
+

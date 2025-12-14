@@ -10,6 +10,7 @@ import {
   searchProducts,
   listProductsPaginated,
   filterProducts,
+  getNewProducts,
 } from "../controller/product";
 
 const router = Router();
@@ -18,6 +19,7 @@ router.get("/", listProducts);
 router.get("/search", searchProducts);
 router.get("/paginated", listProductsPaginated);
 router.get("/filter", filterProducts);
+router.get("/news", getNewProducts);
 router.post("/", authenticate, requireAdmin, createProduct);
 router.put("/:id", authenticate, requireAdmin, updateProduct);
 router.delete("/:id", authenticate, requireAdmin, deleteProduct);

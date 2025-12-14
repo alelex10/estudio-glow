@@ -4,14 +4,14 @@ import { Link } from "react-router"
 
 
 interface ProductCardProps {
-    imageSrc: string
-    title: string
+    imageUrl: string
+    name: string
     price: number
     buttonText?: string
     productId?: number | string
 }
 
-export function ProductCard({ imageSrc, title, price, buttonText = "Ver más detalles", productId }: ProductCardProps) {
+export function ProductCard({ imageUrl, name, price, buttonText = "Ver más detalles", productId }: ProductCardProps) {
     const CardContent = () => (
         <div className={clsx("bg-white p-3 pb-4 max-w-[300px] mx-auto",
             "border-5 border-primary-400",
@@ -20,14 +20,14 @@ export function ProductCard({ imageSrc, title, price, buttonText = "Ver más det
         )}>
             <div className="relative aspect-4/5 overflow-hidden bg-gray-50">
                 <img
-                    src={imageSrc}
-                    alt={title}
+                    src={imageUrl}
+                    alt={name}
                     className="w-full h-full object-cover object-center hover:scale-105 transition-transform duration-500"
                 />
             </div>
 
             <div className="text-left flex flex-col gap-1">
-                <h2 className="text-sm font-medium text-gray-900 uppercase tracking-wide">{title}</h2>
+                <h2 className="text-sm font-medium text-gray-900 uppercase tracking-wide">{name}</h2>
                 <p className="text-sm text-gray-600 mb-2">${price.toFixed(2)}</p>
 
                 <Button variant="gold" className="w-full text-xs py-2 uppercase tracking-wider font-semibold shadow-none rounded-none">

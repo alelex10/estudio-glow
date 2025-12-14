@@ -15,6 +15,19 @@ import type {
 class ProductService {
   private baseUrl = API_BASE_URL;
 
+  async getNewProducts(): Promise<ResponseSchema<Product[]>> {
+    const response = await fetch(`${this.baseUrl}/${API_ENDPOINTS.PUBLIC.PRODUCTS.GET_NEW_PRODUCTS}`, {
+      method: "GET",
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "Error al obtener nuevos productos");
+    }
+
+    return response.json();
+  }
+
   async getProductsPaginated(
     page: number,
     limit: number

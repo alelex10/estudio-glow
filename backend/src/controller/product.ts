@@ -24,6 +24,7 @@ import {
   FilterProductsSchema,
   type FilterProducts,
   type ProductResponse,
+  type GetNewProducts,
 } from "../schemas/product";
 import cloudinaryConfig from "../cloudfile";
 import { v2 as cloudinary } from "cloudinary";
@@ -144,6 +145,26 @@ export async function getProduct(req: Request, res: Response) {
     res.status(500).json({ message: "Failed to fetch product" });
   }
 }
+
+export const getNewProducts = [
+  async (req: Request, res: Response) => {
+    try {
+      const limit = 8;
+      const dbResult = await db
+        .select()
+        .from(products)
+        .orderBy(desc(products.createdAt))
+        .limit(limit);
+
+      const result: GetNewProducts = dbResult;
+
+      res.json(ResponseSchema.parse({data: result, message: "Success"}));
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: "Failed to fetch new products" });
+    }
+  },
+];
 
 // CREATE product
 export const createProduct = [

@@ -4,7 +4,7 @@ import {
   AuthResponseSchema,
   UserResponseSchema,
   ErrorResponseSchema,
-  ProductResponseSchema,
+  ProductWithCategoryResponseSchema,
   ProductListResponseSchema,
   CategoryResponseSchema,
   CategoryListResponseSchema,
@@ -19,7 +19,7 @@ import "./categories";
 registry.register("AuthResponse", AuthResponseSchema);
 registry.register("UserResponse", UserResponseSchema);
 registry.register("ErrorResponse", ErrorResponseSchema);
-registry.register("ProductResponse", ProductResponseSchema);
+registry.register("ProductResponse", ProductWithCategoryResponseSchema);
 registry.register("ProductListResponse", ProductListResponseSchema);
 registry.register("CategoryResponse", CategoryResponseSchema);
 registry.register("CategoryListResponse", CategoryListResponseSchema);

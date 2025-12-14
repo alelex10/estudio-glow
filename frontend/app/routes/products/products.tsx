@@ -110,8 +110,8 @@ export default function Products({ loaderData }: Props) {
                                 <div key={product.id}>
                                     <ProductCard
                                         productId={product.id}
-                                        imageSrc={product.imageUrl}
-                                        title={product.name}
+                                        imageUrl={product.imageUrl}
+                                        name={product.name}
                                         price={product.price}
                                     />
                                 </div>
