@@ -7,6 +7,14 @@ import { SearchInput } from "~/common/components/admin/SearchInput";
 import { ConfirmModal } from "~/common/components/admin/ConfirmModal";
 import { toast } from "~/common/components/admin/Toast";
 import type { ProductResponse } from "~/common/types/product-types";
+import type { Route } from "./+types/products";
+
+export function meta({ }: Route.MetaArgs) {
+  return [
+    { title: "Admin | Dashboard" },
+    { name: "description", content: "Panel de administración de Glow Studio" },
+  ];
+}
 
 export default function AdminProducts() {
     const navigate = useNavigate();

@@ -14,7 +14,6 @@ export default function Drawer({ isOpen, onClose, children }: DrawerProps) {
             className={clsx("fixed inset-0 z-50 transition-all duration-500 ease-in-out",
                 isOpen ? "visible" : "invisible"
             )}
-            aria-hidden={!isOpen}
         >
             <div
                 className={clsx("absolute inset-0 h-screen bg-black/60 backdrop-blur-sm transition-opacity duration-500 ease-in-out",

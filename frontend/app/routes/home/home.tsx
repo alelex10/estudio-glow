@@ -17,8 +17,6 @@ export function meta({ }: Route.MetaArgs) {
 export async function loader() {
   const newProducts = (await productService.getNewProducts()).data
 
-  console.log("New products:", newProducts);
-  
   return { newProducts };
 }
 
@@ -47,10 +45,10 @@ export default function Home() {
           <Hero />
         </section>
         <img className="py-20" src="/img/home/home-2.webp" alt="" />
-        <section id="mas-vendidos" className="text-center text-primary-800 text-3xl md:text-5xl py-10">
+        {/* <section id="mas-vendidos" className="text-center text-primary-800 text-3xl md:text-5xl py-10">
           <h2 className="font-playfair tracking-wide mb-10">Mas vendidos </h2>
           <ProductCarousel products={newProducts} />
-        </section>
+        </section> */}
         <section id="mas-nuevo" className="text-center text-primary-800 text-3xl md:text-5xl py-10">
           <h2 className="font-playfair tracking-wide mb-10">Lo mas nuevo </h2>
           <ProductCarousel products={newProducts} />

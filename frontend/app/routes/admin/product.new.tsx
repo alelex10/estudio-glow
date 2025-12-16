@@ -4,6 +4,14 @@ import { productService } from "~/common/services/productService";
 import { ProductForm } from "~/common/components/admin/ProductForm";
 import { toast } from "~/common/components/admin/Toast";
 import type { CreateProductData, UpdateProductData } from "~/common/types/product-types";
+import type { Route } from "./+types/product.new";
+
+export function meta({ }: Route.MetaArgs) {
+  return [
+    { title: "Admin  Nuevo Producto" },
+    { name: "description", content: "Crear nuevo producto en Glow Studio" },
+  ];
+}
 
 export default function AdminProductNew() {
     const navigate = useNavigate();

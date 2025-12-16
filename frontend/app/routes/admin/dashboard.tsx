@@ -4,7 +4,15 @@ import clsx from "clsx";
 import { productService } from "~/common/services/productService";
 import { StatCard } from "~/common/components/admin/StatCard";
 import { LoadingSpinner } from "~/common/components/admin/LoadingSpinner";
-import type { Product, ProductResponse } from "~/common/types/product-types";
+import type { ProductResponse } from "~/common/types/product-types";
+import type { Route } from "./+types/dashboard";
+
+export function meta({ }: Route.MetaArgs) {
+  return [
+    { title: "Admin | Dashboard" },
+    { name: "description", content: "Panel de administración de Glow Studio" },
+  ];
+}
 
 interface Stats {
     total: number;
