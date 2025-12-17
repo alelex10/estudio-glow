@@ -1,24 +1,38 @@
 // Configuración de la API
-export const API_BASE_URL = 'http://localhost:3000';
+export const API_BASE_URL = "http://localhost:3000";
 
 // Endpoints
 export const API_ENDPOINTS = {
   // Auth
   AUTH: {
-    LOGIN: '/auth/login',
-    REGISTER: '/auth/register',
-    LOGOUT: '/auth/logout',
+    LOGIN: "/auth/login",
+    REGISTER: "/auth/register",
+    LOGOUT: "/auth/logout",
   },
   // Admin Products
   ADMIN: {
-    PRODUCTS: '/admin/products',
-    PRODUCT: (id: number | string) => `/admin/products/${id}`,
-    SEARCH: '/admin/search',
+    PRODUCTS: {
+      EDIT: (id: number | string) => `/products/${id}`,
+      CREATE: "/products",
+      DELETE: (id: number | string) => `/products/${id}`,
+    },
+    CATEGORIES: {
+      EDIT: (id: number | string) => `/categories/${id}`,
+      CREATE: "/categories",
+      DELETE: (id: number | string) => `/categories/${id}`,
+    },
   },
-  // Customer Products
-  CUSTOMER: {
-    PRODUCTS: '/customer/products',
-    PRODUCT: (id: number | string) => `/customer/products/${id}`,
-    SEARCH: '/customer/search',
+  // Public Products
+  PUBLIC: {
+    PRODUCTS: {
+      GET_ID: (id: number | string) => `/products/${id}`,
+      GET_PAGINATED: "/products/paginated",
+      SEARCH: "products/search",
+      GET_NEW_PRODUCTS: "products/news",
+      FILTER: "products/filter",
+    },
+    CATEGORIES: {
+      GET: "/categories",
+    },
   },
 } as const;

@@ -4,13 +4,7 @@ import { ArrowLeftIcon, ArrowRightIcon } from "lucide-react";
 import clsx from "clsx";
 import { useBreakpoint } from "../hooks/useBreakpoint";
 import { useEffect } from "react";
-
-interface Product {
-    id?: number | string;
-    imageSrc: string;
-    title: string;
-    price: number;
-}
+import type { Product } from "../types/product-types";
 
 interface ProductCarouselProps {
     products: Product[];
@@ -77,8 +71,8 @@ export function ProductCarousel({ products }: ProductCarouselProps) {
                         >
                             <ProductCard
                                 productId={product.id}
-                                imageSrc={product.imageSrc}
-                                title={product.title}
+                                imageUrl={product.imageUrl}
+                                name={product.name}
                                 price={product.price}
                             />
                         </div>

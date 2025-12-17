@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import clsx from "clsx";
-import type { CreateProductData, UpdateProductData, Product } from "../../types";
+import type { CreateProductData, UpdateProductData, Product } from "../../types/product-types";
+import type { Category } from "../../types/category-types";
+import { categoryService } from "../../services/categoryService";
 import { LoadingSpinner } from "./LoadingSpinner";
 
 interface ProductFormProps {
@@ -23,11 +25,27 @@ export function ProductForm({
         description: "",
         price: 0,
         stock: 0,
-        category: "",
+        categoryId: 0,
     });
     const [image, setImage] = useState<File | null>(null);
     const [imagePreview, setImagePreview] = useState<string | null>(null);
     const [errors, setErrors] = useState<Record<string, string>>({});
+    const [categories, setCategories] = useState<Category[]>([]);
+    const [isLoadingCategories, setIsLoadingCategories] = useState(true);
+
+    useEffect(() => {
+        const loadCategories = async () => {
+            try {
+                const response = await categoryService.listCategories();
+                setCategories(response.data || []);
+            } catch (error) {
+                console.error("Error loading categories:", error);
+            } finally {
+                setIsLoadingCategories(false);
+            }
+        };
+        loadCategories();
+    }, []);
 
     useEffect(() => {
         if (initialData) {
@@ -36,7 +54,7 @@ export function ProductForm({
                 description: initialData.description || "",
                 price: initialData.price,
                 stock: initialData.stock,
-                category: initialData.category,
+                categoryId: initialData.categoryId,
             });
             if (initialData.imageUrl) {
                 setImagePreview(initialData.imageUrl);
@@ -68,8 +86,8 @@ export function ProductForm({
         if (formData.stock < 0) {
             newErrors.stock = "El stock no puede ser negativo";
         }
-        if (!formData.category.trim()) {
-            newErrors.category = "La categoría es requerida";
+        if (!formData.categoryId) {
+            newErrors.categoryId = "La categoría es requerida";
         }
         if (mode === "create" && !image) {
             newErrors.image = "La imagen es requerida";
@@ -163,17 +181,39 @@ export function ProductForm({
 
             {/* Categoría */}
             <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
                     Categoría *
                 </label>
-                <input
-                    type="text"
-                    value={formData.category}
-                    onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                    className={inputClassName(!!errors.category)}
-                    placeholder="Ej: Cuidado facial"
-                />
-                {errors.category && <p className="mt-1 text-sm text-red-500">{errors.category}</p>}
+
+                {isLoadingCategories ? (
+                    <div className="flex items-center gap-2 text-sm text-gray-500">
+                        <LoadingSpinner size="sm" />
+                        Cargando categorías...
+                    </div>
+                ) : categories.length > 0 ? (
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                        {categories.map((category) => (
+                            <button
+                                key={category.id}
+                                type="button"
+                                onClick={() => setFormData({ ...formData, categoryId: category.id })}
+                                className={clsx(
+                                    "px-4 py-3 rounded-xl border text-sm font-medium transition-all duration-200",
+                                    "hover:shadow-md focus:outline-none focus:ring-2 focus:ring-primary-400/50",
+                                    formData.categoryId === category.id
+                                        ? "bg-primary-500 text-white border-primary-500 shadow-primary-500/30 shadow-lg scale-[1.02]"
+                                        : "bg-white text-gray-700 border-gray-200 hover:border-primary-200 hover:bg-gray-50"
+                                )}
+                            >
+                                {category.name}
+                            </button>
+                        ))}
+                    </div>
+                ) : (
+                    <p className="text-sm text-gray-500 italic">No hay categorías disponibles</p>
+                )}
+
+                {errors.categoryId && <p className="mt-2 text-sm text-red-500">{errors.categoryId}</p>}
             </div>
 
             {/* Imagen */}
@@ -257,7 +297,7 @@ export function ProductForm({
                     disabled={isLoading}
                     className={clsx(
                         "flex-1 px-4 py-2.5 text-sm font-medium text-white rounded-lg transition-colors disabled:opacity-50",
-                        "bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700",
+                        "bg-linear-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700",
                         "flex items-center justify-center gap-2"
                     )}
                 >

@@ -6,7 +6,11 @@ import { users } from "../models/user";
 import dotenv from "dotenv";
 import { eq } from "drizzle-orm";
 import { validateBody } from "../middleware/validation";
-import { RegisterSchema, LoginSchema } from "../schemas/auth";
+import {
+  RegisterSchema,
+  LoginSchema,
+  AuthResponseSchema,
+} from "../schemas/auth";
 dotenv.config();
 
 const JWT_SECRET = process.env.JWT_SECRET || "your_jwt_secret_key";
@@ -24,7 +28,9 @@ export const register = [
         .where(eq(users.email, email));
 
       if (existingUser.length > 0) {
-        res.status(400).json({ message: "User with email: " + email + " already exists" });
+        res
+          .status(400)
+          .json({ message: "User with email: " + email + " already exists" });
         return;
       }
 
@@ -51,7 +57,7 @@ export const register = [
       console.error("Register error:", error);
       res.status(500).json({ message: "Internal server error" });
     }
-  }
+  },
 ];
 
 // ----------------------- LOGIN -----------------------
@@ -73,38 +79,45 @@ export const login = [
 
       const user = userResult[0];
 
-    const isMatch = await bcrypt.compare(password, user.password_hash);
-    if (!isMatch) {
-      res.status(400).json({ message: "Invalid credentials" });
-      return;
-    }
+      const isMatch = await bcrypt.compare(password, user.password_hash);
+      if (!isMatch) {
+        res.status(400).json({ message: "Invalid credentials" });
+        return;
+      }
 
-    const token = jwt.sign(
-      { id: user?.id, email: user?.email, role: user?.role },
-      JWT_SECRET,
-      { expiresIn: "1h" }
-    );
+      const token = jwt.sign(
+        { id: user?.id, email: user?.email, role: user?.role },
+        JWT_SECRET,
+        { expiresIn: "1h" }
+      );
 
-    res.cookie("token", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      maxAge: 3600000,
-    });
+      res.cookie("token", token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        maxAge: 3600000,
+      });
 
-    res.status(200).json({
-      message: "Login successful",
-      user: {
-        id: user?.id,
-        name: user?.name,
-        email: user?.email,
-        role: user?.role,
-      },
-    });
+      const responseDto = AuthResponseSchema.safeParse({
+        message: "Login successful",
+        user: {
+          id: user?.id,
+          name: user?.name,
+          email: user?.email,
+          role: user?.role,
+        },
+      });
+
+      if (!responseDto.success) {
+        res.status(500).json({ message: "Internal server error" });
+        return;
+      }
+
+      res.status(200).json(responseDto.data);
     } catch (error) {
       console.error("Login error:", error);
       res.status(500).json({ message: "Internal server error" });
     }
-  }
+  },
 ];
 
 // ----------------------- LOGOUT -----------------------

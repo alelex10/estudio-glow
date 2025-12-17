@@ -10,14 +10,14 @@ import { FormError } from "~/common/components/Form/FormError";
 import { loginSchema, type LoginFormData } from "~/common/schemas/auth";
 import type { Route } from "../auth/+types/login";
 import { authService } from "~/common/services/authService";
-import { userContext, userContextProvider } from "~/common/context";
+import { userContext, userContextProvider } from "~/common/context/context";
 
 export async function loader({ request }: LoaderFunctionArgs) {
     const user = userContextProvider.get(userContext);
     if (user) return redirect("/admin");
 }
 
-export default function AdminLogin({ actionData,loaderData }: Route.ComponentProps) {
+export default function AdminLogin({ actionData, loaderData }: Route.ComponentProps) {
     const data = actionData;
     const [isLoading, setIsLoading] = useState(false);
     let submit = useSubmit();

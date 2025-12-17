@@ -22,5 +22,8 @@ export default [
     route("admin/products", "./routes/admin/products.tsx"),
     route("admin/products/new", "./routes/admin/product.new.tsx"),
     route("admin/products/:id", "./routes/admin/product.$id.tsx"),
+    route("admin/categories", "./routes/admin/categories.tsx"),
+    route("admin/categories/new", "./routes/admin/category.new.tsx"),
+    route("admin/categories/:id", "./routes/admin/category.$id.tsx"),
   ]),
 ] satisfies RouteConfig;

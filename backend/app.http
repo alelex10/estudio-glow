@@ -20,6 +20,36 @@ Content-Type: application/json
 ### LOGOUT
 POST http://localhost:3000/auth/logout
 
+### ========== CATEGORÍAS ==========
+
+### ADMIN - GET ALL CATEGORIES
+GET http://localhost:3000/admin/categories
+
+### ADMIN - GET CATEGORY BY ID
+GET http://localhost:3000/admin/categories/1
+
+### ADMIN - CREATE CATEGORY
+POST http://localhost:3000/admin/categories
+Content-Type: application/json
+
+{
+  "name": "Electrónica",
+  "description": "Productos electrónicos y tecnológicos"
+}
+
+### ADMIN - UPDATE CATEGORY
+PUT http://localhost:3000/admin/categories/1
+Content-Type: application/json
+
+{
+  "description": "Productos de tecnología y electrónica actualizada"
+}
+
+### ADMIN - DELETE CATEGORY
+DELETE http://localhost:3000/admin/categories/2
+
+### ========== PRODUCTOS ==========
+
 ### ADMIN - GET PRODUCTS
 GET http://localhost:3000/admin/products
 
@@ -31,7 +61,7 @@ Content-Type: application/json
   "name": "Test Product3",
   "description": "Test Product Description",
   "price": 100,
-  "category": "test",
+  "categoryId": 1,
   "imageUrl": "https://via.placeholder.com/150"
 }
 

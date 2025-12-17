@@ -1,9 +1,14 @@
-import { redirect } from "react-router";
 import { AdminLayout } from "~/common/components/admin/AdminLayout";
 import type { Route } from "./+types/layout";
-import { authService } from "~/common/services/authService";
-import { userContextProvider, userContext } from "~/common/context";
+import { userContextProvider, userContext } from "~/common/context/context";
 import { authMiddleware } from "~/common/middleware/authMiddleware";
+
+export function meta({ }: Route.MetaArgs) {
+  return [
+    { title: "Admin | Panel" },
+    { name: "description", content: "Panel de administración de Glow Studio" },
+  ];
+}
 
 export const middleware: Route.MiddlewareFunction[] = [
     authMiddleware,
@@ -13,7 +18,7 @@ export async function loader() {
     return { user };
 }
 
-export default function AdminLayoutRoute({loaderData}: Route.ComponentProps) {
+export default function AdminLayoutRoute({ loaderData }: Route.ComponentProps) {
 
     return <AdminLayout user={loaderData?.user} />;
 }

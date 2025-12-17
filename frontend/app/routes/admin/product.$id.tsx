@@ -4,7 +4,16 @@ import { productService } from "~/common/services/productService";
 import { ProductForm } from "~/common/components/admin/ProductForm";
 import { LoadingSpinner } from "~/common/components/admin/LoadingSpinner";
 import { toast } from "~/common/components/admin/Toast";
-import type { Product, UpdateProductData } from "~/common/types";
+import type { Product, UpdateProductData } from "~/common/types/product-types";
+import type { Route } from "./+types/product.$id";
+
+export function meta({ params }: Route.MetaArgs) {
+
+    return [
+        { title: "Admin | Editar Producto" },
+        { name: "description", content: "Editar producto en Glow Studio" },
+    ];
+}
 
 export default function AdminProductEdit() {
     const navigate = useNavigate();

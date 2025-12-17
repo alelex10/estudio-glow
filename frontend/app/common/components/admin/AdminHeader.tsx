@@ -1,7 +1,7 @@
 import clsx from "clsx";
 import { authService } from "../../services/authService";
 import { useNavigate, useSubmit } from "react-router";
-import type { User } from "~/common/types";
+import type { User } from "~/common/types/response";
 
 interface AdminHeaderProps {
     title: string;
