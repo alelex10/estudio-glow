@@ -39,7 +39,7 @@ export interface UpdateProductData {
   description?: string;
   price?: number;
   stock?: number;
-  category?: string;
+  categoryId?: number;
 }
 
 export interface SearchProductParams {

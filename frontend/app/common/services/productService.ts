@@ -170,7 +170,8 @@ class ProductService {
       formData.append("price", data.price.toString());
     if (data.stock !== undefined)
       formData.append("stock", data.stock.toString());
-    if (data.category) formData.append("category", data.category);
+    if (data.categoryId !== undefined)
+      formData.append("categoryId", data.categoryId.toString());
     if (image) formData.append("image", image);
 
     const response = await fetch(
