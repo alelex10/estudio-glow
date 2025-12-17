@@ -1,7 +1,7 @@
 import { NavLink, useLocation } from "react-router";
 import clsx from "clsx";
 import { Logo } from "../Logo";
-import { Box, Home } from "lucide-react";
+import { Box, Home, Tag } from "lucide-react";
 
 interface SidebarProps {
     isOpen: boolean;
@@ -13,7 +13,7 @@ const navItems = [
         name: "Dashboard",
         path: "/admin",
         icon: (
-            <Home/>
+            <Home />
         ),
     },
     {
@@ -21,6 +21,13 @@ const navItems = [
         path: "/admin/products",
         icon: (
             <Box />
+        ),
+    },
+    {
+        name: "Categorías",
+        path: "/admin/categories",
+        icon: (
+            <Tag />
         ),
     },
 ];
