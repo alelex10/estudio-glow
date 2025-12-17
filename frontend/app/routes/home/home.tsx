@@ -15,9 +15,14 @@ export function meta({ }: Route.MetaArgs) {
 }
 
 export async function loader() {
-  const newProducts = (await productService.getNewProducts()).data
-
-  return { newProducts };
+  try {
+    
+    const newProducts = (await productService.getNewProducts()).data
+    return { newProducts };
+  } catch (error) {
+    console.error(error);
+    return { newProducts: [] };
+  }
 }
 
 export default function Home() {
