@@ -16,11 +16,10 @@ export function meta({ }: Route.MetaArgs) {
 
 export async function loader() {
   try {
-    
     const newProducts = (await productService.getNewProducts()).data
     return { newProducts };
   } catch (error) {
-    console.error(error);
+    console.error("Error al obtener productos");
     return { newProducts: [] };
   }
 }
@@ -31,7 +30,6 @@ export default function Home() {
 
   useEffect(() => {
     const handleScroll = () => {
-      // El navbar cambia de fondo apenas se hace scroll hacia abajo
       setIsHeroVisible(window.scrollY === 0);
     };
 
