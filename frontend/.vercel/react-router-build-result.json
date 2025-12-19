@@ -1,0 +1,332 @@
+{
+  "buildManifest": {
+    "serverBundles": {
+      "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0": {
+        "id": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+        "file": "build/server/nodejs_eyJydW50aW1lIjoibm9kZWpzIn0/index.js",
+        "config": {
+          "runtime": "nodejs"
+        }
+      }
+    },
+    "routeIdToServerBundleId": {
+      "root": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/home/home": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/products/products": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/product.$id": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/auth/login": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/auth/login-action": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/admin/logout": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/admin/dashboard": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/admin/products": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/admin/product.new": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/admin/product.$id": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/admin/categories": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/admin/category.new": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/admin/category.$id": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0"
+    },
+    "routes": {
+      "root": {
+        "id": "root",
+        "file": "app/root.tsx",
+        "path": "",
+        "config": {
+          "runtime": "nodejs"
+        }
+      },
+      "routes/layout": {
+        "id": "routes/layout",
+        "parentId": "root",
+        "file": "app/routes/layout.tsx",
+        "config": {}
+      },
+      "routes/home/home": {
+        "id": "routes/home/home",
+        "parentId": "routes/layout",
+        "file": "app/routes/home/home.tsx",
+        "index": true,
+        "config": {}
+      },
+      "routes/products/products": {
+        "id": "routes/products/products",
+        "parentId": "routes/layout",
+        "file": "app/routes/products/products.tsx",
+        "path": "products",
+        "config": {}
+      },
+      "routes/product.$id": {
+        "id": "routes/product.$id",
+        "parentId": "routes/layout",
+        "file": "app/routes/product.$id.tsx",
+        "path": "product/:id",
+        "config": {}
+      },
+      "routes/auth/login": {
+        "id": "routes/auth/login",
+        "parentId": "root",
+        "file": "app/routes/auth/login.tsx",
+        "path": "admin/login",
+        "config": {}
+      },
+      "routes/auth/login-action": {
+        "id": "routes/auth/login-action",
+        "parentId": "root",
+        "file": "app/routes/auth/login-action.ts",
+        "path": "admin/login-action",
+        "config": {}
+      },
+      "routes/admin/logout": {
+        "id": "routes/admin/logout",
+        "parentId": "root",
+        "file": "app/routes/admin/logout.ts",
+        "path": "admin/logout",
+        "config": {}
+      },
+      "routes/admin/layout": {
+        "id": "routes/admin/layout",
+        "parentId": "root",
+        "file": "app/routes/admin/layout.tsx",
+        "config": {}
+      },
+      "routes/admin/dashboard": {
+        "id": "routes/admin/dashboard",
+        "parentId": "routes/admin/layout",
+        "file": "app/routes/admin/dashboard.tsx",
+        "path": "admin",
+        "config": {}
+      },
+      "routes/admin/products": {
+        "id": "routes/admin/products",
+        "parentId": "routes/admin/layout",
+        "file": "app/routes/admin/products.tsx",
+        "path": "admin/products",
+        "config": {}
+      },
+      "routes/admin/product.new": {
+        "id": "routes/admin/product.new",
+        "parentId": "routes/admin/layout",
+        "file": "app/routes/admin/product.new.tsx",
+        "path": "admin/products/new",
+        "config": {}
+      },
+      "routes/admin/product.$id": {
+        "id": "routes/admin/product.$id",
+        "parentId": "routes/admin/layout",
+        "file": "app/routes/admin/product.$id.tsx",
+        "path": "admin/products/:id",
+        "config": {}
+      },
+      "routes/admin/categories": {
+        "id": "routes/admin/categories",
+        "parentId": "routes/admin/layout",
+        "file": "app/routes/admin/categories.tsx",
+        "path": "admin/categories",
+        "config": {}
+      },
+      "routes/admin/category.new": {
+        "id": "routes/admin/category.new",
+        "parentId": "routes/admin/layout",
+        "file": "app/routes/admin/category.new.tsx",
+        "path": "admin/categories/new",
+        "config": {}
+      },
+      "routes/admin/category.$id": {
+        "id": "routes/admin/category.$id",
+        "parentId": "routes/admin/layout",
+        "file": "app/routes/admin/category.$id.tsx",
+        "path": "admin/categories/:id",
+        "config": {}
+      }
+    }
+  },
+  "reactRouterConfig": {
+    "appDirectory": "/home/alelex10/Escritorio/Estudio-Glow/frontend/app",
+    "basename": "/",
+    "buildDirectory": "/home/alelex10/Escritorio/Estudio-Glow/frontend/build",
+    "future": {
+      "v8_middleware": false,
+      "unstable_optimizeDeps": false,
+      "unstable_splitRouteModules": false,
+      "unstable_subResourceIntegrity": false,
+      "unstable_viteEnvironmentApi": false
+    },
+    "routes": {
+      "root": {
+        "id": "root",
+        "file": "root.tsx",
+        "path": ""
+      },
+      "routes/layout": {
+        "id": "routes/layout",
+        "parentId": "root",
+        "file": "./routes/layout.tsx"
+      },
+      "routes/home/home": {
+        "id": "routes/home/home",
+        "parentId": "routes/layout",
+        "file": "./routes/home/home.tsx",
+        "index": true
+      },
+      "routes/products/products": {
+        "id": "routes/products/products",
+        "parentId": "routes/layout",
+        "file": "./routes/products/products.tsx",
+        "path": "products"
+      },
+      "routes/product.$id": {
+        "id": "routes/product.$id",
+        "parentId": "routes/layout",
+        "file": "./routes/product.$id.tsx",
+        "path": "product/:id"
+      },
+      "routes/auth/login": {
+        "id": "routes/auth/login",
+        "parentId": "root",
+        "file": "./routes/auth/login.tsx",
+        "path": "admin/login"
+      },
+      "routes/auth/login-action": {
+        "id": "routes/auth/login-action",
+        "parentId": "root",
+        "file": "./routes/auth/login-action.ts",
+        "path": "admin/login-action"
+      },
+      "routes/admin/logout": {
+        "id": "routes/admin/logout",
+        "parentId": "root",
+        "file": "./routes/admin/logout.ts",
+        "path": "admin/logout"
+      },
+      "routes/admin/layout": {
+        "id": "routes/admin/layout",
+        "parentId": "root",
+        "file": "./routes/admin/layout.tsx"
+      },
+      "routes/admin/dashboard": {
+        "id": "routes/admin/dashboard",
+        "parentId": "routes/admin/layout",
+        "file": "./routes/admin/dashboard.tsx",
+        "path": "admin"
+      },
+      "routes/admin/products": {
+        "id": "routes/admin/products",
+        "parentId": "routes/admin/layout",
+        "file": "./routes/admin/products.tsx",
+        "path": "admin/products"
+      },
+      "routes/admin/product.new": {
+        "id": "routes/admin/product.new",
+        "parentId": "routes/admin/layout",
+        "file": "./routes/admin/product.new.tsx",
+        "path": "admin/products/new"
+      },
+      "routes/admin/product.$id": {
+        "id": "routes/admin/product.$id",
+        "parentId": "routes/admin/layout",
+        "file": "./routes/admin/product.$id.tsx",
+        "path": "admin/products/:id"
+      },
+      "routes/admin/categories": {
+        "id": "routes/admin/categories",
+        "parentId": "routes/admin/layout",
+        "file": "./routes/admin/categories.tsx",
+        "path": "admin/categories"
+      },
+      "routes/admin/category.new": {
+        "id": "routes/admin/category.new",
+        "parentId": "routes/admin/layout",
+        "file": "./routes/admin/category.new.tsx",
+        "path": "admin/categories/new"
+      },
+      "routes/admin/category.$id": {
+        "id": "routes/admin/category.$id",
+        "parentId": "routes/admin/layout",
+        "file": "./routes/admin/category.$id.tsx",
+        "path": "admin/categories/:id"
+      }
+    },
+    "routeDiscovery": {
+      "mode": "lazy",
+      "manifestPath": "/__manifest"
+    },
+    "serverBuildFile": "index.js",
+    "serverModuleFormat": "esm",
+    "ssr": true,
+    "unstable_routeConfig": [
+      {
+        "id": "root",
+        "path": "",
+        "file": "root.tsx",
+        "children": [
+          {
+            "file": "./routes/layout.tsx",
+            "children": [
+              {
+                "file": "./routes/home/home.tsx",
+                "index": true
+              },
+              {
+                "file": "./routes/products/products.tsx",
+                "path": "products"
+              },
+              {
+                "file": "./routes/product.$id.tsx",
+                "path": "product/:id"
+              }
+            ]
+          },
+          {
+            "file": "./routes/auth/login.tsx",
+            "path": "admin/login"
+          },
+          {
+            "file": "./routes/auth/login-action.ts",
+            "path": "admin/login-action"
+          },
+          {
+            "file": "./routes/admin/logout.ts",
+            "path": "admin/logout"
+          },
+          {
+            "file": "./routes/admin/layout.tsx",
+            "children": [
+              {
+                "file": "./routes/admin/dashboard.tsx",
+                "path": "admin"
+              },
+              {
+                "file": "./routes/admin/products.tsx",
+                "path": "admin/products"
+              },
+              {
+                "file": "./routes/admin/product.new.tsx",
+                "path": "admin/products/new"
+              },
+              {
+                "file": "./routes/admin/product.$id.tsx",
+                "path": "admin/products/:id"
+              },
+              {
+                "file": "./routes/admin/categories.tsx",
+                "path": "admin/categories"
+              },
+              {
+                "file": "./routes/admin/category.new.tsx",
+                "path": "admin/categories/new"
+              },
+              {
+                "file": "./routes/admin/category.$id.tsx",
+                "path": "admin/categories/:id"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "viteConfig": {
+    "build": {
+      "assetsDir": "assets"
+    }
+  }
+}
