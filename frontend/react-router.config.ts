@@ -4,8 +4,6 @@ import { vercelPreset } from "@vercel/react-router/vite";
 export default {
   // Config options...
   // Server-side render by default, to enable SPA mode set this to `false`
-  future: {
-    v8_middleware: true,
-  },
+  ssr: true,
   presets: [vercelPreset()],
 } satisfies Config;
