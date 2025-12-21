@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import { Form, redirect, useActionData, useNavigate, useSubmit, type DataStrategyResult, type LoaderFunctionArgs } from "react-router";
+import { Form, Link, redirect, useActionData, useNavigate, useSubmit, type DataStrategyResult, type LoaderFunctionArgs } from "react-router";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import clsx from "clsx";
@@ -9,7 +9,6 @@ import { FormButton } from "~/common/components/Form/FormButton";
 import { FormError } from "~/common/components/Form/FormError";
 import { loginSchema, type LoginFormData } from "~/common/schemas/auth";
 import type { Route } from "../auth/+types/login";
-import { authService } from "~/common/services/authService";
 import { userContext, userContextProvider } from "~/common/context/context";
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -17,8 +16,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     if (user) return redirect("/admin");
 }
 
-export default function AdminLogin({ actionData, loaderData }: Route.ComponentProps) {
-    const data = actionData;
+export default function AdminLogin({ actionData }: Route.ComponentProps) {
     const [isLoading, setIsLoading] = useState(false);
     let submit = useSubmit();
 
@@ -110,9 +108,9 @@ export default function AdminLogin({ actionData, loaderData }: Route.ComponentPr
 
                 {/* Link a tienda */}
                 <p className="mt-6 text-center text-sm text-gray-400">
-                    <a href="/" className="hover:text-primary-400 transition-colors">
+                    <Link to="/" className="hover:text-primary-400 transition-colors">
                         ← Volver a la tienda
-                    </a>
+                    </Link>
                 </p>
             </div>
         </div>

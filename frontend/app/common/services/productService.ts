@@ -104,7 +104,9 @@ class ProductService {
   /**
    * Obtener un producto por ID
    */
-  async getProduct(id: number | string): Promise<Product> {
+  async getProduct(
+    id: number | string
+  ): Promise<ResponseSchema<ProductResponse>> {
     const response = await fetch(
       `${this.baseUrl}${API_ENDPOINTS.PUBLIC.PRODUCTS.GET_ID(id)}`,
       {

@@ -9,7 +9,9 @@ export default [
   // Rutas públicas (tienda)
   layout("./routes/layout.tsx", [
     index("./routes/home/home.tsx"),
-    route("products", "./routes/products/products.tsx"),
+    layout("./routes/products/layout.tsx", [
+      route("products", "./routes/products/products.tsx"),
+    ]),
     route("product/:id", "./routes/product.$id.tsx"),
   ]),
 

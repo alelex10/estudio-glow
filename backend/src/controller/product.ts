@@ -25,6 +25,7 @@ import {
   type FilterProducts,
   type ProductResponse,
   type GetNewProducts,
+  ProductWithCategoryResponseSchema,
 } from "../schemas/product";
 import cloudinaryConfig from "../cloudfile";
 import { v2 as cloudinary } from "cloudinary";
@@ -132,14 +133,30 @@ export async function getProduct(req: Request, res: Response) {
   if (isNaN(id)) {
     return res.status(400).json({ message: "Invalid product ID" });
   }
-
   try {
-    const result = await db.select().from(products).where(eq(products.id, id));
+    const result = await db
+      .select()
+      .from(products)
+      .innerJoin(categories, eq(products.categoryId, categories.id))
+      .where(eq(products.id, id))
+      .limit(1);
 
     if (result.length === 0)
       return res.status(404).json({ message: "Product not found" });
 
-    res.json(result[0]);
+    const product = {
+      ...result[0]?.product,
+      category: result[0]?.category,
+      createdAt: result[0]?.product.createdAt.toISOString(),
+      updatedAt: result[0]?.product.updatedAt.toISOString(),
+    };
+
+    res.json(
+      ResponseSchema.parse({
+        data: ProductWithCategoryResponseSchema.parse(product),
+        message: "Success",
+      })
+    );
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Failed to fetch product" });
@@ -158,7 +175,7 @@ export const getNewProducts = [
 
       const result: GetNewProducts = dbResult;
 
-      res.json(ResponseSchema.parse({data: result, message: "Success"}));
+      res.json(ResponseSchema.parse({ data: result, message: "Success" }));
     } catch (err) {
       console.error(err);
       res.status(500).json({ message: "Failed to fetch new products" });
