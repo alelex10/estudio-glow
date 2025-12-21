@@ -79,6 +79,11 @@ export const login = [
 
       const user = userResult[0];
 
+      if (!user) {
+        res.status(400).json({ message: "User not found" });
+        return;
+      }
+
       const isMatch = await bcrypt.compare(password, user.password_hash);
       if (!isMatch) {
         res.status(400).json({ message: "Invalid credentials" });
