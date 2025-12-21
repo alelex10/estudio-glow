@@ -4,7 +4,7 @@ import { productService } from "~/common/services/productService";
 import { ProductForm } from "~/common/components/admin/ProductForm";
 import { LoadingSpinner } from "~/common/components/admin/LoadingSpinner";
 import { toast } from "~/common/components/admin/Toast";
-import type { Product, UpdateProductData } from "~/common/types/product-types";
+import type { Product, ProductResponse, UpdateProductData } from "~/common/types/product-types";
 import type { Route } from "./+types/product.$id";
 
 export function meta({ params }: Route.MetaArgs) {
@@ -18,7 +18,7 @@ export function meta({ params }: Route.MetaArgs) {
 export default function AdminProductEdit() {
     const navigate = useNavigate();
     const { id } = useParams();
-    const [product, setProduct] = useState<Product | null>(null);
+    const [product, setProduct] = useState<ProductResponse | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
 
@@ -28,7 +28,8 @@ export default function AdminProductEdit() {
 
             try {
                 const data = await productService.getProduct(id);
-                setProduct(data);
+                if (!data.data) return;
+                setProduct(data.data);
             } catch (error) {
                 toast("error", "Error al cargar producto");
                 navigate("/admin/products");

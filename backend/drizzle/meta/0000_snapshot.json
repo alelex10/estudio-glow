@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "d6cac895-c78d-40cd-ba2f-9e111b4c9eed",
+  "id": "b5d99008-3a71-494d-98bd-0f9c70e0ee51",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "category": {
@@ -9,10 +9,10 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "serial",
+          "type": "varchar(36)",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": true
+          "autoincrement": false
         },
         "name": {
           "name": "name",
@@ -70,10 +70,11 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "serial",
+          "type": "varchar(36)",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": true
+          "autoincrement": false,
+          "default": "(UUID())"
         },
         "name": {
           "name": "name",
@@ -106,7 +107,7 @@
         },
         "category_id": {
           "name": "category_id",
-          "type": "bigint unsigned",
+          "type": "varchar(36)",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
@@ -174,10 +175,10 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "int",
+          "type": "varchar(36)",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": true
+          "autoincrement": false
         },
         "name": {
           "name": "name",

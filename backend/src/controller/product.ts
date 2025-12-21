@@ -33,6 +33,7 @@ import type { UploadApiResponse } from "cloudinary";
 import type { ListFormat } from "typescript";
 import { PaginationHelper, type PaginatedResponse } from "../types/pagination";
 import { ResponseSchema } from "../schemas/response";
+import { IdSchema } from "../schemas/id";
 
 cloudinary.config(cloudinaryConfig);
 
@@ -77,7 +78,7 @@ export const listProductsPaginated = [
       // Construir y ejecutar query con ordenamiento
       let dbResult: {
         product: Product;
-        category: { id: number; name: string };
+        category: { id: string; name: string };
       }[] = [];
 
       if (sortBy) {
@@ -129,10 +130,8 @@ export const listProductsPaginated = [
 
 // GET product by ID
 export async function getProduct(req: Request, res: Response) {
-  const id = Number(req.params.id);
-  if (isNaN(id)) {
-    return res.status(400).json({ message: "Invalid product ID" });
-  }
+  const id = IdSchema.parse(req.params.id);
+  
   try {
     const result = await db
       .select()
@@ -236,7 +235,10 @@ export const createProduct = [
         }
       );
 
+      const id = crypto.randomUUID();
+
       const data: NewProduct = {
+        id,
         name,
         description,
         price,
@@ -245,11 +247,11 @@ export const createProduct = [
         imageUrl: cloudinaryResult.secure_url,
       };
 
-      const [result] = await db.insert(products).values(data);
+      await db.insert(products).values(data);
       const created = await db
         .select()
         .from(products)
-        .where(eq(products.id, result.insertId));
+        .where(eq(products.id, id));
 
       res.status(201).json(
         ResponseSchema.parse({
@@ -268,8 +270,8 @@ export const createProduct = [
 export const updateProduct = [
   validateBody(UpdateProductSchema),
   async (req: Request, res: Response) => {
-    const id = Number(req.params.id);
-    if (isNaN(id)) {
+    const id = req.params.id;
+    if (!id) {
       return res.status(400).json({ message: "Invalid product ID" });
     }
     const data: Partial<NewProduct> = req.body;
@@ -358,8 +360,8 @@ export const updateProduct = [
 
 // DELETE product
 export async function deleteProduct(req: Request, res: Response) {
-  const id = Number(req.params.id);
-  if (isNaN(id)) {
+  const id = req.params.id;
+  if (!id) {
     return res.status(400).json({ message: "Invalid product ID" });
   }
 
@@ -378,7 +380,7 @@ export const searchProducts = [
   async (req: Request, res: Response) => {
     const { q, categoryId, minPrice, maxPrice } = req.query as {
       q?: string;
-      categoryId?: number;
+      categoryId?: string;
       minPrice?: number;
       maxPrice?: number;
     };

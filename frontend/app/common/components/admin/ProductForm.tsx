@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
 import clsx from "clsx";
-import type { CreateProductData, UpdateProductData, Product } from "../../types/product-types";
+import type { CreateProductData, UpdateProductData, Product, ProductResponse } from "../../types/product-types";
 import type { Category } from "../../types/category-types";
 import { categoryService } from "../../services/categoryService";
 import { LoadingSpinner } from "./LoadingSpinner";
 
 interface ProductFormProps {
-    initialData?: Product;
+    initialData?: ProductResponse;
     onSubmit: (data: CreateProductData | UpdateProductData, image?: File) => Promise<void>;
     onCancel: () => void;
     isLoading?: boolean;
@@ -54,7 +54,7 @@ export function ProductForm({
                 description: initialData.description || "",
                 price: initialData.price,
                 stock: initialData.stock,
-                categoryId: initialData.categoryId,
+                categoryId: initialData.category.id,
             });
             if (initialData.imageUrl) {
                 setImagePreview(initialData.imageUrl);

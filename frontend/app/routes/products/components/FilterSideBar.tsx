@@ -35,7 +35,9 @@ export function FilterSideBar({ categories }: Props) {
             </div> */}
 
             {/* Categories */}
+            {categories.length > 0 ? (
             <div className="flex-1 space-y-2">
+                <h4 className="text-lg font-bold tracking-wide mb-2">Categorias</h4>
                 {categories.map((category) => (
                     <div key={category.id} className="border-b border-primary-600">
 
@@ -62,6 +64,9 @@ export function FilterSideBar({ categories }: Props) {
                 ))}
                 <Button variant="outline" className="mt-4">Filtrar</Button>
             </div>
+            ) : (
+                <p className="text-center text-gray-600">No hay categorías disponibles</p>
+            )}
         </div>
     );
 }

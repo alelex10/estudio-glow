@@ -22,8 +22,8 @@ export const UpdateCategorySchema = CreateCategorySchema.partial().openapi(
 
 export const CategoryResponseSchema = z
   .object({
-    id: z.number().openapi({
-      example: 1,
+    id: z.uuid().openapi({
+      example: "550e8400-e29b-41d4-a716-446655440000",
       description: "ID de la categoría",
     }),
     name: z.string().openapi({

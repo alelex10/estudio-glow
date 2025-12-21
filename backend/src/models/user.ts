@@ -8,7 +8,7 @@ import {
 import { sql } from "drizzle-orm";
 
 export const users = mysqlTable("user", {
-  id: int("id").primaryKey().autoincrement(),
+  id: varchar("id", { length: 36 }).primaryKey(),
   name: varchar("name", { length: 100 }).notNull(),
   email: varchar("email", { length: 150 }).notNull().unique(),
   password_hash: varchar("password_hash", { length: 255 }).notNull(),

@@ -39,8 +39,8 @@ export const LoginSchema = z
 
 export const UserResponseSchema = z
   .object({
-    id: z.number().openapi({
-      example: 1,
+    id: z.string().uuid().openapi({
+      example: "550e8400-e29b-41d4-a716-446655440000",
       description: "ID del usuario",
     }),
     name: z.string().openapi({

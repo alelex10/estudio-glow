@@ -21,8 +21,8 @@ export const CreateProductSchema = z
       example: 50,
       description: "Cantidad en stock",
     }),
-    categoryId: z.coerce.number().int().positive().openapi({
-      example: 1,
+    categoryId: z.string().uuid().openapi({
+      example: "550e8400-e29b-41d4-a716-446655440000",
       description: "ID de la categoría del producto",
     }),
     image: z.any().openapi({
@@ -38,8 +38,8 @@ export const UpdateProductSchema = CreateProductSchema.partial().openapi(
 );
 
 export const ProductBaseSchema = z.object({
-  id: z.number().openapi({
-    example: 1,
+  id: z.string().uuid().openapi({
+    example: "550e8400-e29b-41d4-a716-446655440000",
     description: "ID del producto",
   }),
   name: z.string().openapi({
@@ -58,16 +58,16 @@ export const ProductBaseSchema = z.object({
     example: 50,
     description: "Cantidad en stock",
   }),
-  categoryId: z.number().openapi({
-    example: 1,
+  categoryId: z.string().uuid().openapi({
+    example: "550e8400-e29b-41d4-a716-446655440000",
     description: "ID de la categoría del producto",
   }),
 });
 
 export const ProductWithCategoryResponseSchema = z
   .object({
-    id: z.number().openapi({
-      example: 1,
+    id: z.uuid().openapi({
+      example: "550e8400-e29b-41d4-a716-446655440000",
       description: "ID del producto",
     }),
     name: z.string().openapi({
@@ -88,8 +88,8 @@ export const ProductWithCategoryResponseSchema = z
     }),
     category: z
       .object({
-        id: z.number().openapi({
-          example: 1,
+        id: z.string().uuid().openapi({
+          example: "550e8400-e29b-41d4-a716-446655440000",
           description: "ID de la categoría",
         }),
         name: z.string().openapi({
@@ -99,7 +99,7 @@ export const ProductWithCategoryResponseSchema = z
       })
       .openapi({
         example: {
-          id: 1,
+          id: "550e8400-e29b-41d4-a716-446655440000",
           name: "Electrónica",
         },
         description: "Categoría del producto",
@@ -133,8 +133,8 @@ export const SearchProductSchema = z
       example: "laptop",
       description: "Término de búsqueda",
     }),
-    categoryId: z.coerce.number().int().positive().optional().openapi({
-      example: 1,
+    categoryId: z.string().uuid().optional().openapi({
+      example: "550e8400-e29b-41d4-a716-446655440000",
       description: "Filtrar por ID de categoría",
     }),
     minPrice: z.coerce.number().positive().optional().openapi({
@@ -215,8 +215,8 @@ export const PaginatedProductsResponseSchema = z
 
 export const FilterProductsSchema = z
   .object({
-    categoryId: z.coerce.number().optional().openapi({
-      example: 1,
+    categoryId: z.uuid().optional().openapi({
+      example: "550e8400-e29b-41d4-a716-446655440000",
       description: "ID de la categoría del producto",
     }),
   })

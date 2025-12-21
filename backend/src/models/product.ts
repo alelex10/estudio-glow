@@ -1,20 +1,14 @@
-import {
-  mysqlTable,
-  serial,
-  varchar,
-  int,
-  bigint,
-  timestamp,
-} from "drizzle-orm/mysql-core";
+import { mysqlTable, varchar, int, timestamp } from "drizzle-orm/mysql-core";
 import { categories } from "./category";
+import { sql } from "drizzle-orm";
 
 export const products = mysqlTable("product", {
-  id: serial("id").primaryKey().autoincrement(),
+  id: varchar("id", { length: 36 }).primaryKey().default(sql`(UUID())`),
   name: varchar("name", { length: 255 }).notNull().unique(),
   description: varchar("description", { length: 500 }),
   price: int("price").notNull(),
   stock: int("stock").notNull().default(0),
-  categoryId: bigint("category_id", { mode: "number", unsigned: true })
+  categoryId: varchar("category_id", { length: 36 })
     .notNull()
     .references(() => categories.id),
   imageUrl: varchar("image_url", { length: 255 }),

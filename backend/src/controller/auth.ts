@@ -37,7 +37,10 @@ export const register = [
       const salt = await bcrypt.genSalt(10);
       const passwordHash = await bcrypt.hash(password, salt);
 
+      const id = crypto.randomUUID();
+
       await db.insert(users).values({
+        id,
         name,
         email,
         password_hash: passwordHash,

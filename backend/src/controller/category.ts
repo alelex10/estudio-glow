@@ -3,7 +3,7 @@ import { eq } from "drizzle-orm";
 import { db } from "../db";
 import { categories } from "../models/category";
 import type { Category, NewCategory } from "../models/category";
-import { validateBody } from "../middleware/validation";
+import { validateBody, validateQuery } from "../middleware/validation";
 import {
   CategoryListResponseSchema,
   CreateCategorySchema,
@@ -11,6 +11,7 @@ import {
 } from "../schemas/category";
 import { products } from "../models/product";
 import { ResponseSchema } from "../schemas/response";
+import { IdSchema } from "../schemas/id";
 
 // GET all categories
 export const listCategories = async (req: Request, res: Response) => {
@@ -29,28 +30,28 @@ export const listCategories = async (req: Request, res: Response) => {
 };
 
 // GET category by ID
-export const getCategory = async (req: Request, res: Response) => {
-  const id = Number(req.params.id);
-  if (isNaN(id)) {
-    return res.status(400).json({ message: "Invalid category ID" });
-  }
+export const getCategory = [
+  validateQuery(IdSchema),
+  async (req: Request, res: Response) => {
+    const id = IdSchema.parse(req.params.id);
 
-  try {
-    const result = await db
-      .select()
-      .from(categories)
-      .where(eq(categories.id, id));
+    try {
+      const result = await db
+        .select()
+        .from(categories)
+        .where(eq(categories.id, id));
 
-    if (result.length === 0) {
-      return res.status(404).json({ message: "Category not found" });
+      if (result.length === 0) {
+        return res.status(404).json({ message: "Category not found" });
+      }
+
+      res.json(result[0]);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: "Failed to fetch category" });
     }
-
-    res.json(result[0]);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Failed to fetch category" });
-  }
-};
+  },
+];
 
 // CREATE category
 export const createCategory = [
@@ -71,17 +72,21 @@ export const createCategory = [
           .json({ message: "Category with this name already exists" });
       }
 
+      const id = crypto.randomUUID();
       const data: NewCategory = {
+        id,
         name,
         description,
       };
 
-      const [result] = await db.insert(categories).values(data);
+      const [result] = await db.insert(categories).values({
+        ...data,
+      });
 
       const created = await db
         .select()
         .from(categories)
-        .where(eq(categories.id, result.insertId));
+        .where(eq(categories.id, id));
 
       res.status(201).json(
         ResponseSchema.parse({
@@ -100,9 +105,13 @@ export const createCategory = [
 export const updateCategory = [
   validateBody(UpdateCategorySchema),
   async (req: Request, res: Response) => {
-    const id = Number(req.params.id);
-    if (isNaN(id)) {
-      return res.status(400).json({ message: "Invalid category ID" });
+    const id = IdSchema.parse(req.params.id);
+
+    // Basic UUID format validation
+    const uuidRegex =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(id)) {
+      return res.status(400).json({ message: "Invalid category ID format" });
     }
 
     try {
@@ -157,41 +166,40 @@ export const updateCategory = [
 ];
 
 // DELETE category
-export const deleteCategory = async (req: Request, res: Response) => {
-  const id = Number(req.params.id);
-  if (isNaN(id)) {
-    return res.status(400).json({ message: "Invalid category ID" });
-  }
+export const deleteCategory = [
+  validateQuery(IdSchema),
+  async (req: Request, res: Response) => {
+    const id = IdSchema.parse(req.params.id);
+    try {
+      // Check if category exists
+      const existing = await db
+        .select()
+        .from(categories)
+        .where(eq(categories.id, id));
 
-  try {
-    // Check if category exists
-    const existing = await db
-      .select()
-      .from(categories)
-      .where(eq(categories.id, id));
+      if (existing.length === 0) {
+        return res.status(404).json({ message: "Category not found" });
+      }
 
-    if (existing.length === 0) {
-      return res.status(404).json({ message: "Category not found" });
+      // Check if category has associated products
+      const associatedProducts = await db
+        .select()
+        .from(products)
+        .where(eq(products.categoryId, id));
+
+      if (associatedProducts.length > 0) {
+        return res.status(409).json({
+          message: "Cannot delete category with associated products",
+          productsCount: associatedProducts.length,
+        });
+      }
+
+      await db.delete(categories).where(eq(categories.id, id));
+
+      res.json({ message: "Category deleted successfully" });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: "Failed to delete category" });
     }
-
-    // Check if category has associated products
-    const associatedProducts = await db
-      .select()
-      .from(products)
-      .where(eq(products.categoryId, id));
-
-    if (associatedProducts.length > 0) {
-      return res.status(409).json({
-        message: "Cannot delete category with associated products",
-        productsCount: associatedProducts.length,
-      });
-    }
-
-    await db.delete(categories).where(eq(categories.id, id));
-
-    res.json({ message: "Category deleted successfully" });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Failed to delete category" });
-  }
-};
+  },
+];

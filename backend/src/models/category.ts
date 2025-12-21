@@ -4,7 +4,7 @@
 import { mysqlTable, serial, varchar, timestamp } from "drizzle-orm/mysql-core";
 
 export const categories = mysqlTable("category", {
-  id: serial("id").primaryKey().autoincrement(),
+  id: varchar("id", { length: 36 }).primaryKey(),
   name: varchar("name", { length: 100 }).notNull().unique(),
   description: varchar("description", { length: 500 }),
   createdAt: timestamp("created_at").notNull().defaultNow(),

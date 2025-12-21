@@ -1,5 +1,5 @@
 CREATE TABLE `category` (
-	`id` serial AUTO_INCREMENT NOT NULL,
+	`id` varchar(36) NOT NULL,
 	`name` varchar(100) NOT NULL,
 	`description` varchar(500),
 	`created_at` timestamp NOT NULL DEFAULT (now()),
@@ -9,12 +9,12 @@ CREATE TABLE `category` (
 );
 --> statement-breakpoint
 CREATE TABLE `product` (
-	`id` serial AUTO_INCREMENT NOT NULL,
+	`id` varchar(36) NOT NULL DEFAULT (UUID()),
 	`name` varchar(255) NOT NULL,
 	`description` varchar(500),
 	`price` int NOT NULL,
 	`stock` int NOT NULL DEFAULT 0,
-	`category_id` bigint unsigned NOT NULL,
+	`category_id` varchar(36) NOT NULL,
 	`image_url` varchar(255),
 	`created_at` timestamp NOT NULL DEFAULT (now()),
 	`updated_at` timestamp NOT NULL DEFAULT (now()),
@@ -23,7 +23,7 @@ CREATE TABLE `product` (
 );
 --> statement-breakpoint
 CREATE TABLE `user` (
-	`id` int AUTO_INCREMENT NOT NULL,
+	`id` varchar(36) NOT NULL,
 	`name` varchar(100) NOT NULL,
 	`email` varchar(150) NOT NULL,
 	`password_hash` varchar(255) NOT NULL,
