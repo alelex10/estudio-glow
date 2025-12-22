@@ -31,7 +31,6 @@ export const listCategories = async (req: Request, res: Response) => {
 
 // GET category by ID
 export const getCategory = [
-  validateQuery(IdSchema),
   async (req: Request, res: Response) => {
     const id = IdSchema.parse(req.params.id);
 
