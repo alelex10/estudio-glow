@@ -18,7 +18,7 @@ import { FormInput } from "~/common/components/Form/FormInput";
 import { FormButton } from "~/common/components/Form/FormButton";
 import { FormError } from "~/common/components/Form/FormError";
 import { loginSchema, type LoginFormData } from "~/common/schemas/auth";
-import type { Route } from "../auth/+types/login";
+import type { Route } from "./+types/login";
 import { userContext, userContextProvider } from "~/common/context/context";
 import { API_BASE_URL, API_ENDPOINTS } from "~/common/config/api";
 
@@ -38,7 +38,7 @@ export async function clientAction({ request }: ActionFunctionArgs) {
 
   if (!response.ok) {
     const error = await response.json();
-    throw new Error(error.message || "Error al iniciar sesión");
+    return { error: error.message || "Error al iniciar sesión" };
   }
 
   const responseAction = redirect("/admin");
@@ -55,13 +55,7 @@ export default function AdminLogin({ actionData }: Route.ComponentProps) {
   const [isLoading, setIsLoading] = useState(false);
   let submit = useSubmit();
 
-  //   let cb = useCallback(async (data: LoginFormData) => {
-  //     submit(data, {
-  //       action: "/admin/login-action",
-  //       method: "post",
-  //       navigate: false,
-  //     });
-  //   }, []);
+  const { error } = actionData || {};
 
   const {
     register,
@@ -101,7 +95,18 @@ export default function AdminLogin({ actionData }: Route.ComponentProps) {
         </div>
 
         {/* Formulario */}
-        <Form className="space-y-5" method="post">
+        <Form
+          className="space-y-5"
+          method="post"
+          onSubmit={handleSubmit(async (data) => {
+            setIsLoading(true);
+            await submit(data, {
+              action: "/admin/login",
+              method: "post",
+            });
+            setIsLoading(false);
+          })}
+        >
           {/* Email */}
           <FormInput
             label="Email"
@@ -123,7 +128,7 @@ export default function AdminLogin({ actionData }: Route.ComponentProps) {
           />
 
           {/* Error */}
-          <FormError message={errors.root?.message} />
+          <FormError message={error} />
 
           {/* Submit */}
           <FormButton isLoading={isLoading} loadingText="Ingresando...">

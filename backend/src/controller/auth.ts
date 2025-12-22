@@ -53,7 +53,7 @@ export const register = [
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         maxAge: 3600000,
-        sameSite: "none",
+        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
       });
 
       res.status(201).json({ message: "User registered successfully" });
@@ -104,7 +104,7 @@ export const login = [
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         maxAge: 3600000,
-        sameSite: "none",
+        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
       });
 
       const responseDto = AuthResponseSchema.safeParse({
