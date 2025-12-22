@@ -37,17 +37,30 @@ export function generateOpenApi() {
       {
         url: "http://localhost:3000",
         description: "Servidor de desarrollo",
+        security: [
+          {
+            bearerAuth: {
+              type: "http",
+              scheme: "bearer",
+              bearerFormat: "JWT",
+            },
+          },
+        ],
+      },
+      {
+        url: "https://estudio-glow.onrender.com/",
+        description: "Servidor de producción",
+        security: [
+          {
+            bearerAuth: {
+              type: "https",
+              scheme: "bearer",
+              bearerFormat: "JWT",
+            },
+          },
+        ],
       },
     ],
-    components: {
-      securitySchemes: {
-        bearerAuth: {
-          type: "http",
-          scheme: "bearer",
-          bearerFormat: "JWT",
-        },
-      },
-    },
   };
 
   const generator = new OpenApiGeneratorV3(registry.definitions);
