@@ -11,6 +11,7 @@ import { data } from "react-router";
 import type { Route } from "./+types/layout";
 import { FilterSideBar } from "./components/FilterSideBar";
 import Footer from "~/common/components/Footer";
+import Popover from "~/common/components/Popover";
 
 export async function loader() {
   try {
@@ -68,7 +69,7 @@ export default function ProductsLayout() {
   return (
     <>
       <main>
-        <div className="flex gap-4 mb-8 md:justify-end">
+        <div className="flex gap-2 mb-8 justify-center md:justify-end pt-24 px-4">
           <Button
             onClick={() => setIsFilterOpen(true)}
             variant="outline"
@@ -78,21 +79,12 @@ export default function ProductsLayout() {
             Filtros
           </Button>
 
-          <div className="w-full md:w-fit relative">
-            <Button
-              variant="outline"
-              onClick={() => setIsSortOpen(!isSortOpen)}
-            >
-              Ordenar
-              <ChevronDown
-                size={18}
-                className={clsx(
-                  "transition-transform duration-200",
-                  isSortOpen && "rotate-180"
-                )}
-              />
-            </Button>
-
+          <Popover
+            isOpen={isSortOpen}
+            setIsOpen={setIsSortOpen}
+            text="Ordenar"
+            className="md:w-fit"
+          >
             {isSortOpen && (
               <div className="absolute right-0 top-full mt-2 w-56 bg-white rounded-xl shadow-lg border border-primary-100 py-2 z-50 animate-in fade-in zoom-in-95 duration-200">
                 {SORT_OPTIONS.map((option, index) => (
@@ -112,14 +104,16 @@ export default function ProductsLayout() {
                 ))}
               </div>
             )}
-          </div>
+          </Popover>
         </div>
+
         <div className="flex gap-4 w-full justify-center">
           <div className="hidden md:block">
             <FilterSideBar categories={categories || []} />
           </div>
           <Outlet />
         </div>
+
         <div className="md:hidden">
           <FilterDrawer
             categories={categories || []}

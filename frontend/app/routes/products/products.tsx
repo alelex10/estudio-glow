@@ -53,17 +53,15 @@ export default function Products({ loaderData, sort }: Props) {
     sortOrder: "asc",
     sortBy: "price",
   });
-  console.log("products", products);
 
   return (
     <>
-      <div className="flex justify-center min-h-screen pt-24 px-4 bg-primary-100">
         {products.data.length === 0 && (
           <div className="flex justify-center w-full">
             <p className="text-2xl font-bold ">No hay productos</p>
           </div>
         )}
-        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-x-4 gap-y-8">
+        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-x-4">
           {products.data.map((product) => (
             <div key={product.id}>
               <ProductCard
@@ -75,7 +73,6 @@ export default function Products({ loaderData, sort }: Props) {
             </div>
           ))}
         </div>
-      </div>
     </>
   );
 }
