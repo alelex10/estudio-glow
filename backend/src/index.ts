@@ -49,6 +49,13 @@ app.use("/categories", categoryRouter);
 app.use("/auth", authRouter);
 
 app.listen(PORT, () => {
-  console.log(`Servidor escuchando en http://localhost:${PORT}`);
-  console.log(`Documentación disponible en http://localhost:${PORT}/api-docs`);
+  const isProduction = process.env.NODE_ENV === 'production';
+  
+  if (isProduction) {
+    console.log(`Servidor desplegado y funcionando en https://estudio-glow.onrender.com`);
+    console.log(`API disponible para producción en https://estudio-glow.onrender.com/api-docs`);
+  } else {
+    console.log(`Servidor escuchando en http://localhost:${PORT}`);
+    console.log(`Documentación disponible en http://localhost:${PORT}/api-docs`);
+  }
 });
