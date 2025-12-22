@@ -1,7 +1,7 @@
 import { NavLink, useLocation } from "react-router";
 import clsx from "clsx";
 import { Logo } from "../Logo";
-import { Box, Home, Tag } from "lucide-react";
+import { Box, Home, LogOut, Tag } from "lucide-react";
 
 interface SidebarProps {
     isOpen: boolean;
@@ -30,6 +30,13 @@ const navItems = [
             <Tag />
         ),
     },
+    {
+        name: "Cerrar Sesión",
+        path: "/admin/login",
+        icon: (
+            <LogOut />
+        ),
+    }
 ];
 
 export function Sidebar({ isOpen, onClose }: SidebarProps) {

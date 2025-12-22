@@ -34,6 +34,7 @@ import type { ListFormat } from "typescript";
 import { PaginationHelper, type PaginatedResponse } from "../types/pagination";
 import { ResponseSchema } from "../schemas/response";
 import { IdSchema } from "../schemas/id";
+import { CLOUDINARY } from "../constants/const";
 
 cloudinary.config(cloudinaryConfig);
 
@@ -131,7 +132,7 @@ export const listProductsPaginated = [
 // GET product by ID
 export async function getProduct(req: Request, res: Response) {
   const id = IdSchema.parse(req.params.id);
-  
+
   try {
     const result = await db
       .select()
@@ -188,41 +189,43 @@ export const createProduct = [
   async (req: Request, res: Response) => {
     try {
       const { name, description, price, stock, categoryId } = req.body;
-
+      
       // Validate that category exists
       const categoryExists = await db
-        .select()
-        .from(categories)
-        .where(eq(categories.id, categoryId));
-
+      .select()
+      .from(categories)
+      .where(eq(categories.id, categoryId));
+      
       if (categoryExists.length === 0) {
         return res.status(404).json({ message: "Category not found" });
       }
-
+      
       const exists = await db
-        .select()
-        .from(products)
-        .where(eq(products.name, name));
-
+      .select()
+      .from(products)
+      .where(eq(products.name, name));
+      
       if (exists.length > 0)
         return res.status(400).json({
-          message:
-            "El producto de nombre " +
-            name +
-            " ya existe solo se le puede subir o bajar el stock",
-        });
+      message:
+      "El producto de nombre " +
+      name +
+      " ya existe solo se le puede subir o bajar el stock",
+    });
+    
+    const id = crypto.randomUUID();
 
-      if (!req.file) {
-        return res.status(400).json({ message: "Imagen requerida" });
-      }
-      // Subir imagen a Cloudinary desde buffer
-      const cloudinaryResult: UploadApiResponse = await new Promise(
-        (resolve, reject) => {
-          cloudinary.uploader
+    if (!req.file) {
+      return res.status(400).json({ message: "Imagen requerida" });
+    }
+    // Subir imagen a Cloudinary desde buffer
+    const cloudinaryResult: UploadApiResponse = await new Promise(
+      (resolve, reject) => {
+        cloudinary.uploader
             .upload_stream(
               {
                 folder: "products",
-                public_id: `product_${Date.now()}`,
+                public_id: `${id}`,
                 resource_type: "image",
               },
               (error, result) => {
@@ -235,7 +238,6 @@ export const createProduct = [
         }
       );
 
-      const id = crypto.randomUUID();
 
       const data: NewProduct = {
         id,
@@ -366,6 +368,8 @@ export async function deleteProduct(req: Request, res: Response) {
   }
 
   try {
+    cloudinary.uploader.destroy(`${CLOUDINARY.FOLDER.PRODUCTS}/${id}`);
+
     await db.delete(products).where(eq(products.id, id));
     res.json({ message: "Product deleted" });
   } catch (err) {
