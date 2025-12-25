@@ -47,9 +47,15 @@
         "index": true,
         "config": {}
       },
+      "routes/products/layout": {
+        "id": "routes/products/layout",
+        "parentId": "routes/layout",
+        "file": "app/routes/products/layout.tsx",
+        "config": {}
+      },
       "routes/products/products": {
         "id": "routes/products/products",
-        "parentId": "routes/layout",
+        "parentId": "routes/products/layout",
         "file": "app/routes/products/products.tsx",
         "path": "products",
         "config": {}
@@ -167,9 +173,14 @@
         "file": "./routes/home/home.tsx",
         "index": true
       },
+      "routes/products/layout": {
+        "id": "routes/products/layout",
+        "parentId": "routes/layout",
+        "file": "./routes/products/layout.tsx"
+      },
       "routes/products/products": {
         "id": "routes/products/products",
-        "parentId": "routes/layout",
+        "parentId": "routes/products/layout",
         "file": "./routes/products/products.tsx",
         "path": "products"
       },
@@ -266,8 +277,13 @@
                 "index": true
               },
               {
-                "file": "./routes/products/products.tsx",
-                "path": "products"
+                "file": "./routes/products/layout.tsx",
+                "children": [
+                  {
+                    "file": "./routes/products/products.tsx",
+                    "path": "products"
+                  }
+                ]
               },
               {
                 "file": "./routes/product.$id.tsx",
