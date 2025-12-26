@@ -1,6 +1,19 @@
-export default function test() {
+import { testService } from "~/common/services/testService";
+import type { Route } from "./+types/test-2";
+import { Suspense } from "react";
+import { Await } from "react-router";
+
+export async function loader() {
+  const test = await testService.getTest();
+  return test;
+}
+export default function Test({ loaderData }: Route.ComponentProps) {
+  const test = loaderData;
   return (
     <div className="min-h-screen bg-linear-to-br from-blue-50 to-indigo-100 p-8">
+      <Suspense fallback={<div>Loading...</div>}>
+        <Await resolve={test}>{(test) => <h1>{test?.message}</h1>}</Await>
+      </Suspense>
       <div className="max-w-4xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {Array.from({ length: 6 }).map((_, index) => (

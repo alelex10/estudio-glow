@@ -56,26 +56,23 @@ export default function Products({ loaderData, sort }: Props) {
 
   return (
     <>
-        {products.data.length === 0 && (
-          <div className="flex justify-center w-full">
-            <p className="text-2xl font-bold ">No hay productos</p>
-          </div>
-        )}
-        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-x-4">
-          {products.data.map((product) => (
-            <div key={product.id}>
-              <ProductCard
-                productId={product.id}
-                imageUrl={product.imageUrl}
-                name={product.name}
-                price={product.price}
-              />
-            </div>
-          ))}
-          <p className="mt-2">
-            Tiempo de carga: {performance.now().toFixed(2)}ms
-          </p>
+      {products.data.length === 0 && (
+        <div className="flex justify-center w-full">
+          <p className="text-2xl font-bold ">No hay productos</p>
         </div>
+      )}
+      <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-x-4">
+        {products.data.map((product) => (
+          <div key={product.id}>
+            <ProductCard
+              productId={product.id}
+              imageUrl={product.imageUrl}
+              name={product.name}
+              price={product.price}
+            />
+          </div>
+        ))}
+      </div>
     </>
   );
 }

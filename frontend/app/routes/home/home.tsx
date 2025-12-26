@@ -73,9 +73,6 @@ export default function Home() {
             </Await>
           </Suspense>
         </section>
-        <p className="mt-2">
-          Tiempo de carga: {performance.now().toFixed(2)}ms
-        </p>
       </main>
       <Footer />
     </>
