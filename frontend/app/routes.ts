@@ -28,4 +28,7 @@ export default [
     route("admin/categories/new", "./routes/admin/category.new.tsx"),
     route("admin/categories/:id", "./routes/admin/category.$id.tsx"),
   ]),
+
+  // Rutas de pruebas
+  route("test", "./routes/page-test/test.tsx"),
 ] satisfies RouteConfig;

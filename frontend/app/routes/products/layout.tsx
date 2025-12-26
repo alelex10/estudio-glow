@@ -1,8 +1,8 @@
-import { Outlet, useLoaderData } from "react-router";
+import { Await, Outlet, useLoaderData } from "react-router";
 import { Button } from "~/common/components/Button";
 import { SlidersHorizontal, ChevronDown } from "lucide-react";
 import clsx from "clsx";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { FilterDrawer } from "./components/FilterDrawer";
 import { productService } from "~/common/services/productService";
 import { isRouteErrorResponse } from "react-router";
@@ -48,11 +48,11 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   }
 }
 
-export default function ProductsLayout() {
+export default function ProductsLayout({ loaderData }: Route.ComponentProps) {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [isSortOpen, setIsSortOpen] = useState(false);
   const [filter, setFilter] = useState({ sortBy: "name", sortOrder: "asc" });
-  const { categories } = useLoaderData<typeof loader>();
+  const { categories } = loaderData;
 
   const SORT_OPTIONS = [
     { label: "Precio: Menor a Mayor", sortBy: "price", sortOrder: "asc" },
@@ -106,22 +106,26 @@ export default function ProductsLayout() {
             )}
           </Popover>
         </div>
+        <Suspense fallback={<div>Loading...</div>}>
+          <Await resolve={categories}>
+            <div className="flex gap-4 w-full justify-center">
+              <div className="hidden md:block">
+                <FilterSideBar categories={categories || []} />
+              </div>
+              <Outlet />
+            </div>
 
-        <div className="flex gap-4 w-full justify-center">
-          <div className="hidden md:block">
-            <FilterSideBar categories={categories || []} />
-          </div>
-          <Outlet />
-        </div>
-
-        <div className="md:hidden">
-          <FilterDrawer
-            categories={categories || []}
-            isOpen={isFilterOpen}
-            onClose={() => setIsFilterOpen(false)}
-          />
-        </div>
+            <div className="md:hidden">
+              <FilterDrawer
+                categories={categories || []}
+                isOpen={isFilterOpen}
+                onClose={() => setIsFilterOpen(false)}
+              />
+            </div>
+          </Await>
+        </Suspense>
       </main>
+
       <Footer className="mt-20" />
     </>
   );
