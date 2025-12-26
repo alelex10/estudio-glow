@@ -2,9 +2,9 @@ import { ProductCarousel } from "~/common/components/ProductCarousel";
 import type { Route } from "./+types/home";
 import Hero from "./components/Hero";
 import Footer from "~/common/components/Footer";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import Navbar from "~/common/components/Navbar";
-import { useLoaderData } from "react-router";
+import { Await, useLoaderData } from "react-router";
 import { productService } from "~/common/services/productService";
 
 export function meta({}: Route.MetaArgs) {
@@ -61,11 +61,17 @@ export default function Home() {
           className="text-center text-primary-800 text-3xl md:text-5xl py-10"
         >
           <h2 className="font-playfair tracking-wide mb-10">Lo mas nuevo </h2>
-          {newProducts ? (
-            <ProductCarousel products={newProducts} />
-          ) : (
-            "No hay productos"
-          )}
+          <Suspense fallback={<div>Loading...</div>}>
+            <Await resolve={newProducts}>
+              {(newProducts) =>
+                newProducts ? (
+                  <ProductCarousel products={newProducts} />
+                ) : (
+                  "No hay productos"
+                )
+              }
+            </Await>
+          </Suspense>
         </section>
       </main>
       <Footer />
