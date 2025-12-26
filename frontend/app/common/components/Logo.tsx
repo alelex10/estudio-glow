@@ -10,7 +10,7 @@ export const Logo = ({ className, variant = "full" }: LogoProps) => {
     if (variant === "icon") {
         return (
             <div className={clsx("rounded-full overflow-hidden", className)}>
-                <img src="/img/logo/logo-1.png" alt="Estudio Glow" className="w-full h-full object-contain" />
+                <img src="/img/logo/logo-1.avif" alt="Estudio Glow" className="w-full h-full object-contain" />
             </div>
         );
     }
@@ -22,7 +22,7 @@ export const Logo = ({ className, variant = "full" }: LogoProps) => {
 
                     <div className="rounded-full overflow-hidden w-60 sm:w-72">
                         <div className="w-fit m-auto">
-                            <img src="/img/logo/logo-1.png" alt="logo" />
+                            <img src="/img/logo/logo-1.avif" alt="logo" />
                         </div>
                     </div>
                     <div className="absolute -inset-4 rounded-full border border-primary-500 pointer-events-none"></div>

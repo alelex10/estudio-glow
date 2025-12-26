@@ -122,7 +122,7 @@ export default function ProductsLayout() {
           />
         </div>
       </main>
-      <Footer className="mt-20" />
+      {/* <Footer className="mt-20" /> */}
     </>
   );
 }
