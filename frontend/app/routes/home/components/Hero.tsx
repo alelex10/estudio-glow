@@ -4,7 +4,7 @@ import { Logo } from "../../../common/components/Logo";
 export default function Hero() {
     return (
         <div className={clsx("relative w-full h-screen overflow-hidden flex items-center justify-center",
-            "bg-[url(/img/home/bg-hero.webp)] bg-cover bg-center bg-no-repeat",
+            "bg-[url(/img/home/bg-hero.avif)] bg-cover bg-center bg-no-repeat",
             "bg-primary-900 px-[15%]"
         )}>
             <div className="absolute inset-0 opacity-70 bg-primary-900"></div>

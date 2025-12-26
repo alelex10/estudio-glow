@@ -47,7 +47,7 @@ export default function Home() {
         <section id="hero">
           <Hero />
         </section>
-        <img className="py-20" src="/img/home/home-2.webp" alt="" />
+        <img className="py-20" src="/img/home/home-2.avif" alt="" />
         {/* <section id="mas-vendidos" className="text-center text-primary-800 text-3xl md:text-5xl py-10">
           <h2 className="font-playfair tracking-wide mb-10">Mas vendidos </h2>
           <ProductCarousel products={newProducts} />

@@ -68,7 +68,7 @@ export default function ProductsLayout() {
 
   return (
     <>
-      <main>
+      <main className="min-h-screen">
         <div className="flex gap-2 mb-8 justify-center md:justify-end pt-24 px-4">
           <Button
             onClick={() => setIsFilterOpen(true)}
