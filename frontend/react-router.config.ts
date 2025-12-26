@@ -7,6 +7,6 @@ export default {
   ssr: true,
   presets: [vercelPreset()],
   async prerender() {
-    return ["/admin/login","/","/products"];
+    return ["/admin/login"];
   },
 } satisfies Config;
