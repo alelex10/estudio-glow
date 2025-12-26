@@ -8,6 +8,8 @@
         "@hookform/resolvers": "^5.2.2",
         "@react-router/node": "^7.9.2",
         "@react-router/serve": "^7.9.2",
+        "@tanstack/react-query": "^5.90.12",
+        "@tanstack/react-query-devtools": "^5.91.1",
         "@vercel/react-router": "^1.2.4",
         "clsx": "^2.1.1",
         "isbot": "^5.1.31",
@@ -256,6 +258,14 @@
     "@tailwindcss/oxide-win32-x64-msvc": ["@tailwindcss/oxide-win32-x64-msvc@4.1.17", "", { "os": "win32", "cpu": "x64" }, "sha512-SKWM4waLuqx0IH+FMDUw6R66Hu4OuTALFgnleKbqhgGU30DY20NORZMZUKgLRjQXNN2TLzKvh48QXTig4h4bGw=="],
 
     "@tailwindcss/vite": ["@tailwindcss/vite@4.1.17", "", { "dependencies": { "@tailwindcss/node": "4.1.17", "@tailwindcss/oxide": "4.1.17", "tailwindcss": "4.1.17" }, "peerDependencies": { "vite": "^5.2.0 || ^6 || ^7" } }, "sha512-4+9w8ZHOiGnpcGI6z1TVVfWaX/koK7fKeSYF3qlYg2xpBtbteP2ddBxiarL+HVgfSJGeK5RIxRQmKm4rTJJAwA=="],
+
+    "@tanstack/query-core": ["@tanstack/query-core@5.90.12", "", {}, "sha512-T1/8t5DhV/SisWjDnaiU2drl6ySvsHj1bHBCWNXd+/T+Hh1cf6JodyEYMd5sgwm+b/mETT4EV3H+zCVczCU5hg=="],
+
+    "@tanstack/query-devtools": ["@tanstack/query-devtools@5.91.1", "", {}, "sha512-l8bxjk6BMsCaVQH6NzQEE/bEgFy1hAs5qbgXl0xhzezlaQbPk6Mgz9BqEg2vTLPOHD8N4k+w/gdgCbEzecGyNg=="],
+
+    "@tanstack/react-query": ["@tanstack/react-query@5.90.12", "", { "dependencies": { "@tanstack/query-core": "5.90.12" }, "peerDependencies": { "react": "^18 || ^19" } }, "sha512-graRZspg7EoEaw0a8faiUASCyJrqjKPdqJ9EwuDRUF9mEYJ1YPczI9H+/agJ0mOJkPCJDk0lsz5QTrLZ/jQ2rg=="],
+
+    "@tanstack/react-query-devtools": ["@tanstack/react-query-devtools@5.91.1", "", { "dependencies": { "@tanstack/query-devtools": "5.91.1" }, "peerDependencies": { "@tanstack/react-query": "^5.90.10", "react": "^18 || ^19" } }, "sha512-tRnJYwEbH0kAOuToy8Ew7bJw1lX3AjkkgSlf/vzb+NpnqmHPdWM+lA2DSdGQSLi1SU0PDRrrCI1vnZnci96CsQ=="],
 
     "@ts-morph/common": ["@ts-morph/common@0.11.1", "", { "dependencies": { "fast-glob": "^3.2.7", "minimatch": "^3.0.4", "mkdirp": "^1.0.4", "path-browserify": "^1.0.1" } }, "sha512-7hWZS0NRpEsNV8vWJzg7FEz6V8MaLNeJOmwmghqUXTpzk16V1LLZhdo+4QvE/+zv4cVci0OviuJFnqhEfoV3+g=="],
 

@@ -6,9 +6,12 @@ import {
   Scripts,
   ScrollRestoration,
 } from "react-router";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
 import type { Route } from "./+types/root";
 import "./app.css";
+import { queryClient } from "./common/lib/query-client";
 
 // export const links: Route.LinksFunction = () => [
 //   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -33,7 +36,10 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body className="font-gabarito">
-        {children}
+        <QueryClientProvider client={queryClient}>
+          {children}
+          <ReactQueryDevtools initialIsOpen={false} />
+        </QueryClientProvider>
         <ScrollRestoration />
         <Scripts />
       </body>
