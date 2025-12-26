@@ -27,6 +27,10 @@ interface Props {
   sort: { sortBy: string; sortOrder: string };
 }
 
+export function HydrateFallback() {
+  return <div>Loading...</div>;
+}
+
 export default function Products({ loaderData, sort }: Props) {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const { products: productsData } = loaderData;

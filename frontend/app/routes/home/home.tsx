@@ -24,6 +24,10 @@ export async function loader() {
   }
 }
 
+export function HydrateFallback() {
+  return <div>Loading...</div>;
+}
+
 export default function Home() {
   const [isHeroVisible, setIsHeroVisible] = useState(true);
   const { newProducts } = useLoaderData<typeof loader>();
