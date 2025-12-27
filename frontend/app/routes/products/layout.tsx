@@ -6,21 +6,32 @@ import { Suspense, useState } from "react";
 import { FilterDrawer } from "./components/FilterDrawer";
 import { productService } from "~/common/services/productService";
 import { isRouteErrorResponse } from "react-router";
-
-import { data } from "react-router";
+import { queryOptions } from "@tanstack/react-query";
 import type { Route } from "./+types/layout";
 import { FilterSideBar } from "./components/FilterSideBar";
 import Footer from "~/common/components/Footer";
 import Popover from "~/common/components/Popover";
+import { queryClient } from "~/common/config/query-client";
 
-export async function loader() {
-  try {
-    const categories = await productService.getCategories();
-    return { categories: categories.data };
-  } catch (error) {
-    throw data("Error loading categories", { status: 500 });
-  }
-}
+const categoryListQuery = () =>
+  queryOptions({
+    queryKey: ["categories"],
+    queryFn: () => productService.getCategories(),
+  });
+
+export const loader = async () => {
+  const categoriesData = await queryClient.ensureQueryData(categoryListQuery());
+  return { categories: categoriesData.data };
+};
+
+// export async function loader() {
+//   try {
+//     const categories = await productService.getCategories();
+//     return { categories: categories.data };
+//   } catch (error) {
+//     throw data("Error loading categories", { status: 500 });
+//   }
+// }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   if (isRouteErrorResponse(error)) {
