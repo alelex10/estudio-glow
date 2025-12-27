@@ -6,6 +6,8 @@ import { useState, useEffect, Suspense } from "react";
 import Navbar from "~/common/components/Navbar";
 import { Await, useLoaderData } from "react-router";
 import { productService } from "~/common/services/productService";
+import { queryOptions } from "@tanstack/react-query";
+import { queryClient } from "~/common/config/query-client";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -13,15 +15,15 @@ export function meta({}: Route.MetaArgs) {
     { name: "description", content: "Welcome to Glow Studio" },
   ];
 }
+const newProductListQuery = () =>
+  queryOptions({
+    queryKey: ["products"],
+    queryFn: () => productService.getNewProducts(),
+  });
 
 export async function loader() {
-  try {
-    const newProducts = (await productService.getNewProducts()).data;
-    return { newProducts };
-  } catch (error) {
-    console.error("Error al obtener productos");
-    return { newProducts: [] };
-  }
+  const newProducts = await queryClient.ensureQueryData(newProductListQuery());
+  return { newProducts };
 }
 
 export function HydrateFallback() {
@@ -62,7 +64,7 @@ export default function Home() {
         >
           <h2 className="font-playfair tracking-wide mb-10">Lo mas nuevo </h2>
           <Suspense fallback={<div>Loading...</div>}>
-            <Await resolve={newProducts}>
+            <Await resolve={newProducts.data}>
               {(newProducts) =>
                 newProducts ? (
                   <ProductCarousel products={newProducts} />
