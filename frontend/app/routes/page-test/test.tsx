@@ -1,6 +1,6 @@
 export default function test() {
   return (
-    <div className="min-h-screen bg-linear-to-br from-blue-50 to-indigo-100 p-8">
+    <div className="min-h-screen bg-linear-to-br from-blue-50 to-indigo-100 p-8 mt-20">
       <div className="max-w-4xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {Array.from({ length: 6 }).map((_, index) => (

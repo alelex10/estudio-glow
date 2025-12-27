@@ -24,7 +24,7 @@ export default function Navbar({ isBackgroundVisible = true }: NavbarProps) {
     const isProducts = page.pathname === "/products";
 
     return (
-        <header className="mb-20">
+        <header>
             <nav className={clsx(`fixed top-0 left-0 w-full z-50 flex items-center justify-between px-4 h-20 text-primary-100 transition-all duration-300`,
                 isHome && isBackgroundVisible ? "bg-transparent" : "bg-opacity-100 bg-linear-to-r from-primary-800/50 via-primary-200/50 to-primary-800/50 backdrop-blur-sm"
             )}>

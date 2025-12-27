@@ -10,7 +10,7 @@ export async function loader() {
 export default function Test({ loaderData }: Route.ComponentProps) {
   const test = loaderData;
   return (
-    <div className="min-h-screen bg-linear-to-br from-blue-50 to-indigo-100 p-8">
+    <div className="min-h-screen bg-linear-to-br from-blue-50 to-indigo-100 p-8 mt-20">
       <Suspense fallback={<div>Loading...</div>}>
         <Await resolve={test}>{(test) => <h1>{test?.message}</h1>}</Await>
       </Suspense>
