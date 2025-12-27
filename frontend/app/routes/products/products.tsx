@@ -14,45 +14,20 @@ export function meta({}: Route.MetaArgs) {
 
 export async function loader() {
   const products = await productService.getProductsPaginated(1, 10);
-  const categories = await productService.getCategories();
-  return { products, categories: categories.data };
+  return { products };
 }
-export async function action() {
-  const products = await productService.getProductsFilter(1, 10, "", "", "");
-  const categories = await productService.getCategories();
-  return { products, categories: categories.data };
-}
+// export async function action() {
+//   const products = await productService.getProductsFilter(1, 10, "", "", "");
+//   const categories = await productService.getCategories();
+//   return { products, categories: categories.data };
+// }
 interface Props {
-  loaderData: { products: PaginationResponse<Product>; categories: Category[] };
-  sort: { sortBy: string; sortOrder: string };
+  loaderData: { products: PaginationResponse<Product> };
 }
 
-export default function Products({ loaderData, sort }: Props) {
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
+export default function Products({ loaderData }: Props) {
   const { products: productsData } = loaderData;
   const [products, setProducts] = useState(productsData);
-  const [isSortOpen, setIsSortOpen] = useState(false);
-  // const { sortBy, sortOrder } = sort;
-
-  const handleSort = async (sortBy: string, sortOrder: string) => {
-    setFilter((prev) => ({ ...prev, sortBy, sortOrder }));
-    const { category } = filter;
-    const products = await productService.getProductsFilter(
-      1,
-      10,
-      category,
-      sortOrder,
-      sortBy
-    );
-    setProducts(products);
-    setIsSortOpen(false);
-  };
-
-  const [filter, setFilter] = useState({
-    category: "",
-    sortOrder: "asc",
-    sortBy: "price",
-  });
 
   return (
     <>
