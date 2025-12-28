@@ -4,10 +4,10 @@ import Hero from "./components/Hero";
 import Footer from "~/common/components/Footer";
 import { useState, useEffect, Suspense } from "react";
 import Navbar from "~/common/components/Navbar";
-import { Await, useLoaderData } from "react-router";
-import { productService } from "~/common/services/productService";
-import { queryOptions } from "@tanstack/react-query";
+import { Await } from "react-router";
 import { queryClient } from "~/common/config/query-client";
+import { newProductsQuery } from "~/common/hooks/queries/useProductQuerys";
+import { useSuspenseQuery } from "@tanstack/react-query";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -15,24 +15,16 @@ export function meta({}: Route.MetaArgs) {
     { name: "description", content: "Welcome to Glow Studio" },
   ];
 }
-const newProductListQuery = () =>
-  queryOptions({
-    queryKey: ["products"],
-    queryFn: () => productService.getNewProducts(),
-  });
 
 export async function loader() {
-  const newProducts = await queryClient.ensureQueryData(newProductListQuery());
-  return { newProducts };
-}
-
-export function HydrateFallback() {
-  return <div>Loading...</div>;
+  await queryClient.ensureQueryData(newProductsQuery());
+  // return { newProducts };
 }
 
 export default function Home() {
   const [isHeroVisible, setIsHeroVisible] = useState(true);
-  const { newProducts } = useLoaderData<typeof loader>();
+  // const { newProducts } = loaderData;
+  const { data: newProducts } = useSuspenseQuery(newProductsQuery());
 
   useEffect(() => {
     const handleScroll = () => {
