@@ -137,7 +137,7 @@ export default function ProductsLayout({ loaderData }: Route.ComponentProps) {
         </Suspense>
       </main>
 
-      {/* <Footer className="mt-20" /> */}
+      <Footer className="mt-20" />
     </>
   );
 }

@@ -7,7 +7,7 @@ export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       // Tiempo que los datos se consideran frescos (5 minutos)
-      staleTime: 5 * 60 * 1000,
+      staleTime: Infinity,
       // Tiempo que los datos se mantienen en cache (10 minutos)
       gcTime: 10 * 60 * 1000,
       // Reintentar peticiones fallidas

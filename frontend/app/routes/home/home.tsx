@@ -7,7 +7,6 @@ import Navbar from "~/common/components/Navbar";
 import { Await } from "react-router";
 import { queryClient } from "~/common/config/query-client";
 import { newProductsQuery } from "~/common/hooks/queries/useProductQuerys";
-import { useSuspenseQuery } from "@tanstack/react-query";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -17,14 +16,14 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export async function loader() {
-  await queryClient.ensureQueryData(newProductsQuery());
-  // return { newProducts };
+  const newProducts = await queryClient.ensureQueryData(newProductsQuery());
+  return { newProducts };
 }
 
-export default function Home() {
+export default function Home({ loaderData }: Route.ComponentProps) {
   const [isHeroVisible, setIsHeroVisible] = useState(true);
-  // const { newProducts } = loaderData;
-  const { data: newProducts } = useSuspenseQuery(newProductsQuery());
+  const { newProducts } = loaderData;
+  // const { data: newProducts } = useSuspenseQuery(newProductsQuery());
 
   useEffect(() => {
     const handleScroll = () => {
