@@ -8,10 +8,14 @@ import type {
   SearchProductParams,
 } from "../types/product-types";
 
+const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
 class ProductService {
   private baseUrl = API_BASE_URL;
 
   async getNewProducts(): Promise<ResponseSchema<Product[]>> {
+    console.log("Fetching new products...");
+    await delay(1000); // Simulate network delay
     const response = await fetch(
       `${this.baseUrl}/${API_ENDPOINTS.PUBLIC.PRODUCTS.GET_NEW_PRODUCTS}`,
       {

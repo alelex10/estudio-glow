@@ -23,3 +23,22 @@ export const queryClient = new QueryClient({
     },
   },
 });
+
+let browserQueryClient: QueryClient | undefined;
+
+export function getQueryClient() {
+  if (!browserQueryClient) {
+    browserQueryClient = new QueryClient({
+      defaultOptions: {
+        queries: {
+          staleTime: Infinity,
+          refetchOnWindowFocus: false,
+          refetchOnReconnect: false,
+          retry: false,
+        },
+      },
+    });
+  }
+
+  return browserQueryClient;
+}
