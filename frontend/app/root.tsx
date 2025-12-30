@@ -10,22 +10,11 @@ import {
 import type { Route } from "./+types/root";
 import "./app.css";
 import { QueryClientProvider } from "@tanstack/react-query";
-import { queryClient } from "./common/config/query-client";
-
-// export const links: Route.LinksFunction = () => [
-//   { rel: "preconnect", href: "https://fonts.googleapis.com" },
-//   {
-//     rel: "preconnect",
-//     href: "https://fonts.gstatic.com",
-//     crossOrigin: "anonymous",
-//   },
-//   {
-//     rel: "stylesheet",
-//     href: "https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Roboto:wght@300;400;500;700&display=swap",
-//   },
-// ];
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import { getQueryClient } from "./common/config/query-client";
 
 export function Layout({ children }: { children: React.ReactNode }) {
+  const queryClient = getQueryClient();
   return (
     <html lang="en">
       <head>
@@ -37,6 +26,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       <body className="font-gabarito">
         <QueryClientProvider client={queryClient}>
           {children}
+          <ReactQueryDevtools initialIsOpen={false} />
         </QueryClientProvider>
         <ScrollRestoration />
         <Scripts />
