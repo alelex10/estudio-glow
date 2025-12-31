@@ -24,12 +24,12 @@ const categoryListQuery = () =>
     queryFn: () => productService.getCategories(),
   });
 
-export const loader = async () => {
-  const queryClient = new QueryClient();
-  await queryClient.prefetchQuery(categoryListQuery());
+// export const loader = async () => {
+//   const queryClient = new QueryClient();
+//   await queryClient.prefetchQuery(categoryListQuery());
 
-  return { dehydratedState: dehydrate(queryClient) };
-};
+//   return { dehydratedState: dehydrate(queryClient) };
+// };
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   if (isRouteErrorResponse(error)) {
@@ -57,14 +57,8 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   }
 }
 
-export default function ProductsLayoutRoute({
-  loaderData,
-}: Route.ComponentProps) {
-  return (
-    <HydrationBoundary state={loaderData.dehydratedState}>
-      <ProductsLayout />
-    </HydrationBoundary>
-  );
+export default function ProductsLayoutRoute() {
+  return <ProductsLayout />;
 }
 
 function ProductsLayout() {

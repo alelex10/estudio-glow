@@ -21,7 +21,17 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export async function loader() {
-  const queryClient = new QueryClient();
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        staleTime: Infinity,
+        refetchOnWindowFocus: false,
+        refetchOnReconnect: false,
+        retry: false,
+        gcTime: 10 * 60 * 1000,
+      },
+    },
+  });
   await queryClient.prefetchQuery({
     queryKey: ["new-products"],
     queryFn: () => productService.getNewProducts(),
@@ -43,6 +53,10 @@ function Home() {
   const { data: newProducts } = useQuery({
     queryKey: ["new-products"],
     queryFn: () => productService.getNewProducts(),
+    staleTime: Infinity,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+    retry: false,
   });
 
   useEffect(() => {

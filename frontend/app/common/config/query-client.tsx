@@ -35,6 +35,7 @@ export function getQueryClient() {
           refetchOnWindowFocus: false,
           refetchOnReconnect: false,
           retry: false,
+          gcTime: 10 * 60 * 1000,
         },
       },
     });

@@ -22,19 +22,15 @@ const productListQuery = () =>
     queryFn: () => productService.getProductsPaginated(1, 10),
   });
 
-export async function loader() {
-  const queryClient = new QueryClient();
-  await queryClient.prefetchQuery(productListQuery());
+// export async function loader() {
+//   const queryClient = new QueryClient();
+//   await queryClient.prefetchQuery(productListQuery());
 
-  return { dehydratedState: dehydrate(queryClient) };
-}
+//   return { dehydratedState: dehydrate(queryClient) };
+// }
 
-export default function ProductsRoute({ loaderData }: Route.ComponentProps) {
-  return (
-    <HydrationBoundary state={loaderData.dehydratedState}>
-      <Products />
-    </HydrationBoundary>
-  );
+export default function ProductsRoute() {
+  return <Products />;
 }
 
 function Products() {
