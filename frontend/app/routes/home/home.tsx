@@ -7,7 +7,14 @@ import Navbar from "~/common/components/Navbar";
 import { Await } from "react-router";
 import { getQueryClient, queryClient } from "~/common/config/query-client";
 import { newProductsQuery } from "~/common/hooks/queries/useProductQuerys";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import {
+  dehydrate,
+  HydrationBoundary,
+  QueryClient,
+  useQuery,
+  useSuspenseQuery,
+} from "@tanstack/react-query";
+import { productService } from "~/common/services/productService";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -16,16 +23,19 @@ export function meta({}: Route.MetaArgs) {
   ];
 }
 
-export async function loader() {
-  const queryClient = getQueryClient();
-  await queryClient.ensureQueryData(newProductsQuery());
-  return {};
-}
+// export async function loader() {
+//   const queryClient = getQueryClient();
+//   await queryClient.ensureQueryData(newProductsQuery());
+//   return {};
+// }
 
-export default function Home() {
+export default function Home({ loaderData }: Route.ComponentProps) {
   const [isHeroVisible, setIsHeroVisible] = useState(true);
   // const { newProducts } = loaderData;
-  const { data: newProducts } = useSuspenseQuery(newProductsQuery());
+  const { data: newProducts } = useQuery({
+    queryKey: ["new-products"],
+    queryFn: () => productService.getNewProducts(),
+  });
 
   useEffect(() => {
     const handleScroll = () => {
@@ -38,6 +48,10 @@ export default function Home() {
       window.removeEventListener("scroll", handleScroll);
     };
   }, []);
+
+  if (!newProducts) {
+    return null;
+  }
 
   return (
     <>

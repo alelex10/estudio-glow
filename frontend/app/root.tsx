@@ -9,12 +9,47 @@ import {
 
 import type { Route } from "./+types/root";
 import "./app.css";
-import { QueryClientProvider } from "@tanstack/react-query";
+import {
+  dehydrate,
+  HydrationBoundary,
+  QueryClient,
+  QueryClientProvider,
+} from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { getQueryClient } from "./common/config/query-client";
+import React from "react";
+import { productService } from "./common/services/productService";
 
-export function Layout({ children }: { children: React.ReactNode }) {
-  const queryClient = getQueryClient();
+export async function loader() {
+  const queryClient = new QueryClient();
+  await queryClient.prefetchQuery({
+    queryKey: ["new-products"],
+    queryFn: () => productService.getNewProducts(),
+  });
+
+  return { dehydratedState: dehydrate(queryClient) };
+}
+
+interface RootLoaderData {
+  children: React.ReactNode;
+}
+
+export function Layout({ children }: RootLoaderData) {
+  const [queryClient] = React.useState(
+    () =>
+      new QueryClient({
+        defaultOptions: {
+          queries: {
+            // With SSR, we usually want to set some default staleTime
+            // above 0 to avoid refetching immediately on the client
+            staleTime: Infinity,
+            refetchOnWindowFocus: false,
+            refetchOnReconnect: false,
+            retry: false,
+          },
+        },
+      })
+  );
   return (
     <html lang="en">
       <head>
@@ -35,8 +70,14 @@ export function Layout({ children }: { children: React.ReactNode }) {
   );
 }
 
-export default function App() {
-  return <Outlet />;
+export default function App({ loaderData }: Route.ComponentProps) {
+  return (
+    <>
+      <HydrationBoundary state={loaderData.dehydratedState}>
+        <Outlet />
+      </HydrationBoundary>
+    </>
+  );
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
