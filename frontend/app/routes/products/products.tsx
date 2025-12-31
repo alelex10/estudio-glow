@@ -4,6 +4,7 @@ import type { Route } from "./+types/products";
 import {
   QueryClient,
   queryOptions,
+  useQuery,
   useSuspenseQuery,
 } from "@tanstack/react-query";
 import { dehydrate } from "@tanstack/react-query";
@@ -34,17 +35,17 @@ export default function ProductsRoute() {
 }
 
 function Products() {
-  const { data: products } = useSuspenseQuery(productListQuery());
+  const { data: products } = useQuery(productListQuery());
 
   return (
     <>
-      {products.data.length === 0 && (
+      {products?.data.length === 0 && (
         <div className="flex justify-center w-full">
           <p className="text-2xl font-bold ">No hay productos</p>
         </div>
       )}
       <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-x-4">
-        {products.data.map((product) => (
+        {products?.data.map((product) => (
           <div key={product.id}>
             <ProductCard
               productId={product.id}

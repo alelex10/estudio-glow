@@ -53,10 +53,6 @@ function Home() {
   const { data: newProducts } = useQuery({
     queryKey: ["new-products"],
     queryFn: () => productService.getNewProducts(),
-    staleTime: Infinity,
-    refetchOnWindowFocus: false,
-    refetchOnReconnect: false,
-    retry: false,
   });
 
   useEffect(() => {
@@ -71,7 +67,7 @@ function Home() {
     };
   }, []);
 
-  if (!newProducts) {
+  if (!newProducts?.data) {
     return null;
   }
 
@@ -88,17 +84,11 @@ function Home() {
           className="text-center text-primary-800 text-3xl md:text-5xl py-10"
         >
           <h2 className="font-playfair tracking-wide mb-10">Lo mas nuevo </h2>
-          <Suspense fallback={<div>Loading...</div>}>
-            <Await resolve={newProducts.data}>
-              {(newProducts) =>
-                newProducts ? (
-                  <ProductCarousel products={newProducts} />
-                ) : (
-                  "No hay productos"
-                )
-              }
-            </Await>
-          </Suspense>
+          {newProducts ? (
+            <ProductCarousel products={newProducts.data} />
+          ) : (
+            "No hay productos"
+          )}
         </section>
       </main>
       <Footer />
