@@ -6,12 +6,17 @@ import { Suspense, useState } from "react";
 import { FilterDrawer } from "./components/FilterDrawer";
 import { productService } from "~/common/services/productService";
 import { isRouteErrorResponse } from "react-router";
-import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
+import {
+  dehydrate,
+  queryOptions,
+  useSuspenseQuery,
+} from "@tanstack/react-query";
 import type { Route } from "./+types/layout";
 import { FilterSideBar } from "./components/FilterSideBar";
 import Footer from "~/common/components/Footer";
 import Popover from "~/common/components/Popover";
 import { queryClient } from "~/common/config/query-client";
+import { HydrationBoundary } from "@tanstack/react-query";
 
 const categoryListQuery = () =>
   queryOptions({
@@ -21,6 +26,7 @@ const categoryListQuery = () =>
 
 export const loader = async () => {
   await queryClient.prefetchQuery(categoryListQuery());
+  return { dehydratedState: dehydrate(queryClient) };
 };
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
@@ -49,8 +55,14 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   }
 }
 
-export default function ProductsLayoutRoute() {
-  return <ProductsLayout />;
+export default function ProductsLayoutRoute({
+  loaderData,
+}: Route.ComponentProps) {
+  return (
+    <HydrationBoundary state={loaderData.dehydratedState}>
+      <ProductsLayout />
+    </HydrationBoundary>
+  );
 }
 
 function ProductsLayout() {
