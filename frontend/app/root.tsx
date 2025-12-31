@@ -10,25 +10,11 @@ import {
 import type { Route } from "./+types/root";
 import "./app.css";
 import {
-  dehydrate,
-  HydrationBoundary,
   QueryClient,
   QueryClientProvider,
 } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import { getQueryClient } from "./common/config/query-client";
 import React from "react";
-import { productService } from "./common/services/productService";
-
-export async function loader() {
-  const queryClient = new QueryClient();
-  await queryClient.prefetchQuery({
-    queryKey: ["new-products"],
-    queryFn: () => productService.getNewProducts(),
-  });
-
-  return { dehydratedState: dehydrate(queryClient) };
-}
 
 interface RootLoaderData {
   children: React.ReactNode;
@@ -70,12 +56,10 @@ export function Layout({ children }: RootLoaderData) {
   );
 }
 
-export default function App({ loaderData }: Route.ComponentProps) {
+export default function App() {
   return (
     <>
-      <HydrationBoundary state={loaderData.dehydratedState}>
-        <Outlet />
-      </HydrationBoundary>
+      <Outlet />
     </>
   );
 }

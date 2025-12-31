@@ -1,16 +1,13 @@
-import { useState } from "react";
 import { ProductCard } from "~/common/components/Card";
 import { productService } from "~/common/services/productService";
-import type { PaginationResponse } from "~/common/types/response";
-import type { Category, Product } from "~/common/types/product-types";
-import type { Route } from "./+types/layout";
+import type { Route } from "./+types/products";
 import {
   QueryClient,
   queryOptions,
   useSuspenseQuery,
 } from "@tanstack/react-query";
-import { useLoaderData, type LoaderFunctionArgs } from "react-router";
-import { getQueryClient, queryClient } from "~/common/config/query-client";
+import { dehydrate } from "@tanstack/react-query";
+import { HydrationBoundary } from "@tanstack/react-query";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -19,15 +16,6 @@ export function meta({}: Route.MetaArgs) {
   ];
 }
 
-// export async function loader() {
-//   const products = await productService.getProductsPaginated(1, 10);
-//   return { products };
-// }
-// export async function action() {
-//   const products = await productService.getProductsFilter(1, 10, "", "", "");
-//   const categories = await productService.getCategories();
-//   return { products, categories: categories.data };
-// }
 const productListQuery = () =>
   queryOptions({
     queryKey: ["products"],
@@ -35,11 +23,21 @@ const productListQuery = () =>
   });
 
 export async function loader() {
-  const queryClient = getQueryClient();
-  await queryClient.ensureQueryData(productListQuery());
+  const queryClient = new QueryClient();
+  await queryClient.prefetchQuery(productListQuery());
+
+  return { dehydratedState: dehydrate(queryClient) };
 }
 
-export default function Products() {
+export default function ProductsRoute({ loaderData }: Route.ComponentProps) {
+  return (
+    <HydrationBoundary state={loaderData.dehydratedState}>
+      <Products />
+    </HydrationBoundary>
+  );
+}
+
+function Products() {
   const { data: products } = useSuspenseQuery(productListQuery());
 
   return (

@@ -5,14 +5,11 @@ import Footer from "~/common/components/Footer";
 import { useState, useEffect, Suspense } from "react";
 import Navbar from "~/common/components/Navbar";
 import { Await } from "react-router";
-import { getQueryClient, queryClient } from "~/common/config/query-client";
-import { newProductsQuery } from "~/common/hooks/queries/useProductQuerys";
 import {
   dehydrate,
   HydrationBoundary,
   QueryClient,
   useQuery,
-  useSuspenseQuery,
 } from "@tanstack/react-query";
 import { productService } from "~/common/services/productService";
 
@@ -23,15 +20,26 @@ export function meta({}: Route.MetaArgs) {
   ];
 }
 
-// export async function loader() {
-//   const queryClient = getQueryClient();
-//   await queryClient.ensureQueryData(newProductsQuery());
-//   return {};
-// }
+export async function loader() {
+  const queryClient = new QueryClient();
+  await queryClient.prefetchQuery({
+    queryKey: ["new-products"],
+    queryFn: () => productService.getNewProducts(),
+  });
 
-export default function Home({ loaderData }: Route.ComponentProps) {
+  return { dehydratedState: dehydrate(queryClient) };
+}
+
+export default function HomeRoute({ loaderData }: Route.ComponentProps) {
+  return (
+    <HydrationBoundary state={loaderData.dehydratedState}>
+      <Home />
+    </HydrationBoundary>
+  );
+}
+
+function Home() {
   const [isHeroVisible, setIsHeroVisible] = useState(true);
-  // const { newProducts } = loaderData;
   const { data: newProducts } = useQuery({
     queryKey: ["new-products"],
     queryFn: () => productService.getNewProducts(),
@@ -61,10 +69,6 @@ export default function Home({ loaderData }: Route.ComponentProps) {
           <Hero />
         </section>
         <img className="py-20" src="/img/home/home-2.avif" alt="" />
-        {/* <section id="mas-vendidos" className="text-center text-primary-800 text-3xl md:text-5xl py-10">
-          <h2 className="font-playfair tracking-wide mb-10">Mas vendidos </h2>
-          <ProductCarousel products={newProducts} />
-        </section> */}
         <section
           id="mas-nuevo"
           className="text-center text-primary-800 text-3xl md:text-5xl py-10"
