@@ -9,6 +9,8 @@ import {
 } from "@tanstack/react-query";
 import { queryClient } from "~/common/config/query-client";
 import { HydrationBoundary } from "@tanstack/react-query";
+import { Suspense } from "react";
+import { Await } from "react-router";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -49,12 +51,18 @@ function Products() {
       <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-x-4">
         {products?.data.map((product) => (
           <div key={product.id}>
-            <ProductCard
-              productId={product.id}
-              imageUrl={product.imageUrl}
-              name={product.name}
-              price={product.price}
-            />
+            <Suspense fallback={<div>Loading...</div>}>
+              <Await resolve={product}>
+                {(product) => (
+                  <ProductCard
+                    productId={product.id}
+                    imageUrl={product.imageUrl}
+                    name={product.name}
+                    price={product.price}
+                  />
+                )}
+              </Await>
+            </Suspense>
           </div>
         ))}
       </div>

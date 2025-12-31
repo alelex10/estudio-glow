@@ -9,7 +9,7 @@ export const queryClient = new QueryClient({
       // Tiempo que los datos se consideran frescos (5 minutos)
       staleTime: Infinity,
       // Tiempo que los datos se mantienen en cache (10 minutos)
-      gcTime: 10 * 60 * 1000,
+      gcTime: 1000 * 60 * 5,
       // Reintentar peticiones fallidas
       retry: 1,
       // Refetch cuando la ventana recupera el foco
@@ -24,22 +24,22 @@ export const queryClient = new QueryClient({
   },
 });
 
-let browserQueryClient: QueryClient | undefined;
+// let browserQueryClient: QueryClient | undefined;
 
-export function getQueryClient() {
-  if (!browserQueryClient) {
-    browserQueryClient = new QueryClient({
-      defaultOptions: {
-        queries: {
-          staleTime: Infinity,
-          refetchOnWindowFocus: false,
-          refetchOnReconnect: false,
-          retry: false,
-          gcTime: 10 * 60 * 1000,
-        },
-      },
-    });
-  }
+// export function getQueryClient() {
+//   if (!browserQueryClient) {
+//     browserQueryClient = new QueryClient({
+//       defaultOptions: {
+//         queries: {
+//           staleTime: Infinity,
+//           refetchOnWindowFocus: false,
+//           refetchOnReconnect: false,
+//           retry: false,
+//           gcTime: 10 * 60 * 1000,
+//         },
+//       },
+//     });
+//   }
 
-  return browserQueryClient;
-}
+//   return browserQueryClient;
+// }

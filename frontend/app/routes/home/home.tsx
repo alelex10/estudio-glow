@@ -8,9 +8,8 @@ import { Await } from "react-router";
 import {
   dehydrate,
   HydrationBoundary,
-  QueryClient,
-  useQuery,
   queryOptions,
+  useSuspenseQuery,
 } from "@tanstack/react-query";
 import { productService } from "~/common/services/productService";
 import { queryClient } from "~/common/config/query-client";
@@ -29,7 +28,7 @@ const newProductsQuery = () =>
   });
 
 export async function loader() {
-  await queryClient.prefetchQuery(newProductsQuery());
+  await queryClient.ensureQueryData(newProductsQuery());
 
   return { dehydratedState: dehydrate(queryClient) };
 }
@@ -44,7 +43,7 @@ export default function HomeRoute({ loaderData }: Route.ComponentProps) {
 
 function Home() {
   const [isHeroVisible, setIsHeroVisible] = useState(true);
-  const { data: newProducts } = useQuery(newProductsQuery());
+  const { data: newProducts } = useSuspenseQuery(newProductsQuery());
 
   useEffect(() => {
     const handleScroll = () => {
@@ -75,11 +74,13 @@ function Home() {
           className="text-center text-primary-800 text-3xl md:text-5xl py-10"
         >
           <h2 className="font-playfair tracking-wide mb-10">Lo mas nuevo </h2>
-          {newProducts?.data ? (
-            <ProductCarousel products={newProducts.data} />
-          ) : (
-            "No hay productos"
-          )}
+          <Suspense fallback={<div>Loading...</div>}>
+            <Await resolve={newProducts}>
+              {(newProducts) => (
+                <ProductCarousel products={newProducts.data || []} />
+              )}
+            </Await>
+          </Suspense>
         </section>
       </main>
       <Footer />

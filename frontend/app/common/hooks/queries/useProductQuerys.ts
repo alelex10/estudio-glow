@@ -48,7 +48,7 @@ export const newProductsQuery = () =>
  * Hook para obtener productos paginados
  */
 export function useProductsPaginated(page: number = 1, limit: number = 10) {
-  return useQuery<PaginationResponse<ProductResponse>>({
+  return useQuery({
     queryKey: productKeys.paginated(page, limit),
     queryFn: () => productService.getProductsPaginated(page, limit),
   });
