@@ -4,9 +4,13 @@ import { productService } from "~/common/services/productService";
 import type { PaginationResponse } from "~/common/types/response";
 import type { Category, Product } from "~/common/types/product-types";
 import type { Route } from "./+types/layout";
-import { QueryClient, queryOptions } from "@tanstack/react-query";
+import {
+  QueryClient,
+  queryOptions,
+  useSuspenseQuery,
+} from "@tanstack/react-query";
 import { useLoaderData, type LoaderFunctionArgs } from "react-router";
-import { queryClient } from "~/common/config/query-client";
+import { getQueryClient, queryClient } from "~/common/config/query-client";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -31,27 +35,22 @@ const productListQuery = () =>
   });
 
 export async function loader() {
-  const productsData = await queryClient.ensureQueryData(productListQuery());
-  return { productsData };
-}
-
-interface Props {
-  loaderData: { productsData: PaginationResponse<Product> };
+  const queryClient = getQueryClient();
+  await queryClient.ensureQueryData(productListQuery());
 }
 
 export default function Products() {
-  const loaderData = useLoaderData() as Awaited<ReturnType<typeof loader>>;
-  const [products, setProducts] = useState(loaderData.productsData.data);
+  const { data: products } = useSuspenseQuery(productListQuery());
 
   return (
     <>
-      {products.length === 0 && (
+      {products.data.length === 0 && (
         <div className="flex justify-center w-full">
           <p className="text-2xl font-bold ">No hay productos</p>
         </div>
       )}
       <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-x-4">
-        {products.map((product) => (
+        {products.data.map((product) => (
           <div key={product.id}>
             <ProductCard
               productId={product.id}

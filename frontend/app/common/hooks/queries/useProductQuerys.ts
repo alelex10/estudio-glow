@@ -40,7 +40,7 @@ export const productKeys = {
  */
 export const newProductsQuery = () =>
   queryOptions({
-    queryKey: ["products"],
+    queryKey: ["new-products"],
     queryFn: () => productService.getNewProducts(),
   });
 

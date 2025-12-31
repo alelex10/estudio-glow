@@ -15,7 +15,7 @@ class ProductService {
 
   async getNewProducts(): Promise<ResponseSchema<Product[]>> {
     console.log("Fetching new products...");
-    await delay(1000); // Simulate network delay
+    // await delay(1000); // Simulate network delay
     const response = await fetch(
       `${this.baseUrl}/${API_ENDPOINTS.PUBLIC.PRODUCTS.GET_NEW_PRODUCTS}`,
       {
@@ -34,6 +34,8 @@ class ProductService {
     page: number,
     limit: number
   ): Promise<PaginationResponse<ProductResponse>> {
+    console.log("Fetching products...");
+    // await delay(1000);
     const response = await fetch(
       `${this.baseUrl}${API_ENDPOINTS.PUBLIC.PRODUCTS.GET_PAGINATED}?page=${page}&limit=${limit}`,
       {
