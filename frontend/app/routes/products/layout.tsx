@@ -6,17 +6,12 @@ import { Suspense, useState } from "react";
 import { FilterDrawer } from "./components/FilterDrawer";
 import { productService } from "~/common/services/productService";
 import { isRouteErrorResponse } from "react-router";
-import {
-  dehydrate,
-  QueryClient,
-  queryOptions,
-  useSuspenseQuery,
-} from "@tanstack/react-query";
+import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import type { Route } from "./+types/layout";
 import { FilterSideBar } from "./components/FilterSideBar";
 import Footer from "~/common/components/Footer";
 import Popover from "~/common/components/Popover";
-import { HydrationBoundary } from "@tanstack/react-query";
+import { queryClient } from "~/common/config/query-client";
 
 const categoryListQuery = () =>
   queryOptions({
@@ -24,12 +19,9 @@ const categoryListQuery = () =>
     queryFn: () => productService.getCategories(),
   });
 
-// export const loader = async () => {
-//   const queryClient = new QueryClient();
-//   await queryClient.prefetchQuery(categoryListQuery());
-
-//   return { dehydratedState: dehydrate(queryClient) };
-// };
+export const loader = async () => {
+  await queryClient.prefetchQuery(categoryListQuery());
+};
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   if (isRouteErrorResponse(error)) {

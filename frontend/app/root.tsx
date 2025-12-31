@@ -9,33 +9,16 @@ import {
 
 import type { Route } from "./+types/root";
 import "./app.css";
-import {
-  QueryClient,
-  QueryClientProvider,
-} from "@tanstack/react-query";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import React from "react";
+import { queryClient } from "./common/config/query-client";
 
 interface RootLoaderData {
   children: React.ReactNode;
 }
 
 export function Layout({ children }: RootLoaderData) {
-  const [queryClient] = React.useState(
-    () =>
-      new QueryClient({
-        defaultOptions: {
-          queries: {
-            // With SSR, we usually want to set some default staleTime
-            // above 0 to avoid refetching immediately on the client
-            staleTime: Infinity,
-            refetchOnWindowFocus: false,
-            refetchOnReconnect: false,
-            retry: false,
-          },
-        },
-      })
-  );
   return (
     <html lang="en">
       <head>

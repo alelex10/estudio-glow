@@ -2,13 +2,10 @@ import { ProductCard } from "~/common/components/Card";
 import { productService } from "~/common/services/productService";
 import type { Route } from "./+types/products";
 import {
-  QueryClient,
   queryOptions,
   useQuery,
-  useSuspenseQuery,
 } from "@tanstack/react-query";
-import { dehydrate } from "@tanstack/react-query";
-import { HydrationBoundary } from "@tanstack/react-query";
+import { queryClient } from "~/common/config/query-client";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -23,12 +20,9 @@ const productListQuery = () =>
     queryFn: () => productService.getProductsPaginated(1, 10),
   });
 
-// export async function loader() {
-//   const queryClient = new QueryClient();
-//   await queryClient.prefetchQuery(productListQuery());
-
-//   return { dehydratedState: dehydrate(queryClient) };
-// }
+export async function loader() {
+  await queryClient.ensureQueryData(productListQuery());
+}
 
 export default function ProductsRoute() {
   return <Products />;
