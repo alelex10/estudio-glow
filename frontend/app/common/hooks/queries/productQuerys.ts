@@ -44,8 +44,6 @@ export const newProductsQuery = () =>
     queryFn: () => productService.getNewProducts(),
   });
 
-
-
 /**
  * Hook para obtener productos paginados
  */

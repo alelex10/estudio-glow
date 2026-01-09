@@ -4,15 +4,13 @@ import Hero from "./components/Hero";
 import Footer from "~/common/components/Footer";
 import { useState, useEffect, Suspense } from "react";
 import Navbar from "~/common/components/Navbar";
-import { Await } from "react-router";
 import {
   dehydrate,
   HydrationBoundary,
-  queryOptions,
   useSuspenseQuery,
 } from "@tanstack/react-query";
-import { productService } from "~/common/services/productService";
 import { queryClient } from "~/common/config/query-client";
+import { newProductsQuery } from "~/common/hooks/queries/productQuerys";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -21,22 +19,17 @@ export function meta({}: Route.MetaArgs) {
   ];
 }
 
-const newProductsQuery = () =>
-  queryOptions({
-    queryKey: ["new-products"],
-    queryFn: () => productService.getNewProducts(),
-  });
-
 export async function loader() {
   await queryClient.ensureQueryData(newProductsQuery());
-
   return { dehydratedState: dehydrate(queryClient) };
 }
 
 export default function HomeRoute({ loaderData }: Route.ComponentProps) {
   return (
     <HydrationBoundary state={loaderData.dehydratedState}>
-      <Home />
+      <Suspense fallback={<div>Cargando productos...</div>}>
+        <Home />
+      </Suspense>
     </HydrationBoundary>
   );
 }
@@ -57,10 +50,6 @@ function Home() {
     };
   }, []);
 
-  if (!newProducts?.data) {
-    return null;
-  }
-
   return (
     <>
       <Navbar isBackgroundVisible={isHeroVisible} />
@@ -74,13 +63,7 @@ function Home() {
           className="text-center text-primary-800 text-3xl md:text-5xl py-10"
         >
           <h2 className="font-playfair tracking-wide mb-10">Lo mas nuevo </h2>
-          <Suspense fallback={<div>Loading...</div>}>
-            <Await resolve={newProducts}>
-              {(newProducts) => (
-                <ProductCarousel products={newProducts.data || []} />
-              )}
-            </Await>
-          </Suspense>
+          <ProductCarousel products={newProducts.data || []} />
         </section>
       </main>
       <Footer />

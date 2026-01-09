@@ -10,10 +10,12 @@ import type {
 
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
+type ErrorType = Error;
+
 class ProductService {
   private baseUrl = API_BASE_URL;
 
-  async getNewProducts(): Promise<ResponseSchema<Product[]>> {
+  async getNewProducts(): Promise<ResponseSchema<Product[] >> {
     console.log("Fetching new products...");
     // await delay(1000);
     const response = await fetch(
@@ -25,6 +27,7 @@ class ProductService {
 
     if (!response.ok) {
       const error = await response.json();
+      return error;
     }
 
     return response.json();
