@@ -6,7 +6,7 @@ import {
   ProductWithCategoryResponseSchema,
   ProductListResponseSchema,
   SearchProductSchema,
-  PaginationQuerySchema,
+  PaginationProductQuerySchema,
   PaginatedProductsResponseSchema,
   ErrorResponseSchema,
   AuthResponseSchema,
@@ -227,7 +227,7 @@ registry.registerPath({
   path: "/products/paginated",
   tags: ["Products (Public)"],
   request: {
-    query: PaginationQuerySchema,
+    query: PaginationProductQuerySchema,
   },
   responses: {
     200: {

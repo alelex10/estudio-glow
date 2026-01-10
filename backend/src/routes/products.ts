@@ -2,7 +2,6 @@ import { Router } from "express";
 import { authenticate, requireAdmin } from "../middleware/auth";
 
 import {
-  listProducts,
   getProduct,
   createProduct,
   updateProduct,
@@ -12,10 +11,11 @@ import {
   filterProducts,
   getNewProducts,
 } from "../controller/product";
+import { validateQuery } from "../middleware/validation";
+import { PaginationProductQuerySchema } from "../schemas/product";
 
 const router = Router();
 
-router.get("/", listProducts);
 router.get("/search", searchProducts);
 router.get("/paginated", listProductsPaginated);
 router.get("/filter", filterProducts);

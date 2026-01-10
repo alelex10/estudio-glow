@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { extendZodWithOpenApi } from "@asteasolutions/zod-to-openapi";
+import { PaginationQuerySchema } from "./common/paginated";
 
 extendZodWithOpenApi(z);
 
@@ -21,7 +22,7 @@ export const CreateProductSchema = z
       example: 50,
       description: "Cantidad en stock",
     }),
-    categoryId: z.string().uuid().openapi({
+    categoryId: z.uuid().openapi({
       example: "550e8400-e29b-41d4-a716-446655440000",
       description: "ID de la categoría del producto",
     }),
@@ -38,7 +39,7 @@ export const UpdateProductSchema = CreateProductSchema.partial().openapi(
 );
 
 export const ProductBaseSchema = z.object({
-  id: z.string().uuid().openapi({
+  id: z.uuid().openapi({
     example: "550e8400-e29b-41d4-a716-446655440000",
     description: "ID del producto",
   }),
@@ -58,7 +59,7 @@ export const ProductBaseSchema = z.object({
     example: 50,
     description: "Cantidad en stock",
   }),
-  categoryId: z.string().uuid().openapi({
+  categoryId: z.uuid().openapi({
     example: "550e8400-e29b-41d4-a716-446655440000",
     description: "ID de la categoría del producto",
   }),
@@ -88,7 +89,7 @@ export const ProductWithCategoryResponseSchema = z
     }),
     category: z
       .object({
-        id: z.string().uuid().openapi({
+        id: z.uuid().openapi({
           example: "550e8400-e29b-41d4-a716-446655440000",
           description: "ID de la categoría",
         }),
@@ -149,16 +150,8 @@ export const SearchProductSchema = z
   .openapi("SearchProductRequest");
 
 // Schema para paginación
-export const PaginationQuerySchema = z
+export const PaginationProductQuerySchema = z
   .object({
-    page: z.coerce.number().int().positive().default(1).openapi({
-      example: 1,
-      description: "Número de página (empieza desde 1)",
-    }),
-    limit: z.coerce.number().int().positive().max(100).default(10).openapi({
-      example: 10,
-      description: "Cantidad de productos por página (máximo 100)",
-    }),
     sortBy: z
       .enum(["name", "price", "createdAt", "stock"])
       .default("createdAt")
@@ -167,11 +160,8 @@ export const PaginationQuerySchema = z
         example: "createdAt",
         description: "Campo por el cual ordenar",
       }),
-    sortOrder: z.enum(["asc", "desc"]).default("desc").optional().openapi({
-      example: "desc",
-      description: "Orden ascendente o descendente",
-    }),
   })
+  .safeExtend(PaginationQuerySchema.shape)
   .openapi("PaginationQuery");
 
 // Schema de respuesta paginada
@@ -180,36 +170,7 @@ export const PaginatedProductsResponseSchema = z
     data: z.array(ProductWithCategoryResponseSchema).openapi({
       description: "Lista de productos de la página actual",
     }),
-    pagination: z
-      .object({
-        page: z.number().openapi({
-          example: 1,
-          description: "Página actual",
-        }),
-        limit: z.number().openapi({
-          example: 10,
-          description: "Cantidad de productos por página",
-        }),
-        totalItems: z.number().openapi({
-          example: 100,
-          description: "Total de productos disponibles",
-        }),
-        totalPages: z.number().openapi({
-          example: 10,
-          description: "Total de páginas disponibles",
-        }),
-        hasNextPage: z.boolean().openapi({
-          example: true,
-          description: "Indica si hay una página siguiente",
-        }),
-        hasPreviousPage: z.boolean().openapi({
-          example: false,
-          description: "Indica si hay una página anterior",
-        }),
-      })
-      .openapi({
-        description: "Metadatos de paginación",
-      }),
+    pagination: PaginationQuerySchema,
   })
   .openapi("PaginatedProductsResponse");
 
@@ -220,13 +181,13 @@ export const FilterProductsSchema = z
       description: "ID de la categoría del producto",
     }),
   })
-  .extend(PaginationQuerySchema.shape)
+  .extend(PaginationProductQuerySchema.shape)
   .openapi("FilterProductsRequest");
 
 export const GetNewProductsSchema = z.array(ProductBaseSchema);
 
 // Tipos TypeScript exportados
-export type PaginationQuery = z.infer<typeof PaginationQuerySchema>;
+export type PaginationQuery = z.infer<typeof PaginationProductQuerySchema>;
 export type ProductResponse = z.infer<typeof ProductWithCategoryResponseSchema>;
 export type GetNewProducts = z.infer<typeof GetNewProductsSchema>;
 export type PaginatedProductsResponse = z.infer<

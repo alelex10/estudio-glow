@@ -17,7 +17,7 @@ export function validateQuery<T>(schema: z.ZodSchema<T>) {
   return (req: Request, res: Response, next: NextFunction) => {
     try {
       const validatedData = schema.parse(req.query);
-      (req.query as any) = validatedData;
+      Object.assign(req.query, validatedData);
       next();
     } catch (error) {
       return handleValidationError(error, res);

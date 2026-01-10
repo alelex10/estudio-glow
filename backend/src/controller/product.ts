@@ -1,16 +1,5 @@
 import type { Request, Response } from "express";
-import {
-  eq,
-  like,
-  and,
-  gte,
-  lte,
-  Name,
-  desc,
-  asc,
-  sql,
-  count,
-} from "drizzle-orm";
+import { eq, like, and, gte, lte, desc, asc, count } from "drizzle-orm";
 import { db } from "../db";
 import { products } from "../models/product";
 import { categories } from "../models/category";
@@ -20,17 +9,16 @@ import {
   CreateProductSchema,
   UpdateProductSchema,
   SearchProductSchema,
-  PaginationQuerySchema,
+  PaginationProductQuerySchema,
   FilterProductsSchema,
-  type FilterProducts,
   type ProductResponse,
   type GetNewProducts,
   ProductWithCategoryResponseSchema,
+  type PaginationQuery,
 } from "../schemas/product";
 import cloudinaryConfig from "../cloudfile";
 import { v2 as cloudinary } from "cloudinary";
 import type { UploadApiResponse } from "cloudinary";
-import type { ListFormat } from "typescript";
 import { PaginationHelper, type PaginatedResponse } from "../types/pagination";
 import { ResponseSchema } from "../schemas/response";
 import { IdSchema } from "../schemas/id";
@@ -38,35 +26,12 @@ import { CLOUDINARY } from "../constants/const";
 
 cloudinary.config(cloudinaryConfig);
 
-// GET all products
-export async function listProducts(req: Request, res: Response) {
-  try {
-    const result = await db.select().from(products);
-    if (result.length === 0)
-      return res.status(404).json({ message: "No products are available" });
-
-    res.json(result);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Failed to fetch products" });
-  }
-}
-
 // GET products con paginación
 export const listProductsPaginated = [
-  validateQuery(PaginationQuerySchema),
-  async (req: Request, res: Response) => {
+  validateQuery(PaginationProductQuerySchema),
+  async (req: Request<null, null, null, PaginationQuery>, res: Response) => {
     try {
-      // Extraer parámetros validados del query
-      const page = Number(req.query.page) || 1;
-      const limit = Number(req.query.limit) || 10;
-      const sortBy = req.query.sortBy as
-        | "name"
-        | "price"
-        | "createdAt"
-        | "stock"
-        | undefined;
-      const sortOrder = (req.query.sortOrder as "asc" | "desc") || "desc";
+      const { page, limit, sortBy = "createdAt", sortOrder } = req.query;
 
       // Calcular offset
       const offset = PaginationHelper.calculateOffset(page, limit);
@@ -82,24 +47,14 @@ export const listProductsPaginated = [
         category: { id: string; name: string };
       }[] = [];
 
-      if (sortBy) {
-        const orderFn = sortOrder === "asc" ? asc : desc;
-        dbResult = await db
-          .select()
-          .from(products)
-          .orderBy(orderFn(products[sortBy]))
-          .innerJoin(categories, eq(products.categoryId, categories.id))
-          .limit(limit)
-          .offset(offset);
-      } else {
-        dbResult = await db
-          .select()
-          .from(products)
-          .innerJoin(categories, eq(products.categoryId, categories.id))
-          .orderBy(desc(products.createdAt))
-          .limit(limit)
-          .offset(offset);
-      }
+      const orderFn = sortOrder === "asc" ? asc : desc;
+      dbResult = await db
+        .select()
+        .from(products)
+        .orderBy(orderFn(products[sortBy]))
+        .innerJoin(categories, eq(products.categoryId, categories.id))
+        .limit(limit)
+        .offset(offset);
 
       const result: ProductResponse[] = dbResult.map((row) => ({
         ...row.product,
@@ -128,7 +83,6 @@ export const listProductsPaginated = [
     }
   },
 ];
-
 // GET product by ID
 export async function getProduct(req: Request, res: Response) {
   const id = IdSchema.parse(req.params.id);
@@ -189,39 +143,39 @@ export const createProduct = [
   async (req: Request, res: Response) => {
     try {
       const { name, description, price, stock, categoryId } = req.body;
-      
+
       // Validate that category exists
       const categoryExists = await db
-      .select()
-      .from(categories)
-      .where(eq(categories.id, categoryId));
-      
+        .select()
+        .from(categories)
+        .where(eq(categories.id, categoryId));
+
       if (categoryExists.length === 0) {
         return res.status(404).json({ message: "Category not found" });
       }
-      
+
       const exists = await db
-      .select()
-      .from(products)
-      .where(eq(products.name, name));
-      
+        .select()
+        .from(products)
+        .where(eq(products.name, name));
+
       if (exists.length > 0)
         return res.status(400).json({
-      message:
-      "El producto de nombre " +
-      name +
-      " ya existe solo se le puede subir o bajar el stock",
-    });
-    
-    const id = crypto.randomUUID();
+          message:
+            "El producto de nombre " +
+            name +
+            " ya existe solo se le puede subir o bajar el stock",
+        });
 
-    if (!req.file) {
-      return res.status(400).json({ message: "Imagen requerida" });
-    }
-    // Subir imagen a Cloudinary desde buffer
-    const cloudinaryResult: UploadApiResponse = await new Promise(
-      (resolve, reject) => {
-        cloudinary.uploader
+      const id = crypto.randomUUID();
+
+      if (!req.file) {
+        return res.status(400).json({ message: "Imagen requerida" });
+      }
+      // Subir imagen a Cloudinary desde buffer
+      const cloudinaryResult: UploadApiResponse = await new Promise(
+        (resolve, reject) => {
+          cloudinary.uploader
             .upload_stream(
               {
                 folder: "products",
@@ -237,7 +191,6 @@ export const createProduct = [
             .end(req.file!.buffer);
         }
       );
-
 
       const data: NewProduct = {
         id,
@@ -421,9 +374,15 @@ export const filterProducts = [
   validateQuery(FilterProductsSchema),
   async (req: Request, res: Response) => {
     try {
-      // Extraer parámetros validados del query
+      // Extraer parámetros validados del query (ya validados y asignados por el middleware)
       const { page, limit, sortBy, sortOrder, categoryId } =
-        FilterProductsSchema.parse(req.query);
+        req.query as unknown as {
+          page: number;
+          limit: number;
+          sortBy?: "name" | "price" | "createdAt" | "stock";
+          sortOrder?: "asc" | "desc";
+          categoryId?: string;
+        };
 
       // Calcular offset
       const offset = PaginationHelper.calculateOffset(page, limit);
