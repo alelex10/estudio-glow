@@ -9,7 +9,6 @@ import {
   CreateProductSchema,
   UpdateProductSchema,
   SearchProductSchema,
-  PaginationProductQuerySchema,
   FilterProductsSchema,
   type ProductResponse,
   type GetNewProducts,
@@ -22,16 +21,18 @@ import type { UploadApiResponse } from "cloudinary";
 import { PaginationHelper, type PaginatedResponse } from "../types/pagination";
 import { ResponseSchema } from "../schemas/response";
 import { IdSchema } from "../schemas/id";
+import { PaginationProductQuerySchema } from "../schemas/product";
 import { CLOUDINARY } from "../constants/const";
 
 cloudinary.config(cloudinaryConfig);
 
 // GET products con paginación
 export const listProductsPaginated = [
-  validateQuery(PaginationProductQuerySchema),
-  async (req: Request<null, null, null, PaginationQuery>, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
-      const { page, limit, sortBy = "createdAt", sortOrder } = req.query;
+      // Validar directamente con el schema - sin middleware
+      const validatedQuery = PaginationProductQuerySchema.parse(req.query);
+      const { page, limit, sortBy = "createdAt", sortOrder = "desc" } = validatedQuery;  
 
       // Calcular offset
       const offset = PaginationHelper.calculateOffset(page, limit);
@@ -371,18 +372,11 @@ export const searchProducts = [
 
 // FILTER products
 export const filterProducts = [
-  validateQuery(FilterProductsSchema),
   async (req: Request, res: Response) => {
     try {
-      // Extraer parámetros validados del query (ya validados y asignados por el middleware)
-      const { page, limit, sortBy, sortOrder, categoryId } =
-        req.query as unknown as {
-          page: number;
-          limit: number;
-          sortBy?: "name" | "price" | "createdAt" | "stock";
-          sortOrder?: "asc" | "desc";
-          categoryId?: string;
-        };
+      // Validar directamente con el schema - sin middleware
+      const validatedQuery = FilterProductsSchema.parse(req.query);
+      const { page, limit, sortBy = "createdAt", sortOrder = "desc", categoryId } = validatedQuery;
 
       // Calcular offset
       const offset = PaginationHelper.calculateOffset(page, limit);

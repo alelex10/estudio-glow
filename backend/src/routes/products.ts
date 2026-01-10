@@ -11,8 +11,6 @@ import {
   filterProducts,
   getNewProducts,
 } from "../controller/product";
-import { validateQuery } from "../middleware/validation";
-import { PaginationProductQuerySchema } from "../schemas/product";
 
 const router = Router();
 
