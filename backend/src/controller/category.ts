@@ -3,7 +3,7 @@ import { eq } from "drizzle-orm";
 import { db } from "../db";
 import { categories } from "../models/category";
 import type { Category, NewCategory } from "../models/category";
-import { validateBody, validateQuery } from "../middleware/validation";
+import { validateBody, validateParams, validateQuery } from "../middleware/validation";
 import {
   CategoryListResponseSchema,
   CreateCategorySchema,
@@ -12,6 +12,7 @@ import {
 import { products } from "../models/product";
 import { ResponseSchema } from "../schemas/response";
 import { IdSchema } from "../schemas/id";
+import { ParamsIdSchema } from "../schemas/params";
 
 // GET all categories
 export const listCategories = async (req: Request, res: Response) => {
@@ -31,8 +32,9 @@ export const listCategories = async (req: Request, res: Response) => {
 
 // GET category by ID
 export const getCategory = [
+  validateParams(ParamsIdSchema),
   async (req: Request, res: Response) => {
-    const id = IdSchema.parse(req.params.id);
+    const { id } = req.params as { id: string };
 
     try {
       const result = await db
@@ -102,16 +104,10 @@ export const createCategory = [
 
 // UPDATE category
 export const updateCategory = [
+  validateParams(ParamsIdSchema),
   validateBody(UpdateCategorySchema),
   async (req: Request, res: Response) => {
-    const id = IdSchema.parse(req.params.id);
-
-    // Basic UUID format validation
-    const uuidRegex =
-      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-    if (!uuidRegex.test(id)) {
-      return res.status(400).json({ message: "Invalid category ID format" });
-    }
+    const { id } = req.params as { id: string };
 
     try {
       // Check if category exists
@@ -166,8 +162,9 @@ export const updateCategory = [
 
 // DELETE category
 export const deleteCategory = [
+  validateParams(ParamsIdSchema),
   async (req: Request, res: Response) => {
-    const id = IdSchema.parse(req.params.id);
+    const { id } = req.params as { id: string };
     try {
       // Check if category exists
       const existing = await db
