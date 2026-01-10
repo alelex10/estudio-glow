@@ -27,9 +27,9 @@ export const API_ENDPOINTS = {
     PRODUCTS: {
       GET_ID: (id: number | string) => `/products/${id}`,
       GET_PAGINATED: "/products/paginated",
-      SEARCH: "products/search",
-      GET_NEW_PRODUCTS: "products/news",
-      FILTER: "products/filter",
+      SEARCH: "/products/search",
+      GET_NEW_PRODUCTS: "/products/news",
+      FILTER: "/products/filter",
     },
     CATEGORIES: {
       GET: "/categories",

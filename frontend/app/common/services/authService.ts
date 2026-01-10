@@ -1,4 +1,5 @@
-import { API_BASE_URL, API_ENDPOINTS } from "../config/api";
+import { API_ENDPOINTS } from "../config/api";
+import { apiClient } from "../config/api-client";
 import { tokenContext, tokenContextProvider } from "../context/context";
 import type { LoginCredentials, RegisterData, User } from "../types/user-types";
 import type { LoginResponse, MessageResponse } from "../types/response";
@@ -8,20 +9,19 @@ import type { LoginResponse, MessageResponse } from "../types/response";
  * Maneja login, registro y logout con el backend
  */
 class AuthService {
-  private baseUrl = API_BASE_URL;
+  login = async (credentials: LoginCredentials): Promise<LoginResponse> => {
+    const response = await fetch(
+      `${import.meta.env.VITE_API_BASE_URL}${API_ENDPOINTS.AUTH.LOGIN}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify(credentials),
+      }
+    );
 
-  /**
-   * Iniciar sesión
-   */
-  async login(credentials: LoginCredentials): Promise<LoginResponse> {
-    const response = await fetch(`${this.baseUrl}${API_ENDPOINTS.AUTH.LOGIN}`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: "include", // Importante para cookies
-      body: JSON.stringify(credentials),
-    });
     tokenContextProvider.set(tokenContext, response.headers.get("set-cookie"));
 
     if (!response.ok) {
@@ -30,56 +30,20 @@ class AuthService {
     }
 
     return response.json();
-  }
+  };
 
-  /**
-   * Registrar nuevo usuario
-   */
-  async register(data: RegisterData): Promise<MessageResponse> {
-    const response = await fetch(
-      `${this.baseUrl}${API_ENDPOINTS.AUTH.REGISTER}`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-        body: JSON.stringify(data),
-      }
-    );
+  register = (data: RegisterData) =>
+    apiClient<MessageResponse>(API_ENDPOINTS.AUTH.REGISTER, {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
 
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.message || "Error al registrar usuario");
-    }
+  logout = () =>
+    apiClient<MessageResponse>(API_ENDPOINTS.AUTH.LOGOUT, {
+      method: "POST",
+    });
 
-    return response.json();
-  }
-
-  /**
-   * Cerrar sesión
-   */
-  async logout(): Promise<MessageResponse> {
-    const response = await fetch(
-      `${this.baseUrl}${API_ENDPOINTS.AUTH.LOGOUT}`,
-      {
-        method: "POST",
-        credentials: "include",
-      }
-    );
-
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.message || "Error al cerrar sesión");
-    }
-
-    return response.json();
-  }
-
-  /**
-   * Obtener usuario almacenado en localStorage
-   */
-  getStoredUser(): User | null {
+  getStoredUser = (): User | null => {
     const userStr = localStorage.getItem("admin_user");
     if (userStr) {
       try {
@@ -89,36 +53,22 @@ class AuthService {
       }
     }
     return null;
-  }
+  };
 
-  /**
-   * Guardar usuario en localStorage
-   */
-  storeUser(user: User): void {
+  storeUser = (user: User): void => {
     localStorage.setItem("admin_user", JSON.stringify(user));
-  }
+  };
 
-  /**
-   * Eliminar usuario de localStorage
-   */
-  clearStoredUser(): void {
+  clearStoredUser = (): void => {
     localStorage.removeItem("admin_user");
-  }
+  };
 
-  /**
-   * Verificar si hay una sesión activa
-   */
-  isAuthenticated(): boolean {
-    return this.getStoredUser() !== null;
-  }
+  isAuthenticated = (): boolean => this.getStoredUser() !== null;
 
-  /**
-   * Verificar si el usuario es admin
-   */
-  isAdmin(): boolean {
+  isAdmin = (): boolean => {
     const user = this.getStoredUser();
     return user?.role === "admin";
-  }
+  };
 }
 
 export const authService = new AuthService();

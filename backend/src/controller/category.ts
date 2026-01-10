@@ -166,7 +166,6 @@ export const updateCategory = [
 
 // DELETE category
 export const deleteCategory = [
-  validateQuery(IdSchema),
   async (req: Request, res: Response) => {
     const id = IdSchema.parse(req.params.id);
     try {
