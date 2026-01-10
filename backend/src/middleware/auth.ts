@@ -4,6 +4,8 @@
 import type { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
+import { AuthenticationError, AuthorizationError } from "../errors";
+
 dotenv.config();
 
 // Expect JWT secret in environment variable
@@ -19,30 +21,41 @@ interface JwtPayload {
 
 export function authenticate(req: Request, res: Response, next: NextFunction) {
   const token = req.cookies?.token;
+
   if (!token) {
-    return res.status(401).json({ message: "Authentication token missing" });
+    throw new AuthenticationError("Token de autenticación faltante");
   }
+
   try {
     const payload = jwt.verify(token, JWT_SECRET) as JwtPayload;
     // Attach user info to request for downstream handlers
     (req as any).user = { id: payload.userId, role: payload.role };
     next();
   } catch (err) {
-    return res.status(401).json({ message: "Invalid or expired token" });
+    throw new AuthenticationError("Token inválido o expirado");
   }
 }
 
 export function requireAdmin(req: Request, res: Response, next: NextFunction) {
   const user = (req as any).user;
+
   if (!user || user.role !== "admin") {
-    return res.status(403).json({ message: "Admin privileges required" });
+    throw new AuthorizationError("Se requieren privilegios de administrador");
   }
+
   next();
 }
-export function requireCustomer(req: Request, res: Response, next: NextFunction) {
+
+export function requireCustomer(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
   const user = (req as any).user;
+
   if (!user || user.role !== "customer") {
-    return res.status(403).json({ message: "Customer privileges required" });
+    throw new AuthorizationError("Se requieren privilegios de cliente");
   }
+
   next();
 }

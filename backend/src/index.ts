@@ -9,10 +9,14 @@ import multer from "multer";
 import type { FileFilterCallback } from "multer";
 import { optimizeImage } from "./middleware/optimize";
 import cors from "cors";
+import {
+  logErrors,
+  clientErrorHandler,
+  errorHandler,
+} from "./middleware/error-handler";
 
 const app = express();
 const PORT = 3000;
-
 
 app.use(
   cors({
@@ -48,14 +52,25 @@ app.use("/products", upload.single("image"), optimizeImage, productRouter);
 app.use("/categories", categoryRouter);
 app.use("/auth", authRouter);
 
+// Error handling middleware (DEBE IR AL FINAL, después de todas las rutas)
+app.use(logErrors);
+app.use(clientErrorHandler);
+app.use(errorHandler);
+
 app.listen(PORT, () => {
-  const isProduction = process.env.NODE_ENV === 'production';
-  
+  const isProduction = process.env.NODE_ENV === "production";
+
   if (isProduction) {
-    console.log(`Servidor desplegado y funcionando en https://estudio-glow.onrender.com`);
-    console.log(`API disponible para producción en https://estudio-glow.onrender.com/api-docs`);
+    console.log(
+      `Servidor desplegado y funcionando en https://estudio-glow.onrender.com`
+    );
+    console.log(
+      `API disponible para producción en https://estudio-glow.onrender.com/api-docs`
+    );
   } else {
     console.log(`Servidor escuchando en http://localhost:${PORT}`);
-    console.log(`Documentación disponible en http://localhost:${PORT}/api-docs`);
+    console.log(
+      `Documentación disponible en http://localhost:${PORT}/api-docs`
+    );
   }
 });

@@ -13,7 +13,6 @@ import {
   type ProductResponse,
   type GetNewProducts,
   ProductWithCategoryResponseSchema,
-  type PaginationQuery,
 } from "../schemas/product";
 import cloudinaryConfig from "../cloudfile";
 import { v2 as cloudinary } from "cloudinary";
@@ -23,6 +22,8 @@ import { ResponseSchema } from "../schemas/response";
 import { IdSchema } from "../schemas/id";
 import { PaginationProductQuerySchema } from "../schemas/product";
 import { CLOUDINARY } from "../constants/const";
+import { asyncHandler } from "../middleware/async-handler";
+import { NotFoundError, ValidationError } from "../errors";
 
 cloudinary.config(cloudinaryConfig);
 
@@ -32,7 +33,12 @@ export const listProductsPaginated = [
     try {
       // Validar directamente con el schema - sin middleware
       const validatedQuery = PaginationProductQuerySchema.parse(req.query);
-      const { page, limit, sortBy = "createdAt", sortOrder = "desc" } = validatedQuery;  
+      const {
+        page,
+        limit,
+        sortBy = "createdAt",
+        sortOrder = "desc",
+      } = validatedQuery;
 
       // Calcular offset
       const offset = PaginationHelper.calculateOffset(page, limit);
@@ -85,38 +91,34 @@ export const listProductsPaginated = [
   },
 ];
 // GET product by ID
-export async function getProduct(req: Request, res: Response) {
+export const getProduct = asyncHandler(async (req: Request, res: Response) => {
   const id = IdSchema.parse(req.params.id);
 
-  try {
-    const result = await db
-      .select()
-      .from(products)
-      .innerJoin(categories, eq(products.categoryId, categories.id))
-      .where(eq(products.id, id))
-      .limit(1);
+  const result = await db
+    .select()
+    .from(products)
+    .innerJoin(categories, eq(products.categoryId, categories.id))
+    .where(eq(products.id, id))
+    .limit(1);
 
-    if (result.length === 0)
-      return res.status(404).json({ message: "Product not found" });
-
-    const product = {
-      ...result[0]?.product,
-      category: result[0]?.category,
-      createdAt: result[0]?.product.createdAt.toISOString(),
-      updatedAt: result[0]?.product.updatedAt.toISOString(),
-    };
-
-    res.json(
-      ResponseSchema.parse({
-        data: ProductWithCategoryResponseSchema.parse(product),
-        message: "Success",
-      })
-    );
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Failed to fetch product" });
+  if (result.length === 0) {
+    throw new NotFoundError("Producto no encontrado");
   }
-}
+
+  const product = {
+    ...result[0]?.product,
+    category: result[0]?.category,
+    createdAt: result[0]?.product.createdAt.toISOString(),
+    updatedAt: result[0]?.product.updatedAt.toISOString(),
+  };
+
+  res.json(
+    ResponseSchema.parse({
+      data: ProductWithCategoryResponseSchema.parse(product),
+      message: "Success",
+    })
+  );
+});
 
 export const getNewProducts = [
   async (req: Request, res: Response) => {
@@ -315,22 +317,19 @@ export const updateProduct = [
 ];
 
 // DELETE product
-export async function deleteProduct(req: Request, res: Response) {
-  const id = req.params.id;
-  if (!id) {
-    return res.status(400).json({ message: "Invalid product ID" });
-  }
+export const deleteProduct = asyncHandler(
+  async (req: Request, res: Response) => {
+    const id = req.params.id;
+    if (!id) {
+      throw new ValidationError("ID de producto inválido");
+    }
 
-  try {
     cloudinary.uploader.destroy(`${CLOUDINARY.FOLDER.PRODUCTS}/${id}`);
 
     await db.delete(products).where(eq(products.id, id));
-    res.json({ message: "Product deleted" });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Failed to delete product" });
+    res.json({ message: "Producto eliminado" });
   }
-}
+);
 
 // SEARCH products
 export const searchProducts = [
@@ -376,7 +375,13 @@ export const filterProducts = [
     try {
       // Validar directamente con el schema - sin middleware
       const validatedQuery = FilterProductsSchema.parse(req.query);
-      const { page, limit, sortBy = "createdAt", sortOrder = "desc", categoryId } = validatedQuery;
+      const {
+        page,
+        limit,
+        sortBy = "createdAt",
+        sortOrder = "desc",
+        categoryId,
+      } = validatedQuery;
 
       // Calcular offset
       const offset = PaginationHelper.calculateOffset(page, limit);
