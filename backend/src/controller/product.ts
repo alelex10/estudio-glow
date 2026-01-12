@@ -14,18 +14,15 @@ import {
   type GetNewProducts,
   ProductWithCategoryResponseSchema,
 } from "../schemas/product";
-import cloudinaryConfig from "../cloudfile";
-import { v2 as cloudinary } from "cloudinary";
-import type { UploadApiResponse } from "cloudinary";
+import { ImageUploadService } from "../services/imageUploadService";
 import { PaginationHelper, type PaginatedResponse } from "../types/pagination";
 import { ResponseSchema } from "../schemas/response";
 import { IdSchema } from "../schemas/id";
 import { PaginationProductQuerySchema } from "../schemas/product";
-import { CLOUDINARY } from "../constants/const";
 import { asyncHandler } from "../middleware/async-handler";
 import { NotFoundError, ValidationError } from "../errors";
-
-cloudinary.config(cloudinaryConfig);
+import { BadRequestError } from "../errors/bad-request-error";
+import { checkCategoryExists } from "./category";
 
 // GET products con paginación
 export const listProductsPaginated = [
@@ -142,85 +139,41 @@ export const getNewProducts = [
 
 // CREATE product
 export const createProduct = [
-  validateBody(CreateProductSchema),
   async (req: Request, res: Response) => {
-    try {
-      const { name, description, price, stock, categoryId } = req.body;
+    const { name, description, price, stock, categoryId } = req.body;
 
-      // Validate that category exists
-      const categoryExists = await db
-        .select()
-        .from(categories)
-        .where(eq(categories.id, categoryId));
+    await checkCategoryExists(categoryId);
 
-      if (categoryExists.length === 0) {
-        return res.status(404).json({ message: "Category not found" });
-      }
-
-      const exists = await db
-        .select()
-        .from(products)
-        .where(eq(products.name, name));
-
-      if (exists.length > 0)
-        return res.status(400).json({
-          message:
-            "El producto de nombre " +
-            name +
-            " ya existe solo se le puede subir o bajar el stock",
-        });
-
-      const id = crypto.randomUUID();
-
-      if (!req.file) {
-        return res.status(400).json({ message: "Imagen requerida" });
-      }
-      // Subir imagen a Cloudinary desde buffer
-      const cloudinaryResult: UploadApiResponse = await new Promise(
-        (resolve, reject) => {
-          cloudinary.uploader
-            .upload_stream(
-              {
-                folder: "products",
-                public_id: `${id}`,
-                resource_type: "image",
-              },
-              (error, result) => {
-                if (error) reject(error);
-                else if (result) resolve(result);
-                else reject(new Error("Upload failed: No result returned"));
-              }
-            )
-            .end(req.file!.buffer);
-        }
-      );
-
-      const data: NewProduct = {
-        id,
-        name,
-        description,
-        price,
-        stock,
-        categoryId,
-        imageUrl: cloudinaryResult.secure_url,
-      };
-
-      await db.insert(products).values(data);
-      const created = await db
-        .select()
-        .from(products)
-        .where(eq(products.id, id));
-
-      res.status(201).json(
-        ResponseSchema.parse({
-          data: created[0],
-          message: "Product created successfully",
-        })
-      );
-    } catch (err) {
-      console.error(err);
-      res.status(400).json({ message: "Failed to create product" });
+    if ((await checkProductNameExists(name))) {
+      throw new BadRequestError("El producto con ese nombre ya existe");
     }
+
+    const id = crypto.randomUUID();
+
+    if (!req.file) {
+      throw new BadRequestError("Imagen requerida");
+    }
+
+    const uploadResult = await ImageUploadService.uploadProductImage(
+      req.file.buffer,
+      id
+    );
+
+    const data: NewProduct = {
+      ...req.body,
+      id,
+      imageUrl: uploadResult.secure_url,
+    };
+
+    await db.insert(products).values(data);
+    const created = await db.select().from(products).where(eq(products.id, id));
+
+    res.status(201).json(
+      ResponseSchema.parse({
+        data: created[0],
+        message: "Product created successfully",
+      })
+    );
   },
 ];
 
@@ -247,35 +200,12 @@ export const updateProduct = [
       let imageUrl = product?.imageUrl;
 
       if (req.file) {
-        // Eliminar imagen anterior de Cloudinary si existe
-        if (product?.imageUrl) {
-          const fileName = product.imageUrl.split("/").pop();
-          if (fileName) {
-            const publicId = fileName.split(".")[0];
-            await cloudinary.uploader.destroy(`products/${publicId}`);
-          }
-        }
-
-        // Subir nueva imagen desde buffer
-        const result = await new Promise<UploadApiResponse>(
-          (resolve, reject) => {
-            cloudinary.uploader
-              .upload_stream(
-                {
-                  folder: "products",
-                  public_id: `product_${Date.now()}`,
-                  resource_type: "image",
-                },
-                (error, result) => {
-                  if (error) reject(error);
-                  else if (result) resolve(result);
-                  else reject(new Error("Upload failed: No result returned"));
-                }
-              )
-              .end(req.file!.buffer);
-          }
+        const uploadResult = await ImageUploadService.updateProductImage(
+          req.file.buffer,
+          id,
+          product?.imageUrl || undefined
         );
-        imageUrl = result.secure_url;
+        imageUrl = uploadResult.secure_url;
       }
       // Validate categoryId if provided
       if (data.categoryId !== undefined) {
@@ -324,7 +254,8 @@ export const deleteProduct = asyncHandler(
       throw new ValidationError("ID de producto inválido");
     }
 
-    cloudinary.uploader.destroy(`${CLOUDINARY.FOLDER.PRODUCTS}/${id}`);
+    // Eliminar imagen de Cloudinary usando el servicio
+    await ImageUploadService.deleteImage(`products/${id}`);
 
     await db.delete(products).where(eq(products.id, id));
     res.json({ message: "Producto eliminado" });
@@ -467,3 +398,11 @@ export const filterProducts = [
     }
   },
 ];
+
+export const checkProductNameExists = async (name: string) => {
+  const result = await db
+    .select()
+    .from(products)
+    .where(eq(products.name, name));
+  return result[0];
+};

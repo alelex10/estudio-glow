@@ -1,3 +1,4 @@
+import type { ErrorResponse } from "../types/response";
 import { API_BASE_URL } from "./api";
 
 // services/api-client.ts
@@ -10,7 +11,9 @@ export async function apiClient<T>(
     ...options,
     credentials: "include",
     headers: {
-      ...(options?.body instanceof FormData ? {} : { "Content-Type": "application/json" }),
+      ...(options?.body instanceof FormData
+        ? {}
+        : { "Content-Type": "application/json" }),
       ...options?.headers,
     },
   };
@@ -18,8 +21,15 @@ export async function apiClient<T>(
   const response = await fetch(url, config);
 
   if (!response.ok) {
-    const error = await response.json().catch(() => ({}));
-    throw new Error(error.message || `Error: ${response.status}`);
+    const responseError: ErrorResponse = await response.json().catch(() => ({
+      error: {
+        message: "Unknown error",
+        statusCode: response.status,
+        error: "Unknown error",
+      },
+    }));
+    console.error("API Error:", responseError);
+    throw new Error(responseError.error.message || `Error: ${response.status}`);
   }
 
   return response.json();

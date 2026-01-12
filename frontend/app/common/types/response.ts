@@ -33,3 +33,11 @@ export interface ResponseSchema<T> {
   message?: string;
   // error?: string;
 }
+
+export interface ErrorResponse {
+  error: {
+    message: string;
+    statusCode: number;
+    error: string;
+  };
+}

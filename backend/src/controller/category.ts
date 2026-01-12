@@ -20,6 +20,19 @@ import { ParamsIdSchema } from "../schemas/params";
 import { asyncHandler } from "../middleware/async-handler";
 import { NotFoundError, ConflictError } from "../errors";
 
+// TODO: exist category
+
+export const checkCategoryExists = async (id: string) => {
+  const result = await db
+    .select()
+    .from(categories)
+    .where(eq(categories.id, id));
+  if (result.length === 0) {
+    throw new NotFoundError("Categoría no encontrada");
+  }
+  return result[0];
+};
+
 // GET all categories
 export const listCategories = asyncHandler(
   async (req: Request, res: Response) => {

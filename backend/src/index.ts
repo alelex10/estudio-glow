@@ -48,7 +48,7 @@ app.get("/", (req, res) => {
 });
 
 // Admin routes (protected by auth middleware inside router)
-app.use("/products", upload.single("image"), optimizeImage, productRouter);
+app.use("/products", upload.single("image"), productRouter);
 app.use("/categories", categoryRouter);
 app.use("/auth", authRouter);
 
