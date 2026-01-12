@@ -1,6 +1,5 @@
 import type { Request, Response } from "express";
 import { eq, like, and, gte, lte, desc, asc, count } from "drizzle-orm";
-import { db } from "../db";
 import { products } from "../models/product";
 import { categories } from "../models/category";
 import type { NewProduct, Product } from "../models/product";
@@ -24,8 +23,10 @@ import { PaginationProductQuerySchema } from "../schemas/product";
 import { CLOUDINARY } from "../constants/const";
 import { asyncHandler } from "../middleware/async-handler";
 import { NotFoundError, ValidationError } from "../errors";
+import { drizzle } from "drizzle-orm/mysql2";
 
 cloudinary.config(cloudinaryConfig);
+
 
 // GET products con paginación
 export const listProductsPaginated = [

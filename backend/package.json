@@ -9,7 +9,7 @@
     "@types/express": "^5.0.5",
     "@types/multer": "^2.0.0",
     "@types/swagger-ui-express": "^4.1.8",
-    "drizzle-kit": "^0.31.7",
+    "drizzle-kit": "^1.0.0-beta.10-42c284e",
     "ts-node": "^10.9.2"
   },
   "scripts": {
@@ -31,7 +31,7 @@
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
-    "drizzle-orm": "^0.44.7",
+    "drizzle-orm": "^1.0.0-beta.10-42c284e",
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.0",
     "multer": "^2.0.2",
