@@ -1,6 +1,7 @@
 import mysql from "mysql2/promise";
 import { drizzle } from "drizzle-orm/mysql2";
 import dotenv from "dotenv";
+import { relations } from "./models";
 
 dotenv.config();
 
@@ -17,6 +18,6 @@ const pool = mysql.createPool({
 });
 
 // Export a Drizzler instance bound to the pool
-export const db = drizzle(pool);
+export const db = drizzle({ client: pool, relations: relations });
 
 export default db;

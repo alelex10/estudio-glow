@@ -24,9 +24,10 @@ import { CLOUDINARY } from "../constants/const";
 import { asyncHandler } from "../middleware/async-handler";
 import { NotFoundError, ValidationError } from "../errors";
 import { drizzle } from "drizzle-orm/mysql2";
+import { db } from "../db";
+import { relations } from "../models/relations";
 
 cloudinary.config(cloudinaryConfig);
-
 
 // GET products con paginación
 export const listProductsPaginated = [
@@ -41,6 +42,8 @@ export const listProductsPaginated = [
         sortOrder = "desc",
       } = validatedQuery;
 
+      console.log(validatedQuery);
+
       // Calcular offset
       const offset = PaginationHelper.calculateOffset(page, limit);
 
@@ -49,27 +52,23 @@ export const listProductsPaginated = [
 
       const total = totalResult[0]?.total || 0;
 
-      // Construir y ejecutar query con ordenamiento
-      let dbResult: {
-        product: Product;
-        category: { id: string; name: string };
-      }[] = [];
+      const dbResult = await db.query.products.findMany({
+        with: {
+          category: {
+            columns: {
+              id: true,
+              name: true,
+            },
+          },
+        },
+        orderBy: {
+          [sortBy]: sortOrder,
+        },
+        limit,
+        offset,
+      });
 
-      const orderFn = sortOrder === "asc" ? asc : desc;
-      dbResult = await db
-        .select()
-        .from(products)
-        .orderBy(orderFn(products[sortBy]))
-        .innerJoin(categories, eq(products.categoryId, categories.id))
-        .limit(limit)
-        .offset(offset);
-
-      const result: ProductResponse[] = dbResult.map((row) => ({
-        ...row.product,
-        category: row.category,
-        createdAt: row.product.createdAt.toISOString(),
-        updatedAt: row.product.updatedAt.toISOString(),
-      }));
+      console.log(dbResult);
 
       // Calcular metadatos de paginación
       const paginationMetadata = PaginationHelper.calculateMetadata(
@@ -79,8 +78,8 @@ export const listProductsPaginated = [
       );
 
       // Construir respuesta paginada
-      const response: PaginatedResponse<ProductResponse> = {
-        data: result,
+      const response: PaginatedResponse<(typeof dbResult)[0]> = {
+        data: dbResult,
         pagination: paginationMetadata,
       };
 
