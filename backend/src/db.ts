@@ -1,7 +1,7 @@
 import mysql from "mysql2/promise";
 import { drizzle } from "drizzle-orm/mysql2";
 import dotenv from "dotenv";
-import { relations } from "./models";
+import { relations } from "./models/relations";
 
 dotenv.config();
 
