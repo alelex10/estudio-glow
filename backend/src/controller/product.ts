@@ -1,16 +1,13 @@
 import type { Request, Response } from "express";
 import { eq, like, and, gte, lte, desc, asc, count } from "drizzle-orm";
-import { db } from "../db";
 import { products } from "../models/product";
 import { categories } from "../models/category";
 import type { NewProduct, Product } from "../models/product";
 import { validateBody, validateQuery } from "../middleware/validation";
 import {
-  CreateProductSchema,
   UpdateProductSchema,
   SearchProductSchema,
   FilterProductsSchema,
-  type ProductResponse,
   type GetNewProducts,
   ProductWithCategoryResponseSchema,
 } from "../schemas/product";
@@ -21,6 +18,7 @@ import { IdSchema } from "../schemas/id";
 import { PaginationProductQuerySchema } from "../schemas/product";
 import { asyncHandler } from "../middleware/async-handler";
 import { NotFoundError, ValidationError } from "../errors";
+import { db } from "../db";
 import { BadRequestError } from "../errors/bad-request-error";
 import { checkCategoryExists } from "./category";
 
@@ -37,6 +35,8 @@ export const listProductsPaginated = [
         sortOrder = "desc",
       } = validatedQuery;
 
+      console.log(validatedQuery);
+
       // Calcular offset
       const offset = PaginationHelper.calculateOffset(page, limit);
 
@@ -45,27 +45,23 @@ export const listProductsPaginated = [
 
       const total = totalResult[0]?.total || 0;
 
-      // Construir y ejecutar query con ordenamiento
-      let dbResult: {
-        product: Product;
-        category: { id: string; name: string };
-      }[] = [];
+      const dbResult = await db.query.products.findMany({
+        with: {
+          category: {
+            columns: {
+              id: true,
+              name: true,
+            },
+          },
+        },
+        orderBy: {
+          [sortBy]: sortOrder,
+        },
+        limit,
+        offset,
+      });
 
-      const orderFn = sortOrder === "asc" ? asc : desc;
-      dbResult = await db
-        .select()
-        .from(products)
-        .orderBy(orderFn(products[sortBy]))
-        .innerJoin(categories, eq(products.categoryId, categories.id))
-        .limit(limit)
-        .offset(offset);
-
-      const result: ProductResponse[] = dbResult.map((row) => ({
-        ...row.product,
-        category: row.category,
-        createdAt: row.product.createdAt.toISOString(),
-        updatedAt: row.product.updatedAt.toISOString(),
-      }));
+      console.log(dbResult);
 
       // Calcular metadatos de paginación
       const paginationMetadata = PaginationHelper.calculateMetadata(
@@ -75,8 +71,8 @@ export const listProductsPaginated = [
       );
 
       // Construir respuesta paginada
-      const response: PaginatedResponse<ProductResponse> = {
-        data: result,
+      const response: PaginatedResponse<(typeof dbResult)[0]> = {
+        data: dbResult,
         pagination: paginationMetadata,
       };
 
@@ -144,7 +140,7 @@ export const createProduct = [
 
     await checkCategoryExists(categoryId);
 
-    if ((await checkProductNameExists(name))) {
+    if (await checkProductNameExists(name)) {
       throw new BadRequestError("El producto con ese nombre ya existe");
     }
 
