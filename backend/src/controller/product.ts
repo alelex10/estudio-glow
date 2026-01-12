@@ -28,14 +28,7 @@ export const listProductsPaginated = [
     try {
       // Validar directamente con el schema - sin middleware
       const validatedQuery = PaginationProductQuerySchema.parse(req.query);
-      const {
-        page,
-        limit,
-        sortBy = "createdAt",
-        sortOrder = "desc",
-      } = validatedQuery;
-
-      console.log(validatedQuery);
+      const { page, limit, sortBy, sortOrder } = validatedQuery;
 
       // Calcular offset
       const offset = PaginationHelper.calculateOffset(page, limit);
@@ -60,8 +53,6 @@ export const listProductsPaginated = [
         limit,
         offset,
       });
-
-      console.log(dbResult);
 
       // Calcular metadatos de paginación
       const paginationMetadata = PaginationHelper.calculateMetadata(
@@ -175,7 +166,6 @@ export const createProduct = [
 
 // UPDATE product
 export const updateProduct = [
-  validateBody(UpdateProductSchema),
   async (req: Request, res: Response) => {
     const id = req.params.id;
     if (!id) {

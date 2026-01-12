@@ -155,7 +155,6 @@ export const PaginationProductQuerySchema = z
     sortBy: z
       .enum(["name", "price", "createdAt", "stock"])
       .default("createdAt")
-      .optional()
       .openapi({
         example: "createdAt",
         description: "Campo por el cual ordenar",

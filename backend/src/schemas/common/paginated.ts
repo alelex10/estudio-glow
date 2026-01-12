@@ -10,7 +10,7 @@ export const PaginationQuerySchema = z
       example: 10,
       description: "Cantidad de productos por página (máximo 100)",
     }),
-    sortOrder: z.enum(["asc", "desc"]).default("desc").optional().openapi({
+    sortOrder: z.enum(["asc", "desc"]).default("desc").openapi({
       example: "desc",
       description: "Orden ascendente o descendente",
     }),
