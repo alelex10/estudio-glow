@@ -109,11 +109,11 @@ export const ProductWithCategoryResponseSchema = z
       example: "https://example.com/image.jpg",
       description: "URL de la imagen del producto",
     }),
-    createdAt: z.string().datetime().openapi({
+    createdAt: z.date().openapi({
       example: "2024-01-15T10:30:00Z",
       description: "Fecha de creación",
     }),
-    updatedAt: z.string().datetime().openapi({
+    updatedAt: z.date().openapi({
       example: "2024-01-15T10:30:00Z",
       description: "Fecha de actualización",
     }),

@@ -26,14 +26,11 @@ import { checkCategoryExists } from "./category";
 export const listProductsPaginated = [
   async (req: Request, res: Response) => {
     try {
-      // Validar directamente con el schema - sin middleware
       const validatedQuery = PaginationProductQuerySchema.parse(req.query);
       const { page, limit, sortBy, sortOrder } = validatedQuery;
 
-      // Calcular offset
       const offset = PaginationHelper.calculateOffset(page, limit);
 
-      // Obtener total de productos
       const totalResult = await db.select({ total: count() }).from(products);
 
       const total = totalResult[0]?.total || 0;
@@ -54,14 +51,12 @@ export const listProductsPaginated = [
         offset,
       });
 
-      // Calcular metadatos de paginación
       const paginationMetadata = PaginationHelper.calculateMetadata(
         page,
         limit,
         total
       );
 
-      // Construir respuesta paginada
       const response: PaginatedResponse<(typeof dbResult)[0]> = {
         data: dbResult,
         pagination: paginationMetadata,
@@ -78,27 +73,22 @@ export const listProductsPaginated = [
 export const getProduct = asyncHandler(async (req: Request, res: Response) => {
   const id = IdSchema.parse(req.params.id);
 
-  const result = await db
-    .select()
-    .from(products)
-    .innerJoin(categories, eq(products.categoryId, categories.id))
-    .where(eq(products.id, id))
-    .limit(1);
+  const result = await db.query.products.findFirst({
+    with: {
+      category: true,
+    },
+    where: {
+      id: id,
+    },
+  });
 
-  if (result.length === 0) {
+  if (!result) {
     throw new NotFoundError("Producto no encontrado");
   }
 
-  const product = {
-    ...result[0]?.product,
-    category: result[0]?.category,
-    createdAt: result[0]?.product.createdAt.toISOString(),
-    updatedAt: result[0]?.product.updatedAt.toISOString(),
-  };
-
   res.json(
     ResponseSchema.parse({
-      data: ProductWithCategoryResponseSchema.parse(product),
+      data: ProductWithCategoryResponseSchema.parse(result),
       message: "Success",
     })
   );
@@ -106,21 +96,16 @@ export const getProduct = asyncHandler(async (req: Request, res: Response) => {
 
 export const getNewProducts = [
   async (req: Request, res: Response) => {
-    try {
-      const limit = 8;
-      const dbResult = await db
-        .select()
-        .from(products)
-        .orderBy(desc(products.createdAt))
-        .limit(limit);
+    const limit = 8;
+    const dbResult = await db
+      .select()
+      .from(products)
+      .orderBy(desc(products.createdAt))
+      .limit(limit);
 
-      const result: GetNewProducts = dbResult;
+    const result: GetNewProducts = dbResult;
 
-      res.json(ResponseSchema.parse({ data: result, message: "Success" }));
-    } catch (err) {
-      console.error(err);
-      res.status(500).json({ message: "Failed to fetch new products" });
-    }
+    res.json(ResponseSchema.parse({ data: result, message: "Success" }));
   },
 ];
 
@@ -167,68 +152,43 @@ export const createProduct = [
 // UPDATE product
 export const updateProduct = [
   async (req: Request, res: Response) => {
-    const id = req.params.id;
-    if (!id) {
-      return res.status(400).json({ message: "Invalid product ID" });
+    const id = IdSchema.parse(req.params.id);
+    const data = UpdateProductSchema.parse(req.body);
+
+    const product = await checkProductIdExists(id);
+    let imageUrl = product?.imageUrl;
+
+    if (req.file) {
+      const uploadResult = await ImageUploadService.updateProductImage(
+        req.file.buffer,
+        id,
+        product?.imageUrl || undefined
+      );
+      imageUrl = uploadResult.secure_url;
     }
-    const data: Partial<NewProduct> = req.body;
 
-    try {
-      const existing: Product[] = await db
-        .select()
-        .from(products)
-        .where(eq(products.id, id));
-
-      if (existing.length === 0) {
-        return res.status(404).json({ message: "Product already exists" });
-      }
-      const product = existing[0];
-      let imageUrl = product?.imageUrl;
-
-      if (req.file) {
-        const uploadResult = await ImageUploadService.updateProductImage(
-          req.file.buffer,
-          id,
-          product?.imageUrl || undefined
-        );
-        imageUrl = uploadResult.secure_url;
-      }
-      // Validate categoryId if provided
-      if (data.categoryId !== undefined) {
-        const categoryExists = await db
-          .select()
-          .from(categories)
-          .where(eq(categories.id, data.categoryId));
-
-        if (categoryExists.length === 0) {
-          return res.status(404).json({ message: "Category not found" });
-        }
-      }
-
-      const productoData = {
-        name: data.name || existing[0]?.name,
-        description: data.description || existing[0]?.description,
-        price: data.price !== undefined ? data.price : existing[0]?.price,
-        stock: data.stock !== undefined ? data.stock : existing[0]?.stock,
-        categoryId:
-          data.categoryId !== undefined
-            ? data.categoryId
-            : existing[0]?.categoryId,
-        imageUrl: imageUrl || existing[0]?.imageUrl,
-      };
-
-      await db.update(products).set(productoData).where(eq(products.id, id));
-
-      const result = await db
-        .select()
-        .from(products)
-        .where(eq(products.id, id));
-
-      res.json(result[0]);
-    } catch (err) {
-      console.error(err);
-      res.status(400).json({ message: "Failed to update product" });
+    if (
+      data.categoryId !== undefined &&
+      data.categoryId !== product.categoryId
+    ) {
+      await checkCategoryExists(data.categoryId);
     }
+
+    const productoData = {
+      name: data.name || product.name,
+      description: data.description || product.description,
+      price: data.price !== undefined ? data.price : product.price,
+      stock: data.stock !== undefined ? data.stock : product.stock,
+      categoryId:
+        data.categoryId !== undefined ? data.categoryId : product.categoryId,
+      imageUrl: imageUrl || product.imageUrl,
+    };
+
+    await db.update(products).set(productoData).where(eq(products.id, id));
+
+    const result = await db.select().from(products).where(eq(products.id, id));
+
+    res.json(result[0]);
   },
 ];
 
@@ -391,4 +351,19 @@ export const checkProductNameExists = async (name: string) => {
     .from(products)
     .where(eq(products.name, name));
   return result[0];
+};
+
+export const checkProductIdExists = async (id: string) => {
+  const result = await db.query.products.findFirst({
+    with: {
+      category: true,
+    },
+    where: {
+      id,
+    },
+  });
+  if (!result) {
+    throw new NotFoundError("Producto no encontrado");
+  }
+  return result;
 };
