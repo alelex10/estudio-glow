@@ -1,19 +1,19 @@
 import { registry } from "./registry";
 import { z } from "zod";
+
+import { ResponseSchema } from "../schemas/response";
 import {
   CreateProductSchema,
-  UpdateProductSchema,
-  ProductWithCategoryResponseSchema,
-  ProductListResponseSchema,
-  SearchProductSchema,
-  PaginationProductQuerySchema,
-  PaginatedProductsResponseSchema,
-  ErrorResponseSchema,
-  AuthResponseSchema,
   FilterProductsSchema,
+  PaginatedProductsResponseSchema,
+  PaginationProductQuerySchema,
   ProductBaseSchema,
-} from "../schemas";
-import { ResponseSchema } from "../schemas/response";
+  ProductListResponseSchema,
+  ProductWithCategoryResponseSchema,
+  SearchProductSchema,
+  UpdateProductSchema,
+} from "../schemas/product";
+import { AuthResponseSchema, ErrorResponseSchema } from "../schemas/auth";
 
 // Product endpoints (Admin)
 registry.registerPath({
@@ -281,4 +281,3 @@ registry.registerPath({
   },
   security: [],
 });
-

@@ -122,16 +122,7 @@ class ProductService {
     apiClient<ResponseSchema<Category[]>>(API_ENDPOINTS.PUBLIC.CATEGORIES.GET);
 
   getProductStats = async () => {
-    const products = await this.getProductsPaginated(1, 100);
-
-    return {
-      total: products.data.length,
-      lowStock: products.data.filter((p) => p.stock > 0 && p.stock <= 10)
-        .length,
-      outOfStock: products.data.filter((p) => p.stock === 0).length,
-      categories: new Set(products.data.map((p) => p.category.name)).size,
-      totalValue: products.data.reduce((acc, p) => acc + p.price * p.stock, 0),
-    };
+    return apiClient<ResponseSchema<any>>(API_ENDPOINTS.ADMIN.DASHBOARD.STATS);
   };
 }
 

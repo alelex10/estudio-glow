@@ -5,15 +5,14 @@ import { generateOpenApi } from "./docs/openapi";
 import productRouter from "./routes/products";
 import categoryRouter from "./routes/categories";
 import { authRouter } from "./routes/auth";
-import multer from "multer";
-import type { FileFilterCallback } from "multer";
-import { optimizeImage } from "./middleware/optimize";
+import { validateImageFile } from "./middleware/file-validation";
 import cors from "cors";
 import {
   logErrors,
   clientErrorHandler,
   errorHandler,
 } from "./middleware/error-handler";
+import dashboardRouter from "./routes/dashboard";
 
 const app = express();
 const PORT = 3000;
@@ -26,17 +25,7 @@ app.use(
 );
 app.use(express.json());
 app.use(cookieParser());
-const upload = multer({
-  storage: multer.memoryStorage(),
-  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
-  fileFilter: (req, file, cb: FileFilterCallback) => {
-    if (file.mimetype.startsWith("image/")) {
-      cb(null, true);
-    } else {
-      cb(new Error("Solo se permiten archivos de imagen"));
-    }
-  },
-});
+const upload = validateImageFile(5); // 5MB de límite
 
 // Swagger documentation
 const openApiDocument = generateOpenApi();
@@ -51,6 +40,7 @@ app.get("/", (req, res) => {
 app.use("/products", upload.single("image"), productRouter);
 app.use("/categories", categoryRouter);
 app.use("/auth", authRouter);
+app.use("/dashboard", dashboardRouter);
 
 // Error handling middleware (DEBE IR AL FINAL, después de todas las rutas)
 app.use(logErrors);

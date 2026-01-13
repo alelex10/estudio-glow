@@ -1,14 +1,15 @@
 import { registry } from "./registry";
 import { z } from "zod";
-import {
-  CreateCategorySchema,
-  UpdateCategorySchema,
-  CategoryResponseSchema,
-  CategoryListResponseSchema,
-  ErrorResponseSchema,
-} from "../schemas";
+
 import { ResponseSchema } from "../schemas/response";
 import { extendZodWithOpenApi } from "@asteasolutions/zod-to-openapi";
+import {
+  CategoryListResponseSchema,
+  CategoryResponseSchema,
+  CreateCategorySchema,
+  UpdateCategorySchema,
+} from "../schemas/category";
+import { ErrorResponseSchema } from "../schemas/auth";
 extendZodWithOpenApi(z);
 // Category endpoints (Admin)
 registry.registerPath({

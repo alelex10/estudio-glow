@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import { eq, like, and, gte, lte, desc, asc, count } from "drizzle-orm";
+import { eq, like, and, gte, lte, desc, asc, count, lt } from "drizzle-orm";
 import { products } from "../models/product";
 import { categories } from "../models/category";
 import type { NewProduct, Product } from "../models/product";

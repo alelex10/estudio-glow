@@ -1,10 +1,10 @@
-import { registry } from "./registry";
 import {
-  RegisterSchema,
-  LoginSchema,
   AuthResponseSchema,
   ErrorResponseSchema,
-} from "../schemas";
+  LoginSchema,
+  RegisterSchema,
+} from "../schemas/auth";
+import { registry } from "./registry";
 
 // Auth endpoints
 registry.registerPath({

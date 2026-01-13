@@ -1,19 +1,25 @@
 import { OpenApiGeneratorV3 } from "@asteasolutions/zod-to-openapi";
 import { registry } from "./registry";
-import {
-  AuthResponseSchema,
-  UserResponseSchema,
-  ErrorResponseSchema,
-  ProductWithCategoryResponseSchema,
-  ProductListResponseSchema,
-  CategoryResponseSchema,
-  CategoryListResponseSchema,
-} from "../schemas";
 
 // Import modules to register paths
 import "./auth";
 import "./products";
 import "./categories";
+import "./dashboard";
+
+import {
+  AuthResponseSchema,
+  ErrorResponseSchema,
+  UserResponseSchema,
+} from "../schemas/auth";
+import {
+  ProductListResponseSchema,
+  ProductWithCategoryResponseSchema,
+} from "../schemas/product";
+import {
+  CategoryListResponseSchema,
+  CategoryResponseSchema,
+} from "../schemas/category";
 
 // Register schemas
 registry.register("AuthResponse", AuthResponseSchema);

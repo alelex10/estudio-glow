@@ -21,6 +21,9 @@ export const API_ENDPOINTS = {
       CREATE: "/categories",
       DELETE: (id: number | string) => `/categories/${id}`,
     },
+    DASHBOARD: {
+      STATS: "/dashboard/stats",
+    },
   },
   // Public Products
   PUBLIC: {
