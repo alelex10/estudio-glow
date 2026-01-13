@@ -22,10 +22,13 @@ import type { Route } from "./+types/login";
 import { userContext, userContextProvider } from "~/common/context/context";
 import { API_BASE_URL, API_ENDPOINTS } from "~/common/config/api";
 
-export function meta({ }: Route.MetaArgs) {
+export function meta({}: Route.MetaArgs) {
   return [
     { title: "Login | Glow Studio" },
-    { name: "description", content: "Inicia sesión en el panel de administración de Glow Studio" },
+    {
+      name: "description",
+      content: "Inicia sesión en el panel de administración de Glow Studio",
+    },
   ];
 }
 

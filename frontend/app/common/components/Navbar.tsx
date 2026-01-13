@@ -8,9 +8,9 @@ import clsx from "clsx";
 const NAV_LINKS = [
   { href: "/", label: "Home" },
   { href: "/products", label: "Productos" },
-  { href: "/test", label: "Test" },
-  { href: "/test-2", label: "Test 2" },
-  { href: "/test-3", label: "Test 3" },
+  // { href: "/test", label: "Test" },
+  // { href: "/test-2", label: "Test 2" },
+  // { href: "/test-3", label: "Test 3" },
 ];
 
 interface NavbarProps {
@@ -22,7 +22,6 @@ export default function Navbar({ isBackgroundVisible = true }: NavbarProps) {
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   const isHome = page.pathname === "/";
-  const isProducts = page.pathname === "/products";
 
   return (
     <header>
