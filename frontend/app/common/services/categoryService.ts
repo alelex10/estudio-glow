@@ -1,4 +1,4 @@
-import { API_ENDPOINTS } from "../config/api";
+import { API_ENDPOINTS } from "../config/api-end-points";
 import { apiClient } from "../config/api-client";
 import type { ResponseSchema } from "../types/response";
 import type {

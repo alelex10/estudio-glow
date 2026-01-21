@@ -1,5 +1,5 @@
 import type { ErrorResponse } from "../types/response";
-import { API_BASE_URL } from "./api";
+import { API_BASE_URL } from "./api-end-points";
 
 // services/api-client.ts
 export async function apiClient<T>(
