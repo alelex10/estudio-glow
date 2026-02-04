@@ -1,6 +1,6 @@
 import { userContextProvider, userContext } from "~/common/context/context";
 import { redirect, type ActionFunctionArgs } from "react-router";
-import { API_BASE_URL, API_ENDPOINTS } from "~/common/config/api";
+import { API_BASE_URL, API_ENDPOINTS } from "~/common/config/api-end-points";
 
 export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData();

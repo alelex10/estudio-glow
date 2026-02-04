@@ -20,7 +20,7 @@ import { FormError } from "~/common/components/Form/FormError";
 import { loginSchema, type LoginFormData } from "~/common/schemas/auth";
 import type { Route } from "./+types/login";
 import { userContext, userContextProvider } from "~/common/context/context";
-import { API_BASE_URL, API_ENDPOINTS } from "~/common/config/api";
+import { API_BASE_URL, API_ENDPOINTS } from "~/common/config/api-end-points";
 
 export function meta({}: Route.MetaArgs) {
   return [

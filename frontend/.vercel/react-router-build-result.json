@@ -14,6 +14,8 @@
       "routes/home/home": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/products/products": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/product.$id": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/page-test/test": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/page-test/test-2": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/auth/login": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/auth/login-action": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/admin/logout": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
@@ -65,6 +67,20 @@
         "parentId": "routes/layout",
         "file": "app/routes/product.$id.tsx",
         "path": "product/:id",
+        "config": {}
+      },
+      "routes/page-test/test": {
+        "id": "routes/page-test/test",
+        "parentId": "routes/layout",
+        "file": "app/routes/page-test/test.tsx",
+        "path": "test",
+        "config": {}
+      },
+      "routes/page-test/test-2": {
+        "id": "routes/page-test/test-2",
+        "parentId": "routes/layout",
+        "file": "app/routes/page-test/test-2.tsx",
+        "path": "test-2",
         "config": {}
       },
       "routes/auth/login": {
@@ -146,9 +162,9 @@
     }
   },
   "reactRouterConfig": {
-    "appDirectory": "/home/alelex10/Escritorio/Estudio-Glow/frontend/app",
+    "appDirectory": "/home/alelex10/Escritorio/estudio-glow/frontend/app",
     "basename": "/",
-    "buildDirectory": "/home/alelex10/Escritorio/Estudio-Glow/frontend/build",
+    "buildDirectory": "/home/alelex10/Escritorio/estudio-glow/frontend/build",
     "future": {
       "v8_middleware": false,
       "unstable_optimizeDeps": false,
@@ -189,6 +205,18 @@
         "parentId": "routes/layout",
         "file": "./routes/product.$id.tsx",
         "path": "product/:id"
+      },
+      "routes/page-test/test": {
+        "id": "routes/page-test/test",
+        "parentId": "routes/layout",
+        "file": "./routes/page-test/test.tsx",
+        "path": "test"
+      },
+      "routes/page-test/test-2": {
+        "id": "routes/page-test/test-2",
+        "parentId": "routes/layout",
+        "file": "./routes/page-test/test-2.tsx",
+        "path": "test-2"
       },
       "routes/auth/login": {
         "id": "routes/auth/login",
@@ -288,6 +316,14 @@
               {
                 "file": "./routes/product.$id.tsx",
                 "path": "product/:id"
+              },
+              {
+                "file": "./routes/page-test/test.tsx",
+                "path": "test"
+              },
+              {
+                "file": "./routes/page-test/test-2.tsx",
+                "path": "test-2"
               }
             ]
           },
