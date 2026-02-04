@@ -20,7 +20,10 @@ const PORT = 3000;
 app.use(
   cors({
     credentials: true,
-    origin: process.env.FRONTEND_URL || "http://localhost:5173",
+    origin:
+      process.env.FRONTEND_URL && process.env.FRONTEND_URL_PREVIEW
+        ? [process.env.FRONTEND_URL, process.env.FRONTEND_URL_PREVIEW]
+        : "http://localhost:5173",
   })
 );
 app.use(express.json());
