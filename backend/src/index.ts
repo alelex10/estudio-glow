@@ -17,13 +17,44 @@ import dashboardRouter from "./routes/dashboard";
 const app = express();
 const PORT = 3000;
 
+// CORS configuration
+const allowedOrigins = [
+  "http://localhost:5173",
+  process.env.FRONTEND_URL,
+].filter((origin): origin is string => Boolean(origin));
+
 app.use(
   cors({
     credentials: true,
-    origin:
-      process.env.FRONTEND_URL && process.env.FRONTEND_URL_PREVIEW
-        ? [process.env.FRONTEND_URL, process.env.FRONTEND_URL_PREVIEW]
-        : "http://localhost:5173",
+    origin: (origin, callback) => {
+      // Allow requests with no origin (mobile apps, curl, etc)
+      if (!origin) return callback(null, true);
+      
+      // Check if origin is in allowed origins
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+      
+      // Check for Vercel preview URLs
+      if (origin.match(/^https:\/\/estudio-glow-[a-zA-Z0-9-]+\.vercel\.app$/)) {
+        return callback(null, true);
+      }
+      
+      // Check for custom preview URL pattern
+      const previewPattern = process.env.FRONTEND_URL_PREVIEW;
+      if (previewPattern) {
+        // Convert wildcard pattern to regex
+        const regexPattern = previewPattern
+          .replace(/\*/g, '[a-zA-Z0-9-]+')
+          .replace(/\./g, '\\.');
+        const regex = new RegExp(`^${regexPattern}$`);
+        if (regex.test(origin)) {
+          return callback(null, true);
+        }
+      }
+      
+      callback(new Error('Not allowed by CORS'));
+    },
   })
 );
 app.use(express.json());
@@ -52,13 +83,12 @@ app.use(errorHandler);
 
 app.listen(PORT, () => {
   const isProduction = process.env.NODE_ENV === "production";
+  const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
 
   if (isProduction) {
+    console.log(`Servidor desplegado y funcionando en ${frontendUrl}`);
     console.log(
-      `Servidor desplegado y funcionando en https://estudio-glow.onrender.com`
-    );
-    console.log(
-      `API disponible para producción en https://estudio-glow.onrender.com/api-docs`
+      `API disponible para producción en ${frontendUrl}/api-docs`
     );
   } else {
     console.log(`Servidor escuchando en http://localhost:${PORT}`);
