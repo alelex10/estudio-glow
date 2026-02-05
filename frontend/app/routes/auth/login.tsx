@@ -56,10 +56,6 @@ export async function action({ request }: ActionFunctionArgs) {
     }),
   });
 }
-export async function loader({ request }: LoaderFunctionArgs) {
-  const user = contextProvider.get(userContext);
-  if (user) return redirect("/admin");
-}
 
 export default function AdminLogin({ actionData }: Route.ComponentProps) {
   const [isLoading, setIsLoading] = useState(false);
@@ -108,14 +104,7 @@ export default function AdminLogin({ actionData }: Route.ComponentProps) {
         <Form
           className="space-y-5"
           method="post"
-          onSubmit={handleSubmit(async (data) => {
-            setIsLoading(true);
-            await submit(data, {
-              action: "/admin/login",
-              method: "post",
-            });
-            setIsLoading(false);
-          })}
+          onSubmit={(e) => handleSubmit}
         >
           {/* Email */}
           <FormInput
