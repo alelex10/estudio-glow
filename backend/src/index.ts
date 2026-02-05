@@ -86,9 +86,9 @@ app.listen(PORT, () => {
   const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
 
   if (isProduction) {
-    console.log(`Servidor desplegado y funcionando en ${frontendUrl}`);
+    console.log(`Servidor desplegado y funcionando en https://estudio-glow.onrender.com`);
     console.log(
-      `API disponible para producción en ${frontendUrl}/api-docs`
+      `API disponible para producción en https://estudio-glow.onrender.com/api-docs`
     );
   } else {
     console.log(`Servidor escuchando en http://localhost:${PORT}`);

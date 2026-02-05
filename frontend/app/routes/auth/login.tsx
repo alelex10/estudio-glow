@@ -1,13 +1,10 @@
-import { useCallback, useState } from "react";
+import { useState } from "react";
 import {
   Form,
   Link,
   redirect,
-  useActionData,
-  useNavigate,
   useSubmit,
   type ActionFunctionArgs,
-  type DataStrategyResult,
   type LoaderFunctionArgs,
 } from "react-router";
 import { useForm } from "react-hook-form";
@@ -32,30 +29,31 @@ export function meta({}: Route.MetaArgs) {
   ];
 }
 
-export async function clientAction({ request }: ActionFunctionArgs) {
+export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
-  const email = formData.get("email") as string;
-  const password = formData.get("password") as string;
 
-  const response = await fetch(`${API_BASE_URL}${API_ENDPOINTS.AUTH.LOGIN}`, {
+  const response = await fetch(`${API_BASE_URL}/auth/login`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    credentials: "include", // Importante para cookies
-    body: JSON.stringify({ email, password }),
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      email: formData.get("email"),
+      password: formData.get("password"),
+    }),
   });
+
+  const setCookie = response.headers.get("Set-Cookie");
 
   if (!response.ok) {
     const error = await response.json();
     return { error: error.message || "Error al iniciar sesión" };
   }
 
-  const responseAction = redirect("/admin");
-
-  return responseAction;
+  return redirect("/admin", {
+    headers: {
+      "Set-Cookie": setCookie!,
+    },
+  });
 }
-
 export async function loader({ request }: LoaderFunctionArgs) {
   const user = contextProvider.get(userContext);
   if (user) return redirect("/admin");
@@ -63,7 +61,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
 export default function AdminLogin({ actionData }: Route.ComponentProps) {
   const [isLoading, setIsLoading] = useState(false);
-  let submit = useSubmit();
+  let submit = useSubmit(); 
 
   const { error } = actionData || {};
 
