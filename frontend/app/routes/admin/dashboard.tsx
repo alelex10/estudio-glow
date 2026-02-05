@@ -4,9 +4,8 @@ import clsx from "clsx";
 import { productService } from "~/common/services/productService";
 import { StatCard } from "~/common/components/admin/StatCard";
 import { LoadingSpinner } from "~/common/components/admin/LoadingSpinner";
-import type { ProductResponse } from "~/common/types/product-types";
 import type { Route } from "./+types/dashboard";
-import type { Stats } from "~/common/types/dashboard";
+import { contextProvider, tokenContext } from "~/common/context/context";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -15,39 +14,25 @@ export function meta({}: Route.MetaArgs) {
   ];
 }
 
-export default function AdminDashboard() {
-  const [stats, setStats] = useState<Stats | null>(null);
-  const [recentProducts, setRecentProducts] = useState<ProductResponse[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+export async function loader({ request }: Route.LoaderArgs) {
+  const token = request.headers.get("Cookie");
+  
+  token && contextProvider.set(tokenContext, token);
 
-  useEffect(() => {
-    const loadDashboardData = async () => {
-      try {
-        const [statsData, products] = await Promise.all([
-          productService.getProductStats(),
-          (await productService.getProductsPaginated(1, 5)).data,
-        ]);
+  const statsData = await productService.getProductStats();
+  const products = await productService.getProductsPaginated(1, 5);
 
-        setStats(statsData.data);
-        // Últimos 5 productos
-        setRecentProducts(products.slice(-5).reverse());
-      } catch (error) {
-        console.error("Error loading dashboard data:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+  return {
+    stats: statsData.data,
+    products: products.data,
+  };
+}
 
-    loadDashboardData();
-  }, []);
+export default function AdminDashboard({ loaderData }: Route.ComponentProps) {
+  const { stats, products } = loaderData;
+  console.log("stats=", stats);
+  console.log("products=", products);
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <LoadingSpinner size="lg" />
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-8">
@@ -216,7 +201,7 @@ export default function AdminDashboard() {
           </Link>
         </div>
 
-        {recentProducts.length === 0 ? (
+        {products.length === 0 ? (
           <div className="p-12 text-center text-gray-500">
             <svg
               className="w-12 h-12 mx-auto mb-4 text-gray-300"
@@ -241,14 +226,14 @@ export default function AdminDashboard() {
           </div>
         ) : (
           <div className="divide-y divide-gray-100">
-            {recentProducts.map((product) => (
+            {products.map((product) => (
               <Link
                 key={product.id}
                 to={`/admin/products/${product.id}`}
                 className="flex items-center gap-4 p-4 hover:bg-gray-50 transition-colors"
               >
                 {/* Imagen */}
-                <div className="w-12 h-12 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
+                <div className="w-12 h-12 rounded-lg overflow-hidden bg-gray-100 shrink-0">
                   {product.imageUrl ? (
                     <img
                       src={product.imageUrl}
@@ -329,7 +314,7 @@ export default function AdminDashboard() {
           to="/admin/products/new"
           className={clsx(
             "flex items-center gap-4 p-6 rounded-xl",
-            "bg-gradient-to-br from-primary-500 to-primary-600",
+            "bg-linear-to-br from-primary-500 to-primary-600",
             "text-white",
             "hover:from-primary-600 hover:to-primary-700",
             "transition-all duration-200 hover:shadow-lg hover:shadow-primary-500/30"

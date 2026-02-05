@@ -1,3 +1,4 @@
+import { contextProvider, tokenContext } from "../context/context";
 import type { ErrorResponse } from "../types/response";
 import { API_BASE_URL } from "./api-end-points";
 
@@ -6,6 +7,8 @@ export async function apiClient<T>(
   endpoint: string,
   options?: RequestInit
 ): Promise<T> {
+  const token = contextProvider.get(tokenContext);
+  console.log("api-client token", token);
   const url = `${API_BASE_URL}${endpoint}`;
   const config: RequestInit = {
     ...options,
@@ -14,6 +17,7 @@ export async function apiClient<T>(
       ...(options?.body instanceof FormData
         ? {}
         : { "Content-Type": "application/json" }),
+      ...(token && { Cookie: token }),
       ...options?.headers,
     },
   };

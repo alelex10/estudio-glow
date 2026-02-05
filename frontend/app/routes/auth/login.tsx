@@ -19,7 +19,7 @@ import { FormButton } from "~/common/components/Form/FormButton";
 import { FormError } from "~/common/components/Form/FormError";
 import { loginSchema, type LoginFormData } from "~/common/schemas/auth";
 import type { Route } from "./+types/login";
-import { userContext, userContextProvider } from "~/common/context/context";
+import { contextProvider, userContext } from "~/common/context/context";
 import { API_BASE_URL, API_ENDPOINTS } from "~/common/config/api-end-points";
 
 export function meta({}: Route.MetaArgs) {
@@ -57,7 +57,7 @@ export async function clientAction({ request }: ActionFunctionArgs) {
 }
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const user = userContextProvider.get(userContext);
+  const user = contextProvider.get(userContext);
   if (user) return redirect("/admin");
 }
 

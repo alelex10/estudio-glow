@@ -20,6 +20,8 @@ interface JwtPayload {
 }
 
 export function authenticate(req: Request, res: Response, next: NextFunction) {
+  console.log("auth middleware cookie token=", req.cookies?.token);
+  
   const token = req.cookies?.token;
 
   if (!token) {

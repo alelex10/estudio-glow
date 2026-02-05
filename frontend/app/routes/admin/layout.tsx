@@ -1,7 +1,7 @@
 import { AdminLayout } from "~/common/components/admin/AdminLayout";
 import type { Route } from "./+types/layout";
 import { authMiddleware } from "~/common/middleware/authMiddleware";
-import { userContext, userContextProvider } from "~/common/context/context";
+import { userContext, contextProvider } from "~/common/context/context";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -12,7 +12,7 @@ export function meta({}: Route.MetaArgs) {
 
 export const middleware: Route.MiddlewareFunction[] = [authMiddleware];
 export async function loader() {
-  const user = userContextProvider.get(userContext);
+  const user = contextProvider.get(userContext);
   return { user };
 }
 
