@@ -17,7 +17,7 @@ export async function apiClient<T>(
       ...(options?.body instanceof FormData
         ? {}
         : { "Content-Type": "application/json" }),
-      ...(token && { Cookie: token }),
+      Authorization: token ? `Bearer ${token}` : "",
       ...options?.headers,
     },
   };

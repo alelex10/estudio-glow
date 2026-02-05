@@ -22,7 +22,7 @@ class AuthService {
       }
     );
 
-    contextProvider.set(tokenContext, response.headers.get("set-cookie"));
+    // contextProvider.set(tokenContext, response.headers.get("set-cookie"));
 
     if (!response.ok) {
       const error = await response.json();

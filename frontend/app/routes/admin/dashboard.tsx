@@ -15,8 +15,10 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export async function loader({ request }: Route.LoaderArgs) {
-  const token = request.headers.get("Cookie");
-  
+  const cookie = request.headers.get("Cookie");
+  // recupera el token del cookie quitando el nombre del cookie
+  const token = cookie?.split(";").find((c) => c.trim().startsWith("token="))?.split("=")[1];
+  console.log("dashboard token=", token);
   token && contextProvider.set(tokenContext, token);
 
   const statsData = await productService.getProductStats();
@@ -30,8 +32,6 @@ export async function loader({ request }: Route.LoaderArgs) {
 
 export default function AdminDashboard({ loaderData }: Route.ComponentProps) {
   const { stats, products } = loaderData;
-  console.log("stats=", stats);
-  console.log("products=", products);
 
 
   return (
