@@ -1,4 +1,4 @@
-import { userContextProvider, userContext } from "~/common/context/context";
+import { contextProvider, userContext } from "~/common/context/context";
 import { redirect, type ActionFunctionArgs } from "react-router";
 import { API_BASE_URL, API_ENDPOINTS } from "~/common/config/api-end-points";
 
@@ -24,7 +24,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
   const res = await response.json();
 
-  userContextProvider.set(userContext, res.user);
+  contextProvider.set(userContext, res.user);
 
   token = response.headers.get("set-cookie");
   if (!token) throw new Error("Error al iniciar sesión");
