@@ -13,7 +13,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import React from "react";
 import { queryClient } from "./common/config/query-client";
-import { ApiConnectionError, RouteError, DevError } from "./components/errors";
+import { ApiConnectionError, RouteError, DevError } from "./common/errors";
 
 interface RootLoaderData {
   children: React.ReactNode;
