@@ -9,7 +9,7 @@ interface Stats {
 }
 
 interface StatsGridProps {
-  stats: Stats;
+  stats: Stats | undefined;
 }
 
 export function StatsGrid({ stats }: StatsGridProps) {

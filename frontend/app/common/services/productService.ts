@@ -1,6 +1,6 @@
 import { API_ENDPOINTS } from "../config/api-end-points";
 import { apiClient } from "../config/api-client";
-import type { Category, ProductResponse } from "../types/product-types";
+import type { Category, ProductResponse, Stats } from "../types/product-types";
 import type { PaginationResponse, ResponseSchema } from "../types/response";
 import type {
   Product,
@@ -121,9 +121,8 @@ class ProductService {
   getCategories = () =>
     apiClient<ResponseSchema<Category[]>>(API_ENDPOINTS.PUBLIC.CATEGORIES.GET);
 
-  getProductStats = async () => {
-    return apiClient<ResponseSchema<any>>(API_ENDPOINTS.ADMIN.DASHBOARD.STATS);
-  };
+  getProductStats = () =>
+    apiClient<ResponseSchema<Stats>>(API_ENDPOINTS.ADMIN.DASHBOARD.STATS);
 }
 
 export const productService = new ProductService();

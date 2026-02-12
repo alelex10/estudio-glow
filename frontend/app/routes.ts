@@ -12,7 +12,7 @@ export default [
     layout("./routes/products/layout.tsx", [
       route("products", "./routes/products/products.tsx"),
     ]),
-    route("product/:id", "./routes/product.$id.tsx"),
+    route("product/:id", "./routes/products/product.$id.tsx"),
     route("test", "./routes/page-test/test.tsx"),
     route("test-2", "./routes/page-test/test-2.tsx"),
   ]),

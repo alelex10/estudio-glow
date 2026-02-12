@@ -4,6 +4,7 @@ import type {
   Product,
   ProductResponse,
   SearchProductParams,
+  Stats,
 } from "~/common/types/product-types";
 import type {
   PaginationResponse,
@@ -40,42 +41,43 @@ export const productKeys = {
  */
 export const newProductsQuery = () =>
   queryOptions({
-    queryKey: ["new-products"],
+    queryKey: productKeys.new(),
     queryFn: () => productService.getNewProducts(),
   });
 
 /**
  * Hook para obtener productos paginados
  */
-export function useProductsPaginated(page: number = 1, limit: number = 10) {
-  return useQuery({
+export function productPaginatedQuery(page: number = 1, limit: number = 10) {
+  return queryOptions({
     queryKey: productKeys.paginated(page, limit),
     queryFn: () => productService.getProductsPaginated(page, limit),
+    enabled: true,
   });
 }
 
 /**
  * Hook para obtener productos filtrados
  */
-export function useProductsFilter(filters: {
-  page?: number;
-  limit?: number;
-  category?: string;
-  sortOrder?: string;
-  sortBy?: string;
-}) {
-  return useQuery<PaginationResponse<Product>>({
-    queryKey: productKeys.filtered(filters),
-    queryFn: () =>
-      productService.getProductsFilter(
-        filters.page,
-        filters.limit,
-        filters.category,
-        filters.sortOrder,
-        filters.sortBy
-      ),
-  });
-}
+// export function useProductsFilter(filters: {
+//   page?: number;
+//   limit?: number;
+//   category?: string;
+//   sortOrder?: string;
+//   sortBy?: string;
+// }) {
+//   return useQuery<PaginationResponse<Product>>({
+//     queryKey: productKeys.filtered(filters),
+//     queryFn: () =>
+//       productService.getProductsFilter(
+//         filters.page,
+//         filters.limit,
+//         filters.category,
+//         filters.sortOrder,
+//         filters.sortBy
+//       ),
+//   });
+// }
 
 /**
  * Hook para obtener un producto por ID
@@ -103,13 +105,7 @@ export function useSearchProducts(params: SearchProductParams) {
  * Hook para obtener estadísticas de productos
  */
 export function useProductStats() {
-  return useQuery<{
-    total: number;
-    lowStock: number;
-    outOfStock: number;
-    categories: number;
-    totalValue: number;
-  }>({
+  return useQuery<ResponseSchema<Stats>>({
     queryKey: productKeys.stats(),
     queryFn: () => productService.getProductStats(),
   });

@@ -54,28 +54,6 @@ export function useProductsPaginated(page: number = 1, limit: number = 10) {
   });
 }
 
-/**
- * Hook para obtener productos filtrados
- */
-export function useProductsFilter(filters: {
-  page?: number;
-  limit?: number;
-  category?: string;
-  sortOrder?: string;
-  sortBy?: string;
-}) {
-  return useQuery<PaginationResponse<Product>>({
-    queryKey: productKeys.filtered(filters),
-    queryFn: () =>
-      productService.getProductsFilter(
-        filters.page,
-        filters.limit,
-        filters.category,
-        filters.sortOrder,
-        filters.sortBy
-      ),
-  });
-}
 
 /**
  * Hook para obtener un producto por ID
@@ -102,15 +80,8 @@ export function useSearchProducts(params: SearchProductParams) {
 /**
  * Hook para obtener estadísticas de productos
  */
-export function useProductStats() {
-  return useQuery<{
-    total: number;
-    lowStock: number;
-    outOfStock: number;
-    categories: number;
-    totalValue: number;
-  }>({
+export const productStatsQuery = () =>
+  queryOptions({
     queryKey: productKeys.stats(),
     queryFn: () => productService.getProductStats(),
   });
-}

@@ -11,6 +11,14 @@ export interface Product {
   updatedAt: string;
 }
 
+export interface Stats {
+  total: number;
+  lowStock: number;
+  outOfStock: number;
+  categories: number;
+  totalValue: number;
+}
+
 export interface ProductResponse {
   id: number;
   name: string;
