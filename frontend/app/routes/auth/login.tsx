@@ -43,8 +43,6 @@ export async function action({ request }: ActionFunctionArgs) {
 
   const setCookie = response.headers.get("Set-Cookie");
 
-  console.log("setCookie", setCookie);
-
   if (!response.ok) {
     const error = await response.json();
     return { error: error.message || "Error al iniciar sesión" };

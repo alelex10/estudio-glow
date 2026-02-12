@@ -20,7 +20,6 @@ interface JwtPayload {
 }
 
 export function authenticate(req: Request, res: Response, next: NextFunction) {
-  console.log("auth middleware cookie token=", req.cookies?.token);
   
   // Primero intentar obtener token de las cookies
   let token = req.cookies?.token;
@@ -30,7 +29,6 @@ export function authenticate(req: Request, res: Response, next: NextFunction) {
     const authHeader = req.headers.authorization;
     if (authHeader && authHeader.startsWith('Bearer ')) {
       token = authHeader.substring(7); // Remover 'Bearer ' del inicio
-      console.log("auth middleware header token=", token);
     }
   }
 

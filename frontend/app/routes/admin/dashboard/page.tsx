@@ -18,9 +18,7 @@ export function meta({}: Route.MetaArgs) {
 
 export async function loader({ request }: Route.LoaderArgs) {
   const cookie = request.headers.get("Cookie");
-  // recupera el token del cookie quitando el nombre del cookie
   const token = cookie?.split(";").find((c) => c.trim().startsWith("token="))?.split("=")[1];
-  console.log("dashboard token=", token);
   token && contextProvider.set(tokenContext, token);
 
   const statsData = await productService.getProductStats();

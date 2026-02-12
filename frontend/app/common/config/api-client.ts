@@ -8,7 +8,6 @@ export async function apiClient<T>(
   options?: RequestInit
 ): Promise<T> {
   const token = contextProvider.get(tokenContext);
-  console.log("api-client token", token);
   const url = `${API_BASE_URL}${endpoint}`;
   const config: RequestInit = {
     ...options,
