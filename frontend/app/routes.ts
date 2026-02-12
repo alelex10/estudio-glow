@@ -22,7 +22,7 @@ export default [
   route("admin/login-action", "./routes/auth/login-action.ts"),
   route("admin/logout", "./routes/admin/logout.ts"),
   layout("./routes/admin/layout.tsx", [
-    route("admin", "./routes/admin/dashboard.tsx"),
+    route("admin", "./routes/admin/dashboard/page.tsx"),
     route("admin/products", "./routes/admin/products.tsx"),
     route("admin/products/new", "./routes/admin/product.new.tsx"),
     route("admin/products/:id", "./routes/admin/product.$id.tsx"),
