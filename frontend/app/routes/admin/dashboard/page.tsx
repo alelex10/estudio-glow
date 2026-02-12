@@ -36,19 +36,10 @@ export default function AdminDashboard({ loaderData }: Route.ComponentProps) {
 
   return (
     <div className="space-y-8">
-      {/* Stats Grid */}
       <StatsGrid stats={stats} />
-
-      {/* Valor total del inventario */}
       <InventoryValue totalValue={stats?.totalValue} />
-
-      {/* Valor total de ventas*/}
       <SalesValue totalValue={stats?.totalValue} />
-
-      {/* Productos recientes */}
       <RecentProducts products={products} />
-
-      {/* Acciones rápidas */}
       <QuickActions />
     </div>
   );
