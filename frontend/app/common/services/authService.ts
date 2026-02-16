@@ -9,7 +9,7 @@ import type { LoginResponse, MessageResponse } from "../types/response";
  * Maneja login, registro y logout con el backend
  */
 class AuthService {
-  login = async (credentials: LoginCredentials): Promise<LoginResponse> => {
+  login = async (credentials: LoginCredentials): Promise<Response> => {
     const response = await fetch(
       `${import.meta.env.VITE_API_BASE_URL}${API_ENDPOINTS.AUTH.LOGIN}`,
       {
@@ -22,14 +22,12 @@ class AuthService {
       }
     );
 
-    // contextProvider.set(tokenContext, response.headers.get("set-cookie"));
-
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.message || "Error al iniciar sesión");
     }
 
-    return response.json();
+    return response;
   };
 
   register = (data: RegisterData) =>
@@ -43,32 +41,11 @@ class AuthService {
       method: "POST",
     });
 
-  getStoredUser = (): User | null => {
-    const userStr = localStorage.getItem("admin_user");
-    if (userStr) {
-      try {
-        return JSON.parse(userStr);
-      } catch {
-        return null;
-      }
-    }
-    return null;
-  };
+  isAuthenticated = () =>
+    apiClient<MessageResponse>(API_ENDPOINTS.AUTH.VERIFY, {
+      method: "GET",
+    });
 
-  storeUser = (user: User): void => {
-    localStorage.setItem("admin_user", JSON.stringify(user));
-  };
-
-  clearStoredUser = (): void => {
-    localStorage.removeItem("admin_user");
-  };
-
-  isAuthenticated = (): boolean => this.getStoredUser() !== null;
-
-  isAdmin = (): boolean => {
-    const user = this.getStoredUser();
-    return user?.role === "admin";
-  };
 }
 
 export const authService = new AuthService();

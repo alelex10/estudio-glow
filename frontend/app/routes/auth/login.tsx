@@ -16,8 +16,10 @@ import { FormButton } from "~/common/components/Form/FormButton";
 import { FormError } from "~/common/components/Form/FormError";
 import { loginSchema, type LoginFormData } from "~/common/schemas/auth";
 import type { Route } from "./+types/login";
-import { contextProvider, userContext } from "~/common/context/context";
 import { API_BASE_URL, API_ENDPOINTS } from "~/common/config/api-end-points";
+import { authService } from "~/common/services/authService";
+import type { LoginResponse } from "~/common/types/response";
+import { contextProvider, userContext } from "~/common/context/context";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -29,30 +31,39 @@ export function meta({}: Route.MetaArgs) {
   ];
 }
 
+export async function loader({ request }: LoaderFunctionArgs) {
+  const cookieHeader = request.headers.get("Cookie");
+  
+  if (!cookieHeader) {
+    return { authenticated: false };
+  }
+
+  const isAuthenticated = await authService.isAuthenticated();
+  
+  if (isAuthenticated) {
+    return redirect("/admin");
+  }
+  
+  return { authenticated: false };
+}
+
 export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
 
-  const response = await fetch(`${API_BASE_URL}/auth/login`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      email: formData.get("email"),
-      password: formData.get("password"),
-    }),
+  const response = await authService.login({
+    email: formData.get("email") as string,
+    password: formData.get("password") as string,
   });
 
-  const setCookie = response.headers.get("Set-Cookie");
+  // const setCookie = response.headers.get("Set-Cookie");
+  const data: LoginResponse = await response.json();
+  const context = contextProvider.set(userContext, data.user);
 
   if (!response.ok) {
-    const error = await response.json();
-    return { error: error.message || "Error al iniciar sesión" };
+    return { error: data.message || "Error al iniciar sesión" };
   }
 
-  return redirect("/admin", {
-    headers: new Headers({
-      "Set-Cookie": setCookie!,
-    }),
-  });
+  return redirect("/admin", response);
 }
 
 export default function AdminLogin({ actionData }: Route.ComponentProps) {

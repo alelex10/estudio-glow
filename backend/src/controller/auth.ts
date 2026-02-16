@@ -18,7 +18,6 @@ dotenv.config();
 
 const JWT_SECRET = process.env.JWT_SECRET || "your_jwt_secret_key";
 
-// ----------------------- REGISTER -----------------------
 export const register = [
   validateBody(RegisterSchema),
   asyncHandler(async (req: Request, res: Response) => {
@@ -59,7 +58,6 @@ export const register = [
   }),
 ];
 
-// ----------------------- LOGIN -----------------------
 export const login = [
   validateBody(LoginSchema),
   asyncHandler(async (req: Request, res: Response) => {
@@ -116,8 +114,40 @@ export const login = [
   }),
 ];
 
-// ----------------------- LOGOUT -----------------------
 export const logout = asyncHandler(async (req: Request, res: Response) => {
   res.clearCookie("token");
   res.status(200).json({ message: "Logout exitoso" });
+});
+
+export const verifyToken = asyncHandler(async (req: Request, res: Response) => {
+  const user = (req as any).user;
+  
+  if (!user) {
+    throw new AuthenticationError("Token inválido o expirado");
+  }
+
+  const userResult = await db
+    .select({
+      id: users.id,
+      name: users.name,
+      email: users.email,
+      role: users.role,
+    })
+    .from(users)
+    .where(eq(users.id, user.id));
+
+  if (userResult.length === 0) {
+    throw new AuthenticationError("Usuario no encontrado");
+  }
+
+  const responseDto = AuthResponseSchema.safeParse({
+    message: "Token válido",
+    user: userResult[0],
+  });
+
+  if (!responseDto.success) {
+    throw new DatabaseError("Error al procesar respuesta");
+  }
+
+  res.status(200).json(responseDto.data);
 });
