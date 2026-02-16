@@ -43,43 +43,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
   return { authenticated: false };
 }
 
-export async function action({ request }: ActionFunctionArgs) {
-  const formData = await request.formData();
-
-  try {
-    const response = await fetch(`${API_BASE_URL}/auth/login`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify({
-        email: formData.get("email"),
-        password: formData.get("password"),
-      }),
-    });
-
-    const setCookie = response.headers.get("Set-Cookie");
-
-    if (!response.ok) {
-      const error = await response.json();
-      return { error: error.message || "Error al iniciar sesión" };
-    }
-
-    if (!setCookie) {
-      return { error: "No se recibió la sesión del servidor" };
-    }
-
-    return redirect("/admin", {
-      headers: new Headers({
-        "Set-Cookie": setCookie,
-      }),
-    });
-  } catch (error) {
-    return { error: "Error de conexión con el servidor" };
-  }
-}
-
 export default function AdminLogin({ actionData }: Route.ComponentProps) {
-  const { error } = actionData || {};
+  const { error } = (actionData as unknown as { error?: string }) || {};
 
   const {
     register,
@@ -122,6 +87,7 @@ export default function AdminLogin({ actionData }: Route.ComponentProps) {
         <Form
           className="space-y-5"
           method="post"
+          action="/admin/login-action"
         >
           {/* Email */}
           <FormInput
