@@ -1,8 +1,9 @@
 import { NavLink, useLocation, useSubmit } from "react-router";
 import clsx from "clsx";
-import { Logo } from "../Logo";
+import { Logo } from "../../Logo";
 import { Box, Home, LogOut, Tag, X, User } from "lucide-react";
 import { authService } from "~/common/services/authService";
+import { SidebarItem } from "./SidebarItem";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -94,27 +95,25 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
               const isActive =
                 item.path === "/admin"
                   ? location.pathname === "/admin"
-                  : location.pathname.startsWith(item.path ?? "");
+                  : location.pathname.startsWith(item.path);
 
+              const isLogout = item.name === "Cerrar Sesión";
+              if (isLogout) {
+                return (
+                  <button onClick={handleLogout} className="w-full cursor-pointer">
+                    <SidebarItem isActive={isActive}>
+                      {item.icon}
+                      <span>{item.name}</span>
+                    </SidebarItem>
+                  </button>
+                );
+              }
               return (
-                <NavLink
-                  key={item.path}
-                  onClick={
-                    item.name === "Cerrar Sesión" ? handleLogout : onClose
-                  }
-                  to={item.path ?? ""}
-                  className={clsx(
-                    "flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200",
-                    isActive
-                      ? "bg-primary-500/20 text-primary-400 font-medium"
-                      : "text-gray-400 hover:bg-gray-700/50 hover:text-white",
-                  )}
-                >
-                  {item.icon}
-                  <span>{item.name}</span>
-                  {isActive && (
-                    <div className="ml-auto w-1.5 h-1.5 rounded-full bg-primary-400" />
-                  )}
+                <NavLink key={item.path} onClick={onClose} to={item.path}>
+                  <SidebarItem isActive={isActive}>
+                    {item.icon}
+                    <span>{item.name}</span>
+                  </SidebarItem>
                 </NavLink>
               );
             })}

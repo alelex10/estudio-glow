@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Outlet, useLocation } from "react-router";
 import clsx from "clsx";
-import { Sidebar } from "./Sidebar";
+import { Sidebar } from "./sidebar/Sidebar";
 import { AdminHeader } from "./AdminHeader";
 import { ToastContainer } from "../Toast";
 import type { User } from "~/common/types/user-types";
