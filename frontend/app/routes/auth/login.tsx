@@ -1,9 +1,7 @@
-import { useState } from "react";
 import {
   Form,
   Link,
   redirect,
-  useSubmit,
   type ActionFunctionArgs,
   type LoaderFunctionArgs,
 } from "react-router";
@@ -81,9 +79,6 @@ export async function action({ request }: ActionFunctionArgs) {
 }
 
 export default function AdminLogin({ actionData }: Route.ComponentProps) {
-  const [isLoading, setIsLoading] = useState(false);
-  let submit = useSubmit(); 
-
   const { error } = actionData || {};
 
   const {
@@ -127,8 +122,6 @@ export default function AdminLogin({ actionData }: Route.ComponentProps) {
         <Form
           className="space-y-5"
           method="post"
-          action="/auth/login-action"
-          onSubmit={(e) => handleSubmit}
         >
           {/* Email */}
           <FormInput
@@ -154,7 +147,7 @@ export default function AdminLogin({ actionData }: Route.ComponentProps) {
           <FormError message={error} />
 
           {/* Submit */}
-          <FormButton isLoading={isLoading} loadingText="Ingresando...">
+          <FormButton loadingText="Ingresando...">
             Ingresar
           </FormButton>
         </Form>
