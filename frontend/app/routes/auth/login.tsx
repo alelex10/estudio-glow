@@ -127,6 +127,7 @@ export default function AdminLogin({ actionData }: Route.ComponentProps) {
         <Form
           className="space-y-5"
           method="post"
+          action="/auth/login-action"
           onSubmit={(e) => handleSubmit}
         >
           {/* Email */}
