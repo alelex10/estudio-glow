@@ -87,7 +87,14 @@ export default function AdminLogin({ actionData }: Route.ComponentProps) {
         <Form
           className="space-y-5"
           method="post"
-          action="/admin/login-action"
+          onSubmit={(e) => {
+            e.preventDefault();
+            const form = e.currentTarget;
+            handleSubmit((data) => {
+              form.action = "/admin/login-action";
+              form.submit();
+            })();
+          }}
         >
           {/* Email */}
           <FormInput
