@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router";
 import { productService } from "~/common/services/productService";
 import { ProductForm } from "~/common/components/admin/ProductForm";
 import { LoadingSpinner } from "~/common/components/admin/LoadingSpinner";
-import { toast } from "~/common/components/admin/Toast";
+import { toast } from "~/common/components/Toast";
 import type {
   Product,
   ProductResponse,

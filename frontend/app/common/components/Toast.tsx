@@ -57,7 +57,6 @@ function ToastItem({ toast, onDismiss }: ToastProps) {
   );
 }
 
-// Sistema global de toasts
 let toastCallback: ((toast: Omit<Toast, "id">) => void) | null = null;
 
 export function toast(type: ToastType, message: string) {

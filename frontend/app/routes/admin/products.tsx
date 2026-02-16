@@ -6,7 +6,7 @@ import { productService } from "~/common/services/productService";
 import { DataTable, ActionButton } from "~/common/components/admin/DataTable";
 import { SearchInput } from "~/common/components/admin/SearchInput";
 import { ConfirmModal } from "~/common/components/admin/ConfirmModal";
-import { toast } from "~/common/components/admin/Toast";
+import { toast } from "~/common/components/Toast";
 import type { ProductResponse } from "~/common/types/product-types";
 import type { Route } from "./+types/products";
 
@@ -51,7 +51,6 @@ export default function AdminProducts() {
     loadProducts();
   }, [loadProducts]);
 
-  // Filtrar productos
   useEffect(() => {
     if (!searchQuery) {
       setFilteredProducts(products);

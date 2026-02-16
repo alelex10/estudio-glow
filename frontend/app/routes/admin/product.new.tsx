@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router";
 import { productService } from "~/common/services/productService";
 import { ProductForm } from "~/common/components/admin/ProductForm";
-import { toast } from "~/common/components/admin/Toast";
+import { toast } from "~/common/components/Toast";
 import type {
   CreateProductData,
   UpdateProductData,

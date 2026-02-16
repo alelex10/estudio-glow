@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router";
 import { categoryService } from "~/common/services/categoryService";
 import { CategoryForm } from "~/common/components/admin/CategoryForm";
 import { LoadingSpinner } from "~/common/components/admin/LoadingSpinner";
-import { toast } from "~/common/components/admin/Toast";
+import { toast } from "~/common/components/Toast";
 import type {
   Category,
   UpdateCategoryData,

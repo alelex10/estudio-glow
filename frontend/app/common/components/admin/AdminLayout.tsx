@@ -3,10 +3,9 @@ import { Outlet, useLocation } from "react-router";
 import clsx from "clsx";
 import { Sidebar } from "./Sidebar";
 import { AdminHeader } from "./AdminHeader";
-import { ToastContainer } from "./Toast";
+import { ToastContainer } from "../Toast";
 import type { User } from "~/common/types/user-types";
 
-// Mapeo de rutas a títulos
 const pageTitles: Record<string, { title: string; subtitle?: string }> = {
   "/admin": { title: "Dashboard", subtitle: "Resumen general" },
   "/admin/products": { title: "Productos", subtitle: "Gestiona tu catálogo" },
@@ -20,13 +19,10 @@ export function AdminLayout({ user }: { user: User | null }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
 
-  // Obtener título basado en la ruta
   const getPageInfo = () => {
-    // Verificar rutas exactas primero
     if (pageTitles[location.pathname]) {
       return pageTitles[location.pathname];
     }
-    // Verificar ruta de editar producto
     if (location.pathname.match(/^\/admin\/products\/\d+$/)) {
       return {
         title: "Editar Producto",

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router";
 import { categoryService } from "~/common/services/categoryService";
 import { CategoryForm } from "~/common/components/admin/CategoryForm";
-import { toast } from "~/common/components/admin/Toast";
+import { toast } from "~/common/components/Toast";
 import type {
   CreateCategoryData,
   UpdateCategoryData,
@@ -25,7 +25,6 @@ export default function NewCategory() {
   ) => {
     setIsLoading(true);
     try {
-      // En modo create, data siempre tiene name requerido
       await categoryService.createCategory(data as CreateCategoryData);
       toast("success", "Categoría creada correctamente");
       navigate("/admin/categories");

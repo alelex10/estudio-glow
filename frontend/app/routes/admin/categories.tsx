@@ -6,7 +6,7 @@ import { categoryService } from "~/common/services/categoryService";
 import { DataTable, ActionButton } from "~/common/components/admin/DataTable";
 import { SearchInput } from "~/common/components/admin/SearchInput";
 import { ConfirmModal } from "~/common/components/admin/ConfirmModal";
-import { toast } from "~/common/components/admin/Toast";
+import { toast } from "~/common/components/Toast";
 import type { Category } from "~/common/types/category-types";
 import type { Route } from "./+types/categories";
 
@@ -50,7 +50,6 @@ export default function AdminCategories() {
     loadCategories();
   }, [loadCategories]);
 
-  // Filtrar categorías
   useEffect(() => {
     if (!searchQuery) {
       setFilteredCategories(categories);
