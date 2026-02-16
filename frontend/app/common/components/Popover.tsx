@@ -13,22 +13,22 @@ interface Props {
 
 export default function Popover({ setIsOpen, isOpen, text, children, className }: Props) {
   return (
-    <>
-        <Button
-          className={clsx("relative", className)}
-          variant="outline"
-          onClick={() => setIsOpen(!isOpen)}
-        >
-          {text}
-          <ChevronDown
-            size={18}
-            className={clsx(
-              "transition-transform duration-200",
-              isOpen && "rotate-180"
-            )}
-          />
-          {isOpen && children}
-        </Button>
-    </>
+    <div className="relative">
+      <Button
+        className={clsx(className)}
+        variant="outline"
+        onClick={() => setIsOpen(!isOpen)}
+      >
+        {text}
+        <ChevronDown
+          size={18}
+          className={clsx(
+            "transition-transform duration-200",
+            isOpen && "rotate-180"
+          )}
+        />
+      </Button>
+      {isOpen && children}
+    </div>
   );
 }
