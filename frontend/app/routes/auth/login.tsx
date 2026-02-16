@@ -18,8 +18,6 @@ import { loginSchema, type LoginFormData } from "~/common/schemas/auth";
 import type { Route } from "./+types/login";
 import { API_BASE_URL, API_ENDPOINTS } from "~/common/config/api-end-points";
 import { authService } from "~/common/services/authService";
-import type { LoginResponse } from "~/common/types/response";
-import { contextProvider, userContext } from "~/common/context/context";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -50,25 +48,26 @@ export async function loader({ request }: LoaderFunctionArgs) {
 export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
 
-  const response = await authService.login({
-    email: formData.get("email") as string,
-    password: formData.get("password") as string,
+  const response = await fetch(`${API_BASE_URL}/auth/login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      email: formData.get("email"),
+      password: formData.get("password"),
+    }),
   });
 
-
-  const data: LoginResponse = await response.json();
-  contextProvider.set(userContext, data.user);
   const setCookie = response.headers.get("Set-Cookie");
 
   if (!response.ok) {
-    return { error: data.message || "Error al iniciar sesión" };
+    const error = await response.json();
+    return { error: error.message || "Error al iniciar sesión" };
   }
 
   return redirect("/admin", {
     headers: new Headers({
       "Set-Cookie": setCookie!,
-    })
-    ,
+    }),
   });
 }
 
