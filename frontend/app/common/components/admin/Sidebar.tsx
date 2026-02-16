@@ -1,7 +1,8 @@
-import { NavLink, useLocation } from "react-router";
+import { NavLink, useLocation, useSubmit } from "react-router";
 import clsx from "clsx";
 import { Logo } from "../Logo";
 import { Box, Home, LogOut, Tag, X, User } from "lucide-react";
+import { authService } from "~/common/services/authService";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -26,13 +27,28 @@ const navItems = [
   },
   {
     name: "Cerrar Sesión",
-    path: "/admin/login",
+    path: "/admin/logout",
     icon: <LogOut />,
   },
 ];
 
 export function Sidebar({ isOpen, onClose }: SidebarProps) {
   const location = useLocation();
+  const submit = useSubmit();
+
+  const handleLogout = async () => {
+    onClose();
+    try {
+      await authService.logout();
+      submit(null, {
+        action: "/admin/logout",
+        method: "post",
+        navigate: false,
+      });
+    } catch (error) {
+      console.error("Error al cerrar sesión:", error);
+    }
+  };
 
   return (
     <>
@@ -51,7 +67,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
           "w-64 bg-linear-to-b from-gray-900 to-gray-800",
           "transform transition-transform duration-300 ease-in-out",
           "lg:translate-x-0",
-          isOpen ? "translate-x-0" : "-translate-x-full"
+          isOpen ? "translate-x-0" : "-translate-x-full",
         )}
       >
         <div className="flex flex-col h-full">
@@ -78,18 +94,20 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
               const isActive =
                 item.path === "/admin"
                   ? location.pathname === "/admin"
-                  : location.pathname.startsWith(item.path);
+                  : location.pathname.startsWith(item.path ?? "");
 
               return (
                 <NavLink
                   key={item.path}
-                  to={item.path}
-                  onClick={onClose}
+                  onClick={
+                    item.name === "Cerrar Sesión" ? handleLogout : onClose
+                  }
+                  to={item.path ?? ""}
                   className={clsx(
                     "flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200",
                     isActive
                       ? "bg-primary-500/20 text-primary-400 font-medium"
-                      : "text-gray-400 hover:bg-gray-700/50 hover:text-white"
+                      : "text-gray-400 hover:bg-gray-700/50 hover:text-white",
                   )}
                 >
                   {item.icon}
