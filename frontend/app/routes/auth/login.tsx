@@ -55,15 +55,21 @@ export async function action({ request }: ActionFunctionArgs) {
     password: formData.get("password") as string,
   });
 
-  // const setCookie = response.headers.get("Set-Cookie");
+
   const data: LoginResponse = await response.json();
-  const context = contextProvider.set(userContext, data.user);
+  contextProvider.set(userContext, data.user);
+  const setCookie = response.headers.get("Set-Cookie");
 
   if (!response.ok) {
     return { error: data.message || "Error al iniciar sesión" };
   }
 
-  return redirect("/admin", response);
+  return redirect("/admin", {
+    headers: new Headers({
+      "Set-Cookie": setCookie!,
+    })
+    ,
+  });
 }
 
 export default function AdminLogin({ actionData }: Route.ComponentProps) {
