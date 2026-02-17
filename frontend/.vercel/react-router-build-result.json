@@ -13,13 +13,13 @@
       "root": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/home/home": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/products/products": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
-      "routes/product.$id": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/products/product.$id": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/page-test/test": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/page-test/test-2": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/auth/login": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/auth/login-action": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/admin/logout": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
-      "routes/admin/dashboard": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/admin/dashboard/page": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/admin/products": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/admin/product.new": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/admin/product.$id": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
@@ -62,10 +62,10 @@
         "path": "products",
         "config": {}
       },
-      "routes/product.$id": {
-        "id": "routes/product.$id",
+      "routes/products/product.$id": {
+        "id": "routes/products/product.$id",
         "parentId": "routes/layout",
-        "file": "app/routes/product.$id.tsx",
+        "file": "app/routes/products/product.$id.tsx",
         "path": "product/:id",
         "config": {}
       },
@@ -110,10 +110,10 @@
         "file": "app/routes/admin/layout.tsx",
         "config": {}
       },
-      "routes/admin/dashboard": {
-        "id": "routes/admin/dashboard",
+      "routes/admin/dashboard/page": {
+        "id": "routes/admin/dashboard/page",
         "parentId": "routes/admin/layout",
-        "file": "app/routes/admin/dashboard.tsx",
+        "file": "app/routes/admin/dashboard/page.tsx",
         "path": "admin",
         "config": {}
       },
@@ -200,10 +200,10 @@
         "file": "./routes/products/products.tsx",
         "path": "products"
       },
-      "routes/product.$id": {
-        "id": "routes/product.$id",
+      "routes/products/product.$id": {
+        "id": "routes/products/product.$id",
         "parentId": "routes/layout",
-        "file": "./routes/product.$id.tsx",
+        "file": "./routes/products/product.$id.tsx",
         "path": "product/:id"
       },
       "routes/page-test/test": {
@@ -241,10 +241,10 @@
         "parentId": "root",
         "file": "./routes/admin/layout.tsx"
       },
-      "routes/admin/dashboard": {
-        "id": "routes/admin/dashboard",
+      "routes/admin/dashboard/page": {
+        "id": "routes/admin/dashboard/page",
         "parentId": "routes/admin/layout",
-        "file": "./routes/admin/dashboard.tsx",
+        "file": "./routes/admin/dashboard/page.tsx",
         "path": "admin"
       },
       "routes/admin/products": {
@@ -314,7 +314,7 @@
                 ]
               },
               {
-                "file": "./routes/product.$id.tsx",
+                "file": "./routes/products/product.$id.tsx",
                 "path": "product/:id"
               },
               {
@@ -343,7 +343,7 @@
             "file": "./routes/admin/layout.tsx",
             "children": [
               {
-                "file": "./routes/admin/dashboard.tsx",
+                "file": "./routes/admin/dashboard/page.tsx",
                 "path": "admin"
               },
               {
