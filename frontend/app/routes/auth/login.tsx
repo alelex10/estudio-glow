@@ -91,7 +91,7 @@ export default function AdminLogin({ actionData }: Route.ComponentProps) {
             e.preventDefault();
             const form = e.currentTarget;
             handleSubmit((data) => {
-              form.action = "/admin/login-action";
+              form.action = "/auth/login-action";
               form.submit();
             })();
           }}

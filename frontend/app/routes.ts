@@ -15,11 +15,12 @@ export default [
     route("product/:id", "./routes/products/product.$id.tsx"),
     route("test", "./routes/page-test/test.tsx"),
     route("test-2", "./routes/page-test/test-2.tsx"),
+    route("test-auth", "./routes/test-auth.tsx"),
   ]),
 
   // Rutas del admin
-  route("admin/login", "./routes/auth/login.tsx"),
-  route("admin/login-action", "./routes/auth/login-action.ts"),
+  route("auth/login", "./routes/auth/login.tsx"),
+  route("auth/login-action", "./routes/auth/login-action.ts"),
   route("admin/logout", "./routes/admin/logout.ts"),
   layout("./routes/admin/layout.tsx", [
     route("admin", "./routes/admin/dashboard/page.tsx"),

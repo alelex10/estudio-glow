@@ -4,13 +4,11 @@ import { Link, useLocation } from "react-router";
 import { Button } from "./Button";
 import Drawer from "./Drawer";
 import clsx from "clsx";
+import { AUTH } from "../constants/rute-client";
 
 const NAV_LINKS = [
   { href: "/", label: "Home" },
   { href: "/products", label: "Productos" },
-  // { href: "/test", label: "Test" },
-  // { href: "/test-2", label: "Test 2" },
-  // { href: "/test-3", label: "Test 3" },
 ];
 
 interface NavbarProps {
@@ -82,7 +80,7 @@ export default function Navbar({ isBackgroundVisible = true }: NavbarProps) {
           </ul>
         </Drawer>
         <div className="flex items-center gap-6 text-white">
-          <Link to={"admin/login"}>
+          <Link to={AUTH.LOGIN()}>
             <Button className="bg-primary-100">Login</Button>
           </Link>
         </div>

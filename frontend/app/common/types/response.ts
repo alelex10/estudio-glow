@@ -26,6 +26,7 @@ export interface PaginationResponse<T> {
 
 export interface MessageResponse {
   message: string;
+  user?: User;
 }
 
 export interface ResponseSchema<T> {
