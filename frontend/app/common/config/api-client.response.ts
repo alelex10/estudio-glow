@@ -15,7 +15,7 @@ export async function apiClientResponse(
       ...(options?.body instanceof FormData
         ? {}
         : { "Content-Type": "application/json" }),
-      Authorization: token ? `Bearer ${token}` : "",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...options?.headers,
     },
   };
