@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Check, ChevronDown, ChevronUp } from "lucide-react";
+import { Check, ChevronDown } from "lucide-react";
 import clsx from "clsx";
 import type { Category } from "~/common/types/product-types";
 import { Button } from "~/common/components/Button";

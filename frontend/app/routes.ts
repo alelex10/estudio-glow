@@ -15,7 +15,6 @@ export default [
     route("product/:id", "./routes/products/product.$id.tsx"),
     route("test", "./routes/page-test/test.tsx"),
     route("test-2", "./routes/page-test/test-2.tsx"),
-    route("test-auth", "./routes/test-auth.tsx"),
   ]),
 
   // Rutas del admin

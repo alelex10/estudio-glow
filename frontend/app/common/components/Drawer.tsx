@@ -1,6 +1,6 @@
 import clsx from "clsx";
 import { X } from "lucide-react";
-import React from "react";
+import type { ReactNode } from "react";
 
 interface DrawerProps {
     isOpen: boolean;
