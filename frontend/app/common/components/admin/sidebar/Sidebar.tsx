@@ -100,7 +100,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
               const isLogout = item.name === "Cerrar Sesión";
               if (isLogout) {
                 return (
-                  <button onClick={handleLogout} className="w-full cursor-pointer">
+                  <button key={item.path} onClick={handleLogout} className="w-full cursor-pointer">
                     <SidebarItem isActive={isActive}>
                       {item.icon}
                       <span>{item.name}</span>
