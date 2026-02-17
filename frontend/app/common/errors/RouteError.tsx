@@ -1,4 +1,3 @@
-import React from 'react';
 import { isRouteErrorResponse } from "react-router";
 
 interface RouteErrorProps {

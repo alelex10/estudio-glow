@@ -1,5 +1,3 @@
-import React from 'react';
-
 export function ApiConnectionError() {
   return (
     <main className="pt-16 p-4 container mx-auto">
