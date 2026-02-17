@@ -5,12 +5,12 @@ import type { Route } from "./+types/logout";
 
 export async function action({ request, }: Route.ActionArgs) {
   try {
-    await authService.logout();
+    const response = await authService.logout();
 
     contextProvider.set(userContext, null);
     contextProvider.set(tokenContext, null);
 
-    return redirect("/auth/login");
+    return redirect("/auth/login",response);
   } catch (error) {
     contextProvider.set(userContext, null);
     contextProvider.set(tokenContext, null);

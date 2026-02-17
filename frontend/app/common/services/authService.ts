@@ -3,6 +3,7 @@ import { apiClient } from "../config/api-client";
 import { tokenContext, contextProvider } from "../context/context";
 import type { LoginCredentials, RegisterData, User } from "../types/user-types";
 import type { LoginResponse, MessageResponse } from "../types/response";
+import { apiClientResponse } from "../config/api-client.response";
 
 /**
  * Servicio de autenticación
@@ -37,7 +38,7 @@ class AuthService {
     });
 
   logout = () =>
-    apiClient<MessageResponse>(API_ENDPOINTS.AUTH.LOGOUT, {
+    apiClientResponse(API_ENDPOINTS.AUTH.LOGOUT, {
       method: "POST",
     });
 

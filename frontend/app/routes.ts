@@ -30,6 +30,6 @@ export default [
     route("admin/categories/new", "./routes/admin/category.new.tsx"),
     route("admin/categories/:id", "./routes/admin/category.$id.tsx"),
   ]),
-
+  route("test-auth", "./routes/test-auth.tsx"),
   // Rutas de pruebas
 ] satisfies RouteConfig;
