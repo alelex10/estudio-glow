@@ -87,14 +87,14 @@
         "id": "routes/auth/login",
         "parentId": "root",
         "file": "app/routes/auth/login.tsx",
-        "path": "admin/login",
+        "path": "auth/login",
         "config": {}
       },
       "routes/auth/login-action": {
         "id": "routes/auth/login-action",
         "parentId": "root",
         "file": "app/routes/auth/login-action.ts",
-        "path": "admin/login-action",
+        "path": "auth/login-action",
         "config": {}
       },
       "routes/admin/logout": {
@@ -222,13 +222,13 @@
         "id": "routes/auth/login",
         "parentId": "root",
         "file": "./routes/auth/login.tsx",
-        "path": "admin/login"
+        "path": "auth/login"
       },
       "routes/auth/login-action": {
         "id": "routes/auth/login-action",
         "parentId": "root",
         "file": "./routes/auth/login-action.ts",
-        "path": "admin/login-action"
+        "path": "auth/login-action"
       },
       "routes/admin/logout": {
         "id": "routes/admin/logout",
@@ -329,11 +329,11 @@
           },
           {
             "file": "./routes/auth/login.tsx",
-            "path": "admin/login"
+            "path": "auth/login"
           },
           {
             "file": "./routes/auth/login-action.ts",
-            "path": "admin/login-action"
+            "path": "auth/login-action"
           },
           {
             "file": "./routes/admin/logout.ts",
