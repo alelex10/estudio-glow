@@ -9,7 +9,6 @@ interface ErrorResponse {
   error: {
     code: string;
     message: string;
-    stack?: string;
     details?: any;
   };
 }
@@ -74,7 +73,6 @@ export function clientErrorHandler(
       error: {
         code: err.code,
         message: err.message,
-        ...((!isProduction || !err.isOperational) && { stack: err.stack }),
       },
     };
 
@@ -92,7 +90,6 @@ export function clientErrorHandler(
           path: e.path.join("."),
           message: e.message,
         })),
-        ...(!isProduction && { stack: err.stack }),
       },
     };
 
@@ -131,7 +128,6 @@ export function errorHandler(
       message: isProduction
         ? "Ocurrió un error en el servidor"
         : err.message || "Error interno del servidor",
-      ...(!isProduction && { stack: err.stack }),
     },
   };
 

@@ -8,25 +8,19 @@ import type { LoginResponse } from "~/common/types/response";
 export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
 
-  try {
-    const response = await authService.login({
-      email: formData.get("email") as string,
-      password: formData.get("password") as string,
-    });
+  const response = await authService.login({
+    email: formData.get("email") as string,
+    password: formData.get("password") as string,
+  });
 
-
-    if (!response.ok) {
-      const error = await response.json();
-      return { error: error.message || "Error al iniciar sesión" };
-    }
-
-    const data: LoginResponse = await response.json();
-    
-    contextProvider.set(userContext, data.user);
-    
-
-    return redirect("/admin", { headers: response.headers });
-  } catch (error) {
-    return { error: "Error de conexión con el servidor" };
+  if (!response.ok) {
+    const error = await response.json();
+    return { error: error.message || "Error al iniciar sesión" };
   }
+
+  const data: LoginResponse = await response.json();
+
+  contextProvider.set(userContext, data.user);
+
+  return redirect("/admin", { headers: response.headers });
 }
