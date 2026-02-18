@@ -25,7 +25,8 @@
       "routes/admin/product.$id": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/admin/categories": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/admin/category.new": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
-      "routes/admin/category.$id": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0"
+      "routes/admin/category.$id": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/test-auth": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0"
     },
     "routes": {
       "root": {
@@ -158,6 +159,13 @@
         "file": "app/routes/admin/category.$id.tsx",
         "path": "admin/categories/:id",
         "config": {}
+      },
+      "routes/test-auth": {
+        "id": "routes/test-auth",
+        "parentId": "root",
+        "file": "app/routes/test-auth.tsx",
+        "path": "test-auth",
+        "config": {}
       }
     }
   },
@@ -282,6 +290,12 @@
         "parentId": "routes/admin/layout",
         "file": "./routes/admin/category.$id.tsx",
         "path": "admin/categories/:id"
+      },
+      "routes/test-auth": {
+        "id": "routes/test-auth",
+        "parentId": "root",
+        "file": "./routes/test-auth.tsx",
+        "path": "test-auth"
       }
     },
     "routeDiscovery": {
@@ -371,6 +385,10 @@
                 "path": "admin/categories/:id"
               }
             ]
+          },
+          {
+            "file": "./routes/test-auth.tsx",
+            "path": "test-auth"
           }
         ]
       }
