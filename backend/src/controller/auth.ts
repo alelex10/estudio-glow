@@ -54,7 +54,7 @@ export const register = [
       sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
     });
 
-    res.status(201).json({ message: "Usuario registrado exitosamente" });
+    res.status(201).json({ message: "Usuario registrado exitosamente", token });
   }),
 ];
 
@@ -110,7 +110,7 @@ export const login = [
       throw new DatabaseError("Error al procesar respuesta");
     }
 
-    res.status(200).json(responseDto.data);
+    res.status(200).json({ ...responseDto.data, token });
   }),
 ];
 

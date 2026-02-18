@@ -1,7 +1,7 @@
-import { Suspense, useEffect, useState } from "react";
-import { productService } from "~/common/services/productService";
-import { LoadingSpinner } from "~/common/components/admin/LoadingSpinner";
+import { Suspense } from "react";
+import { getToken } from "~/common/services/auth.server";
 import { contextProvider, tokenContext } from "~/common/context/context";
+import { productService } from "~/common/services/productService";
 import { StatsGrid } from "./components/StatsGrid";
 import { InventoryValue } from "./components/InventoryValue";
 import { SalesValue } from "./components/SalesValue";
@@ -21,8 +21,7 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export async function loader({ request }: Route.LoaderArgs) {
-  const cookie = request.headers.get("Cookie");
-  const token = cookie?.split(";").find((c) => c.trim().startsWith("token="))?.split("=")[1];
+  const token = await getToken(request);
   token && contextProvider.set(tokenContext, token);
 
   await queryClient.ensureQueryData(productStatsQuery());

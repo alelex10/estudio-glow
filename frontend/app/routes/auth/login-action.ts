@@ -1,26 +1,19 @@
-import { redirect } from "react-router";
 import type { ActionFunctionArgs } from "react-router";
-import { API_BASE_URL } from "~/common/config/api-end-points";
-import { contextProvider, userContext, tokenContext } from "~/common/context/context";
 import { authService } from "~/common/services/authService";
+import { authFetch, createAuthSession } from "~/common/services/auth.server";
 import type { LoginResponse } from "~/common/types/response";
+import { apiClient } from "~/common/config/api-client";
 
 export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
 
-  const response = await authService.login({
-    email: formData.get("email") as string,
-    password: formData.get("password") as string,
-  });
+  const response = await apiClient<LoginResponse>("/auth/login", {
+    method: "POST",
+    body: JSON.stringify({
+      email: formData.get("email"),
+      password: formData.get("password"),
+    }),
+  })
 
-  if (!response.ok) {
-    const error = await response.json();
-    return { error: error.message || "Error al iniciar sesión" };
-  }
-
-  const data: LoginResponse = await response.json();
-
-  contextProvider.set(userContext, data.user);
-
-  return redirect("/admin", { headers: response.headers });
+  return createAuthSession(request, response.token, response.user);
 }

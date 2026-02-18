@@ -2,7 +2,6 @@ import { API_ENDPOINTS } from "../config/api-end-points";
 import { apiClient } from "../config/api-client";
 import type { LoginCredentials, RegisterData } from "../types/user-types";
 import type { MessageResponse } from "../types/response";
-import { apiClientResponse } from "../config/api-client.response";
 
 /**
  * Servicio de autenticación
@@ -10,7 +9,7 @@ import { apiClientResponse } from "../config/api-client.response";
  */
 class AuthService {
   login = (data: LoginCredentials) => {
-    return apiClientResponse(API_ENDPOINTS.AUTH.LOGIN, {
+    return apiClient(API_ENDPOINTS.AUTH.LOGIN, {
       method: "POST",
       body: JSON.stringify(data),
     });
@@ -23,7 +22,7 @@ class AuthService {
     });
 
   logout = () =>
-    apiClientResponse(API_ENDPOINTS.AUTH.LOGOUT, {
+    apiClient(API_ENDPOINTS.AUTH.LOGOUT, {
       method: "POST",
     });
 

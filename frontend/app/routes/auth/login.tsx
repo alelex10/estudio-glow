@@ -8,12 +8,11 @@ import { FormButton } from "~/common/components/Form/FormButton";
 import { FormError } from "~/common/components/Form/FormError";
 import { loginSchema, type LoginFormData } from "~/common/schemas/auth";
 import type { Route } from "./+types/login";
+import { getToken, authFetch } from "~/common/services/auth.server";
 import { API_ENDPOINTS } from "~/common/config/api-end-points";
 import type { MessageResponse } from "~/common/types/response";
-import { apiClient } from "~/common/config/api-client";
-import { apiClientTest } from "~/common/config/api-client-test";
 
-export function meta({}: Route.MetaArgs) {
+export function meta({ }: Route.MetaArgs) {
   return [
     { title: "Login | Glow Studio" },
     {
@@ -24,24 +23,23 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const cookieHeader = request.headers.get("Cookie");
+  const token = await getToken(request);
 
-  if (!cookieHeader) {
+  if (!token) {
     return { authenticated: false };
   }
 
-  const isAuthenticated = await apiClientTest<MessageResponse>(
-    API_ENDPOINTS.AUTH.VERIFY,
-    {
-      method: "GET",
-      headers: {
-        Cookie: cookieHeader,
-      },
-    },
-  );
+  try {
+    const data = await authFetch<MessageResponse>(
+      request,
+      API_ENDPOINTS.AUTH.VERIFY,
+      { method: "GET" },
+    );
 
-  if (isAuthenticated) {
-    return redirect("/admin");
+    if (data) {
+      return redirect("/admin");
+    }
+  } catch {
   }
 
   return { authenticated: false };

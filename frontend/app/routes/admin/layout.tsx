@@ -8,7 +8,8 @@ import {
 import { redirect } from "react-router";
 import type { MessageResponse } from "~/common/types/response";
 import { API_ENDPOINTS } from "~/common/config/api-end-points";
-import { apiClientTest } from "~/common/config/api-client-test";
+import { getToken, authFetch } from "~/common/services/auth.server";
+import { getSession } from "~/common/services/session-storage";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -18,25 +19,32 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export async function loader({ request }: Route.LoaderArgs) {
+  const token = await getToken(request);
+
+  if (!token) {
+    contextProvider.set(userContext, null);
+    contextProvider.set(tokenContext, null);
+    return redirect("/auth/login");
+  }
+
   try {
-    const isAuthenticated = await apiClientTest<MessageResponse>(
-      API_ENDPOINTS.AUTH.VERIFY,
-      {
-        method: "GET",
-      },
+    const data = await authFetch<MessageResponse>(
       request,
+      API_ENDPOINTS.AUTH.VERIFY,
+      { method: "GET" },
     );
 
-
-    if (!isAuthenticated || !isAuthenticated.user) {
+    if (!data || !data.user) {
       contextProvider.set(userContext, null);
       contextProvider.set(tokenContext, null);
       return redirect("/auth/login");
     }
 
-    contextProvider.set(userContext, isAuthenticated.user);
+    contextProvider.set(userContext, data.user);
+    contextProvider.set(tokenContext, token);
 
-    return { user: isAuthenticated.user };
+    const session = await getSession(request.headers.get("Cookie"));
+    return { user: session.get("user") };
   } catch (error) {
     contextProvider.set(userContext, null);
     contextProvider.set(tokenContext, null);

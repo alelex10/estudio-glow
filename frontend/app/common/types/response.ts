@@ -10,6 +10,7 @@ export interface ApiResponse<T> {
 export interface LoginResponse {
   message: string;
   user: User;
+  token: string;
 }
 
 export interface PaginationResponse<T> {
