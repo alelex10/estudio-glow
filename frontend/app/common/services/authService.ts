@@ -27,10 +27,6 @@ class AuthService {
       method: "POST",
     });
 
-  isAuthenticated = () =>
-    apiClient<MessageResponse>(API_ENDPOINTS.AUTH.VERIFY, {
-      method: "GET",
-    });
 
 }
 

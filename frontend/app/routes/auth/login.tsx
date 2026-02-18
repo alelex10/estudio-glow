@@ -1,10 +1,4 @@
-import {
-  Form,
-  Link,
-  redirect,
-  type ActionFunctionArgs,
-  type LoaderFunctionArgs,
-} from "react-router";
+import { Form, Link, redirect, type LoaderFunctionArgs } from "react-router";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import clsx from "clsx";
@@ -14,8 +8,10 @@ import { FormButton } from "~/common/components/Form/FormButton";
 import { FormError } from "~/common/components/Form/FormError";
 import { loginSchema, type LoginFormData } from "~/common/schemas/auth";
 import type { Route } from "./+types/login";
-import { API_BASE_URL, API_ENDPOINTS } from "~/common/config/api-end-points";
-import { authService } from "~/common/services/authService";
+import { API_ENDPOINTS } from "~/common/config/api-end-points";
+import type { MessageResponse } from "~/common/types/response";
+import { apiClient } from "~/common/config/api-client";
+import { apiClientTest } from "~/common/config/api-client-test";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -29,17 +25,25 @@ export function meta({}: Route.MetaArgs) {
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const cookieHeader = request.headers.get("Cookie");
-  
+
   if (!cookieHeader) {
     return { authenticated: false };
   }
 
-  const isAuthenticated = await authService.isAuthenticated();
-  
+  const isAuthenticated = await apiClientTest<MessageResponse>(
+    API_ENDPOINTS.AUTH.VERIFY,
+    {
+      method: "GET",
+      headers: {
+        Cookie: cookieHeader,
+      },
+    },
+  );
+
   if (isAuthenticated) {
     return redirect("/admin");
   }
-  
+
   return { authenticated: false };
 }
 
@@ -69,7 +73,7 @@ export default function AdminLogin({ actionData }: Route.ComponentProps) {
           "relative w-full max-w-md",
           "bg-white/10 backdrop-blur-xl rounded-2xl",
           "border border-white/20 shadow-2xl",
-          "p-8"
+          "p-8",
         )}
       >
         {/* Logo y título */}
@@ -120,9 +124,7 @@ export default function AdminLogin({ actionData }: Route.ComponentProps) {
           <FormError message={error} />
 
           {/* Submit */}
-          <FormButton loadingText="Ingresando...">
-            Ingresar
-          </FormButton>
+          <FormButton loadingText="Ingresando...">Ingresar</FormButton>
         </Form>
 
         {/* Link a tienda */}
