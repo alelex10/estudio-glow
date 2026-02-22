@@ -54,6 +54,17 @@ export function useProductsPaginated(page: number = 1, limit: number = 10) {
   });
 }
 
+/**
+ * Query options para productos paginados (para SSR)
+ */
+export function productPaginatedQuery(page: number = 1, limit: number = 10) {
+  return queryOptions({
+    queryKey: productKeys.paginated(page, limit),
+    queryFn: () => productService.getProductsPaginated(page, limit),
+    enabled: true,
+  });
+}
+
 
 /**
  * Hook para obtener un producto por ID

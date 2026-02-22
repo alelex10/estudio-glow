@@ -9,9 +9,8 @@ import { RecentProducts } from "./components/RecentProducts";
 import { QuickActions } from "./components/QuickActions";
 import type { Route } from "./+types/page";
 import { queryClient } from "~/common/config/query-client";
-import { productStatsQuery, productKeys } from "~/common/hooks/queries/productQuerys";
 import { dehydrate, HydrationBoundary, useSuspenseQuery } from "@tanstack/react-query";
-import { productPaginatedQuery } from "~/common/hooks/queries/useProductQuerys";
+import { productStatsQuery, productKeys, productPaginatedQuery } from "~/common/hooks/queries/productQueries";
 
 export function meta({}: Route.MetaArgs) {
   return [

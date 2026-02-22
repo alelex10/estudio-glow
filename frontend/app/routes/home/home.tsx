@@ -10,7 +10,7 @@ import {
   useSuspenseQuery,
 } from "@tanstack/react-query";
 import { queryClient } from "~/common/config/query-client";
-import { newProductsQuery } from "~/common/hooks/queries/productQuerys";
+import { newProductsQuery } from "~/common/hooks/queries/productQueries";
 
 export function meta({}: Route.MetaArgs) {
   return [
