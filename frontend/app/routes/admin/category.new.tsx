@@ -26,13 +26,11 @@ export async function action({ request }: Route.ActionArgs) {
   const formData = await request.formData();
 
   try {
-    // Extraer datos (sin validación duplicada - ya se hace con Zod en frontend)
     const rawData = {
       name: formData.get("name") as string,
       description: (formData.get("description") as string) || undefined,
     };
 
-    // Crear categoría directamente
     await categoryService.createCategory(rawData, token || undefined);
     return redirect("/admin/categories");
   } catch (error) {

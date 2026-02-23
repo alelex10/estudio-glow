@@ -27,7 +27,6 @@ export function CategoryForm({
     errors = [],
     onSubmit,
 }: CategoryFormProps) {
-    // Determinar el esquema según el modo
     const schema = mode === "create" ? createCategorySchema : updateCategorySchema;
     
     const {
@@ -44,7 +43,6 @@ export function CategoryForm({
         }
     });
 
-    // Watch para obtener valores actuales del formulario
     const formValues = watch();
 
     useEffect(() => {
