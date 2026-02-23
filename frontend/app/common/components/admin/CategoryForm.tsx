@@ -6,6 +6,7 @@ import type {
     Category,
 } from "../../types/category-types";
 import { LoadingSpinner } from "./LoadingSpinner";
+import { Form } from "react-router";
 
 interface CategoryFormProps {
     initialData?: Category;
@@ -71,7 +72,7 @@ export function CategoryForm({
         );
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <Form method="post" onSubmit={handleSubmit} className="space-y-6">
             {/* Nombre */}
             <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -137,6 +138,6 @@ export function CategoryForm({
                     {mode === "create" ? "Crear categoría" : "Guardar cambios"}
                 </button>
             </div>
-        </form>
+        </Form>
     );
 }

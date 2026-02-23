@@ -27,44 +27,6 @@ export async function requireAuth(request: Request): Promise<string> {
 }
 
 /**
- * Fetch autenticado con Bearer token.
- * Inyecta Authorization: Bearer <token> automáticamente.
- */
-export async function authFetch<T>(
-  request: Request,
-  endpoint: string,
-  options?: RequestInit
-): Promise<T> {
-  const token = await requireAuth(request);
-
-  const url = `${API_BASE_URL}${endpoint}`;
-  const config: RequestInit = {
-    ...options,
-    headers: {
-      ...(options?.body instanceof FormData
-        ? {}
-        : { "Content-Type": "application/json" }),
-      Authorization: `Bearer ${token}`,
-      ...options?.headers,
-    },
-  };
-
-  const response = await fetch(url, config);
-
-  if (!response.ok) {
-    if (response.status === 401) {
-      throw redirect("/auth/login");
-    }
-    const errorData = await response.json().catch(() => ({
-      message: `Error: ${response.status}`,
-    }));
-    throw new Error(errorData.message || `Error: ${response.status}`);
-  }
-
-  return response.json();
-}
-
-/**
  * Crea la sesión con token y user, retorna headers Set-Cookie.
  */
 export async function createAuthSession(

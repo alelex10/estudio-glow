@@ -1,13 +1,17 @@
-import { contextProvider, tokenContext } from "../context/context";
 import type { ErrorResponse } from "../types/response";
 import { API_BASE_URL } from "./api-end-points";
 
-// services/api-client.ts
-export async function apiClient<T>(
-  endpoint: string,
-  options?: RequestInit
-): Promise<T> {
-  const token = contextProvider.get(tokenContext);
+interface ApiClientProps {
+  token?: string;
+  endpoint: string;
+  options?: RequestInit;
+}
+
+export async function apiClient<T>({
+  token,
+  endpoint,
+  options,
+}: ApiClientProps): Promise<T> {
   const url = `${API_BASE_URL}${endpoint}`;
   const config: RequestInit = {
     ...options,
@@ -16,7 +20,7 @@ export async function apiClient<T>(
       ...(options?.body instanceof FormData
         ? {}
         : { "Content-Type": "application/json" }),
-      Authorization: token ? `Bearer ${token}` : "",
+      ...(token && { Authorization: `Bearer ${token}` }),
       ...options?.headers,
     },
   };

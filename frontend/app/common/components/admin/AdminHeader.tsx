@@ -24,14 +24,12 @@ export function AdminHeader({
 
   const handleLogout = async () => {
     try {
-      await authService.logout();
       submit(null, {
         action: "/admin/logout",
         method: "post",
-        navigate: false,
       });
     } catch (error) {
-      console.error("Error al cerrar sesión:", error);
+      console.error("Error during logout:", error);
     }
   };
 
@@ -79,7 +77,7 @@ export function AdminHeader({
                   "flex items-center gap-2 p-2 rounded-full",
                   "bg-gradient-to-br from-primary-400 to-primary-600",
                   "text-white font-medium",
-                  "hover:shadow-lg hover:shadow-primary-500/30 transition-all"
+                  "hover:shadow-lg hover:shadow-primary-500/30 transition-all",
                 )}
               >
                 <span className="w-8 h-8 flex items-center justify-center">
@@ -94,7 +92,7 @@ export function AdminHeader({
                   "bg-white rounded-xl shadow-xl border border-gray-100",
                   "opacity-0 invisible group-hover:opacity-100 group-hover:visible",
                   "transition-all duration-200 transform origin-top-right",
-                  "group-hover:translate-y-0 -translate-y-2"
+                  "group-hover:translate-y-0 -translate-y-2",
                 )}
               >
                 <button

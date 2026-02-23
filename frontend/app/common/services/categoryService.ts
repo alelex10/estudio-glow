@@ -13,26 +13,46 @@ import type {
  */
 class CategoryService {
   listCategories = () =>
-    apiClient<ResponseSchema<Category[]>>(API_ENDPOINTS.PUBLIC.CATEGORIES.GET);
+    apiClient<ResponseSchema<Category[]>>({
+      endpoint: API_ENDPOINTS.PUBLIC.CATEGORIES.GET,
+      options: {
+        method: "GET"
+      }
+    });
 
   getCategory = (id: number | string) =>
-    apiClient<Category>(`/categories/${id}`);
-
-  createCategory = (data: CreateCategoryData) =>
-    apiClient<ResponseSchema<Category>>(API_ENDPOINTS.ADMIN.CATEGORIES.CREATE, {
-      method: "POST",
-      body: JSON.stringify(data),
+    apiClient<Category>({
+      endpoint: `/categories/${id}`,
+      options: { method: "GET" }
     });
 
-  updateCategory = (id: number | string, data: UpdateCategoryData) =>
-    apiClient<Category>(API_ENDPOINTS.ADMIN.CATEGORIES.EDIT(id), {
-      method: "PUT",
-      body: JSON.stringify(data),
+  createCategory = (data: CreateCategoryData, token?: string) =>
+    apiClient<ResponseSchema<Category>>({
+      endpoint: API_ENDPOINTS.ADMIN.CATEGORIES.CREATE,
+      options: {
+        method: "POST",
+        body: JSON.stringify(data),
+      },
+      token
     });
 
-  deleteCategory = (id: number | string) =>
-    apiClient<{ message: string }>(API_ENDPOINTS.ADMIN.CATEGORIES.DELETE(id), {
-      method: "DELETE",
+  updateCategory = (id: number | string, data: UpdateCategoryData, token?: string) =>
+    apiClient<Category>({
+      endpoint: API_ENDPOINTS.ADMIN.CATEGORIES.EDIT(id),
+      options: {
+        method: "PUT",
+        body: JSON.stringify(data),
+      },
+      token
+    });
+
+  deleteCategory = (id: number | string, token?: string) =>
+    apiClient<{ message: string }>({
+      endpoint: API_ENDPOINTS.ADMIN.CATEGORIES.DELETE(id),
+      options: {
+        method: "DELETE",
+      },
+      token
     });
 }
 

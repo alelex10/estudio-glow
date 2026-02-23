@@ -9,21 +9,30 @@ import type { MessageResponse } from "../types/response";
  */
 class AuthService {
   login = (data: LoginCredentials) => {
-    return apiClient(API_ENDPOINTS.AUTH.LOGIN, {
-      method: "POST",
-      body: JSON.stringify(data),
+    return apiClient({
+      options: {
+        method: "POST",
+        body: JSON.stringify(data),
+      },
+      endpoint: API_ENDPOINTS.AUTH.LOGIN,
     });
   }
 
   register = (data: RegisterData) =>
-    apiClient<MessageResponse>(API_ENDPOINTS.AUTH.REGISTER, {
-      method: "POST",
-      body: JSON.stringify(data),
+    apiClient<MessageResponse>({
+      options: {
+        method: "POST",
+        body: JSON.stringify(data),
+      },
+      endpoint: API_ENDPOINTS.AUTH.REGISTER,
     });
 
   logout = () =>
-    apiClient(API_ENDPOINTS.AUTH.LOGOUT, {
-      method: "POST",
+    apiClient({
+      options: {
+        method: "POST",
+      },
+      endpoint: API_ENDPOINTS.AUTH.LOGOUT,
     });
 
 

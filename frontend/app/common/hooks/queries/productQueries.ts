@@ -9,6 +9,7 @@ import type {
   PaginationResponse,
   ResponseSchema,
 } from "~/common/types/response";
+import { contextProvider, tokenContext } from "~/common/context/context";
 
 /**
  * Query keys para productos
@@ -57,7 +58,7 @@ export function useProductsPaginated(page: number = 1, limit: number = 10) {
 /**
  * Query options para productos paginados (para SSR)
  */
-export function productPaginatedQuery(page: number = 1, limit: number = 10) {
+export function productPaginatedQuery(page: number = 1, limit: number = 10, token?: string) {
   return queryOptions({
     queryKey: productKeys.paginated(page, limit),
     queryFn: () => productService.getProductsPaginated(page, limit),
@@ -73,7 +74,7 @@ export function useProduct(id: number | string) {
   return useQuery<ResponseSchema<ProductResponse>>({
     queryKey: productKeys.detail(id),
     queryFn: () => productService.getProduct(id),
-    enabled: !!id, // Solo ejecutar si hay un ID válido
+    enabled: !!id,
   });
 }
 
@@ -84,15 +85,34 @@ export function useSearchProducts(params: SearchProductParams) {
   return useQuery<Product[]>({
     queryKey: productKeys.search(params),
     queryFn: () => productService.searchProducts(params),
-    enabled: !!params.q || !!params.category, // Solo buscar si hay términos
+    enabled: !!params.q || !!params.category,
   });
 }
 
 /**
- * Hook para obtener estadísticas de productos
+ * Hook para obtener estadísticas de productos (cliente)
  */
-export const productStatsQuery = () =>
+export function useProductStats() {
+  return useQuery({
+    queryKey: productKeys.stats(),
+    queryFn: () => {
+      const token = contextProvider.get(tokenContext);
+      if (!token) throw new Error("Token de autenticación requerido");
+      return productService.getProductStats(token);
+    },
+    enabled: !!contextProvider.get(tokenContext),
+  });
+}
+
+/**
+ * Query options para estadísticas de productos (para SSR)
+ */
+export const productStatsQuery = (token?: string) =>
   queryOptions({
     queryKey: productKeys.stats(),
-    queryFn: () => productService.getProductStats(),
+    queryFn: () => {
+      if (!token) throw new Error("Token de autenticación requerido para SSR");
+      return productService.getProductStats(token);
+    },
+    enabled: !!token,
   });

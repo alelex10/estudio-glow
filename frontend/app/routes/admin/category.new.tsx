@@ -8,6 +8,7 @@ import type {
   UpdateCategoryData,
 } from "~/common/types/category-types";
 import type { Route } from "./+types/category.new";
+import { getToken } from "~/common/services/auth.server";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -16,16 +17,25 @@ export function meta({}: Route.MetaArgs) {
   ];
 }
 
-export default function NewCategory() {
+export async function loader({ request }: Route.ActionArgs) {
+  const token = await getToken(request);
+  return { token };
+}
+
+export default function NewCategory({ loaderData }: Route.ComponentProps) {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (
-    data: CreateCategoryData | UpdateCategoryData
+    data: CreateCategoryData | UpdateCategoryData,
   ) => {
+    const token = loaderData?.token;
     setIsLoading(true);
     try {
-      await categoryService.createCategory(data as CreateCategoryData);
+      await categoryService.createCategory(
+        data as CreateCategoryData,
+        token || undefined,
+      );
       toast("success", "Categoría creada correctamente");
       navigate("/admin/categories");
     } catch (error) {

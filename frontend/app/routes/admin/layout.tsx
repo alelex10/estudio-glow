@@ -8,8 +8,9 @@ import {
 import { redirect } from "react-router";
 import type { MessageResponse } from "~/common/types/response";
 import { API_ENDPOINTS } from "~/common/config/api-end-points";
-import { getToken, authFetch } from "~/common/services/auth.server";
+import { getToken } from "~/common/services/auth.server";
 import { getSession } from "~/common/services/session-storage";
+import { apiClient } from "~/common/config/api-client";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -28,11 +29,13 @@ export async function loader({ request }: Route.LoaderArgs) {
   }
 
   try {
-    const data = await authFetch<MessageResponse>(
-      request,
-      API_ENDPOINTS.AUTH.VERIFY,
-      { method: "GET" },
-    );
+    const data = await apiClient<MessageResponse>({
+      endpoint: API_ENDPOINTS.AUTH.VERIFY,
+      options: {
+        method: "GET",
+      },
+      token,
+    });
 
     if (!data || !data.user) {
       contextProvider.set(userContext, null);

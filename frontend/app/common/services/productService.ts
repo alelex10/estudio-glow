@@ -23,14 +23,14 @@ class ProductService {
   });
 
   getNewProducts = () =>
-    apiClient<ResponseSchema<Product[]>>(
-      API_ENDPOINTS.PUBLIC.PRODUCTS.GET_NEW_PRODUCTS
-    );
+    apiClient<ResponseSchema<Product[]>>({
+      endpoint: API_ENDPOINTS.PUBLIC.PRODUCTS.GET_NEW_PRODUCTS,
+    });
 
   getProductsPaginated = (page: number, limit: number) =>
-    apiClient<PaginationResponse<ProductResponse>>(
-      `${API_ENDPOINTS.PUBLIC.PRODUCTS.GET_PAGINATED}?page=${page}&limit=${limit}`
-    ).catch((err) => {
+    apiClient<PaginationResponse<ProductResponse>>({
+      endpoint: `${API_ENDPOINTS.PUBLIC.PRODUCTS.GET_PAGINATED}?page=${page}&limit=${limit}`,
+    }).catch((err) => {
       if (err.message.includes("404")) return this.emptyPagination();
       throw err;
     });
@@ -49,20 +49,20 @@ class ProductService {
     if (sortOrder) params.append("sortOrder", sortOrder);
     if (sortBy) params.append("sortBy", sortBy);
 
-    return apiClient<PaginationResponse<Product>>(
-      `${API_ENDPOINTS.PUBLIC.PRODUCTS.FILTER}?${params.toString()}`
-    ).catch((err) => {
+    return apiClient<PaginationResponse<Product>>({
+      endpoint: `${API_ENDPOINTS.PUBLIC.PRODUCTS.FILTER}?${params.toString()}`,
+    }).catch((err) => {
       if (err.message.includes("404")) return this.emptyPagination();
       throw err;
     });
   };
 
   getProduct = (id: number | string) =>
-    apiClient<ResponseSchema<ProductResponse>>(
-      API_ENDPOINTS.PUBLIC.PRODUCTS.GET_ID(id)
-    );
+    apiClient<ResponseSchema<ProductResponse>>({
+      endpoint: API_ENDPOINTS.PUBLIC.PRODUCTS.GET_ID(id),
+    });
 
-  createProduct = (data: CreateProductData, image: File) => {
+  createProduct = (data: CreateProductData, image: File, token: string) => {
     const formData = new FormData();
     Object.entries(data).forEach(([key, val]) => {
       if (val !== undefined && val !== null) {
@@ -71,16 +71,21 @@ class ProductService {
     });
     formData.append("image", image);
 
-    return apiClient<Product>(API_ENDPOINTS.ADMIN.PRODUCTS.CREATE, {
-      method: "POST",
-      body: formData,
+    return apiClient<Product>({
+      endpoint: API_ENDPOINTS.ADMIN.PRODUCTS.CREATE,
+      options: {
+        method: "POST",
+        body: formData,
+      },
+      token,
     });
   };
 
   updateProduct = (
     id: number | string,
     data: UpdateProductData,
-    image?: File
+    image?: File,
+    token?: string
   ) => {
     const formData = new FormData();
 
@@ -92,15 +97,23 @@ class ProductService {
 
     if (image) formData.append("image", image);
 
-    return apiClient<Product>(API_ENDPOINTS.ADMIN.PRODUCTS.EDIT(id), {
-      method: "PUT",
-      body: formData,
+    return apiClient<Product>({
+      endpoint: API_ENDPOINTS.ADMIN.PRODUCTS.EDIT(id),
+      options: {
+        method: "PUT",
+        body: formData,
+      },
+      token,
     });
   };
 
-  deleteProduct = (id: number | string) =>
-    apiClient<{ message: string }>(API_ENDPOINTS.ADMIN.PRODUCTS.DELETE(id), {
-      method: "DELETE",
+  deleteProduct = (id: number | string, token: string) =>
+    apiClient<{ message: string }>({
+      endpoint: API_ENDPOINTS.ADMIN.PRODUCTS.DELETE(id),
+      options: {
+        method: "DELETE",
+      },
+      token,
     });
 
   searchProducts = (params: SearchProductParams) => {
@@ -113,16 +126,21 @@ class ProductService {
     if (params.maxPrice)
       queryParams.append("maxPrice", params.maxPrice.toString());
 
-    return apiClient<Product[]>(
-      `${API_ENDPOINTS.PUBLIC.PRODUCTS.SEARCH}?${queryParams.toString()}`
-    );
+    return apiClient<Product[]>({
+      endpoint: `${API_ENDPOINTS.PUBLIC.PRODUCTS.SEARCH}?${queryParams.toString()}`,
+    });
   };
 
   getCategories = () =>
-    apiClient<ResponseSchema<Category[]>>(API_ENDPOINTS.PUBLIC.CATEGORIES.GET);
+    apiClient<ResponseSchema<Category[]>>({
+      endpoint: API_ENDPOINTS.PUBLIC.CATEGORIES.GET,
+    });
 
-  getProductStats = () =>
-    apiClient<ResponseSchema<Stats>>(API_ENDPOINTS.ADMIN.DASHBOARD.STATS);
+  getProductStats = (token: string) =>
+    apiClient<ResponseSchema<Stats>>({
+      endpoint: API_ENDPOINTS.ADMIN.DASHBOARD.STATS,
+      token,
+    });
 }
 
 export const productService = new ProductService();

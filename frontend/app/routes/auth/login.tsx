@@ -8,11 +8,12 @@ import { FormButton } from "~/common/components/Form/FormButton";
 import { FormError } from "~/common/components/Form/FormError";
 import { loginSchema, type LoginFormData } from "~/common/schemas/auth";
 import type { Route } from "./+types/login";
-import { getToken, authFetch } from "~/common/services/auth.server";
+import { getToken } from "~/common/services/auth.server";
 import { API_ENDPOINTS } from "~/common/config/api-end-points";
 import type { MessageResponse } from "~/common/types/response";
+import { apiClient } from "~/common/config/api-client";
 
-export function meta({ }: Route.MetaArgs) {
+export function meta({}: Route.MetaArgs) {
   return [
     { title: "Login | Glow Studio" },
     {
@@ -24,23 +25,25 @@ export function meta({ }: Route.MetaArgs) {
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const token = await getToken(request);
+  
 
   if (!token) {
     return { authenticated: false };
   }
 
   try {
-    const data = await authFetch<MessageResponse>(
-      request,
-      API_ENDPOINTS.AUTH.VERIFY,
-      { method: "GET" },
-    );
+    const data = await apiClient<MessageResponse>({
+      endpoint: API_ENDPOINTS.AUTH.VERIFY,
+      options: {
+        method: "GET",
+      },
+      token,
+    });
 
     if (data) {
       return redirect("/admin");
     }
-  } catch {
-  }
+  } catch {}
 
   return { authenticated: false };
 }

@@ -10,7 +10,7 @@ import { QuickActions } from "./components/QuickActions";
 import type { Route } from "./+types/page";
 import { queryClient } from "~/common/config/query-client";
 import { dehydrate, HydrationBoundary, useSuspenseQuery } from "@tanstack/react-query";
-import { productStatsQuery, productKeys, productPaginatedQuery } from "~/common/hooks/queries/productQueries";
+import { productStatsQuery, productKeys, productPaginatedQuery, useProductStats } from "~/common/hooks/queries/productQueries";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -23,11 +23,10 @@ export async function loader({ request }: Route.LoaderArgs) {
   const token = await getToken(request);
   token && contextProvider.set(tokenContext, token);
 
-  await queryClient.ensureQueryData(productStatsQuery());
-  await queryClient.ensureQueryData(productPaginatedQuery(1, 5));
-
-  // const statsData = await productService.getProductStats();
-  // const products = await productService.getProductsPaginated(1, 5);
+  if (token) {
+    await queryClient.ensureQueryData(productStatsQuery(token));
+    await queryClient.ensureQueryData(productPaginatedQuery(1, 5, token));
+  }
 
   return {
     dehydratedState: dehydrate(queryClient),
@@ -44,12 +43,13 @@ export default function AdminDashboardRoute({ loaderData }: Route.ComponentProps
   );
 }
 function AdminDashboard() {
-  const { data: stats } = useSuspenseQuery(productStatsQuery()).data;
+  const { data: statsResponse } = useProductStats();
   const { data: products } = useSuspenseQuery({
     queryKey: productKeys.paginated(1, 5),
     queryFn: () => productService.getProductsPaginated(1, 5),
   }).data;
 
+  const stats = statsResponse?.data;
 
   return (
     <div className="space-y-8">
