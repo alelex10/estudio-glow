@@ -1,5 +1,7 @@
 // ========== CATEGORÍAS ==========
 
+import type { CreateCategoryFormData, UpdateCategoryFormData } from "../schemas/categorySchema";
+
 /**
  * Tipo base para categoría con todos sus campos
  */
@@ -13,16 +15,12 @@ export interface Category {
 
 /**
  * Datos requeridos para crear una nueva categoría
+ * Usa tipado inferido del esquema Zod para consistencia
  */
-export interface CreateCategoryData {
-    name: string;
-    description?: string;
-}
+export type CreateCategoryData = CreateCategoryFormData;
 
 /**
  * Datos opcionales para actualizar una categoría existente
+ * Usa tipado inferido del esquema Zod para consistencia
  */
-export interface UpdateCategoryData {
-    name?: string;
-    description?: string;
-}
+export type UpdateCategoryData = UpdateCategoryFormData;

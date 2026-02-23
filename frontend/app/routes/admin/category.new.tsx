@@ -1,14 +1,13 @@
-import { useState } from "react";
-import { useNavigate } from "react-router";
+import { useActionData, useNavigation, useSubmit } from "react-router";
 import { categoryService } from "~/common/services/categoryService";
 import { CategoryForm } from "~/common/components/admin/CategoryForm";
-import { toast } from "~/common/components/Toast";
-import type {
-  CreateCategoryData,
-  UpdateCategoryData,
-} from "~/common/types/category-types";
 import type { Route } from "./+types/category.new";
+import type {
+  CreateCategoryFormData,
+  UpdateCategoryFormData,
+} from "~/common/schemas/categorySchema";
 import { getToken } from "~/common/services/auth.server";
+import { redirect } from "react-router";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -22,34 +21,37 @@ export async function loader({ request }: Route.ActionArgs) {
   return { token };
 }
 
-export default function NewCategory({ loaderData }: Route.ComponentProps) {
-  const navigate = useNavigate();
-  const [isLoading, setIsLoading] = useState(false);
+export async function action({ request }: Route.ActionArgs) {
+  const token = await getToken(request);
+  const formData = await request.formData();
 
-  const handleSubmit = async (
-    data: CreateCategoryData | UpdateCategoryData,
+  try {
+    // Extraer datos (sin validación duplicada - ya se hace con Zod en frontend)
+    const rawData = {
+      name: formData.get("name") as string,
+      description: (formData.get("description") as string) || undefined,
+    };
+
+    // Crear categoría directamente
+    await categoryService.createCategory(rawData, token || undefined);
+    return redirect("/admin/categories");
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error ? error.message : "Error al crear categoría";
+    return { errors: [errorMessage] };
+  }
+}
+
+export default function NewCategory() {
+  const actionData = useActionData<typeof action>();
+  const navigation = useNavigation();
+  const submit = useSubmit();
+  const isSubmitting = navigation.state === "submitting";
+
+  const handleSubmit = (
+    data: CreateCategoryFormData | UpdateCategoryFormData,
   ) => {
-    const token = loaderData?.token;
-    setIsLoading(true);
-    try {
-      await categoryService.createCategory(
-        data as CreateCategoryData,
-        token || undefined,
-      );
-      toast("success", "Categoría creada correctamente");
-      navigate("/admin/categories");
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : "Error al crear categoría";
-      toast("error", errorMessage);
-      console.error(error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleCancel = () => {
-    navigate("/admin/categories");
+    submit(data, { method: "post" });
   };
 
   return (
@@ -64,9 +66,9 @@ export default function NewCategory({ loaderData }: Route.ComponentProps) {
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
         <CategoryForm
           mode="create"
+          isSubmitting={isSubmitting}
+          errors={actionData?.errors}
           onSubmit={handleSubmit}
-          onCancel={handleCancel}
-          isLoading={isLoading}
         />
       </div>
     </div>

@@ -1,66 +1,60 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import clsx from "clsx";
-import type {
-    CreateCategoryData,
-    UpdateCategoryData,
-    Category,
-} from "../../types/category-types";
+import type { Category } from "../../types/category-types";
+import { 
+    createCategorySchema, 
+    updateCategorySchema,
+    type CreateCategoryFormData,
+    type UpdateCategoryFormData 
+} from "../../schemas/categorySchema";
 import { LoadingSpinner } from "./LoadingSpinner";
 import { Form } from "react-router";
 
 interface CategoryFormProps {
     initialData?: Category;
-    onSubmit: (data: CreateCategoryData | UpdateCategoryData) => Promise<void>;
-    onCancel: () => void;
-    isLoading?: boolean;
     mode: "create" | "edit";
+    isSubmitting?: boolean;
+    errors?: string[];
+    onSubmit?: (data: CreateCategoryFormData | UpdateCategoryFormData) => void;
 }
 
 export function CategoryForm({
     initialData,
-    onSubmit,
-    onCancel,
-    isLoading = false,
     mode,
+    isSubmitting = false,
+    errors = [],
+    onSubmit,
 }: CategoryFormProps) {
-    const [formData, setFormData] = useState<CreateCategoryData>({
-        name: "",
-        description: "",
+    // Determinar el esquema según el modo
+    const schema = mode === "create" ? createCategorySchema : updateCategorySchema;
+    
+    const {
+        register,
+        handleSubmit,
+        formState: { errors: formErrors, isDirty },
+        watch,
+        reset
+    } = useForm<CreateCategoryFormData | UpdateCategoryFormData>({
+        resolver: zodResolver(schema),
+        defaultValues: {
+            name: initialData?.name || "",
+            description: initialData?.description || ""
+        }
     });
-    const [errors, setErrors] = useState<Record<string, string>>({});
+
+    // Watch para obtener valores actuales del formulario
+    const formValues = watch();
 
     useEffect(() => {
         if (initialData) {
-            setFormData({
+            reset({
                 name: initialData.name,
-                description: initialData.description || "",
+                description: initialData.description || ""
             });
         }
-    }, [initialData]);
-
-    const validate = (): boolean => {
-        const newErrors: Record<string, string> = {};
-
-        if (!formData.name.trim()) {
-            newErrors.name = "El nombre es requerido";
-        } else if (formData.name.length > 100) {
-            newErrors.name = "El nombre no puede exceder 100 caracteres";
-        }
-
-        if (formData.description && formData.description.length > 500) {
-            newErrors.description = "La descripción no puede exceder 500 caracteres";
-        }
-
-        setErrors(newErrors);
-        return Object.keys(newErrors).length === 0;
-    };
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!validate()) return;
-
-        await onSubmit(formData);
-    };
+    }, [initialData, reset]);
 
     const inputClassName = (hasError: boolean) =>
         clsx(
@@ -72,7 +66,11 @@ export function CategoryForm({
         );
 
     return (
-        <Form method="post" onSubmit={handleSubmit} className="space-y-6">
+        <Form 
+            method="post" 
+            onSubmit={handleSubmit(onSubmit || (() => {}))}
+            className="space-y-6"
+        >
             {/* Nombre */}
             <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -80,15 +78,16 @@ export function CategoryForm({
                 </label>
                 <input
                     type="text"
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className={inputClassName(!!errors.name)}
+                    {...register("name")}
+                    className={inputClassName(!!formErrors.name)}
                     placeholder="Ej: Electrónica"
                     maxLength={100}
                 />
-                {errors.name && <p className="mt-1 text-sm text-red-500">{errors.name}</p>}
+                {formErrors.name && (
+                    <p className="mt-1 text-sm text-red-500">{formErrors.name.message}</p>
+                )}
                 <p className="mt-1 text-xs text-gray-500">
-                    {formData.name.length}/100 caracteres
+                    {formValues.name?.length || 0}/100 caracteres
                 </p>
             </div>
 
@@ -98,43 +97,51 @@ export function CategoryForm({
                     Descripción
                 </label>
                 <textarea
-                    value={formData.description}
-                    onChange={(e) =>
-                        setFormData({ ...formData, description: e.target.value })
-                    }
-                    className={clsx(inputClassName(!!errors.description), "resize-none")}
+                    {...register("description")}
+                    className={clsx(inputClassName(!!formErrors.description), "resize-none")}
                     rows={4}
                     placeholder="Describe la categoría..."
                     maxLength={500}
                 />
-                {errors.description && (
-                    <p className="mt-1 text-sm text-red-500">{errors.description}</p>
+                {formErrors.description && (
+                    <p className="mt-1 text-sm text-red-500">{formErrors.description.message}</p>
                 )}
                 <p className="mt-1 text-xs text-gray-500">
-                    {formData.description?.length || 0}/500 caracteres
+                    {formValues.description?.length || 0}/500 caracteres
                 </p>
             </div>
+
+            {/* Errores del servidor */}
+            {errors && errors.length > 0 && (
+                <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                    <ul className="text-sm text-red-600 space-y-1">
+                        {errors.map((error, i) => (
+                            <li key={i}>• {error}</li>
+                        ))}
+                    </ul>
+                </div>
+            )}
 
             {/* Botones */}
             <div className="flex gap-3 pt-4 border-t">
                 <button
                     type="button"
-                    onClick={onCancel}
-                    disabled={isLoading}
+                    onClick={() => window.history.back()}
+                    disabled={isSubmitting}
                     className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50"
                 >
                     Cancelar
                 </button>
                 <button
                     type="submit"
-                    disabled={isLoading}
+                    disabled={isSubmitting || !isDirty}
                     className={clsx(
                         "flex-1 px-4 py-2.5 text-sm font-medium text-white rounded-lg transition-colors disabled:opacity-50",
                         "bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700",
                         "flex items-center justify-center gap-2"
                     )}
                 >
-                    {isLoading && <LoadingSpinner size="sm" />}
+                    {isSubmitting && <LoadingSpinner size="sm" />}
                     {mode === "create" ? "Crear categoría" : "Guardar cambios"}
                 </button>
             </div>
