@@ -1,6 +1,5 @@
 import { redirect } from "react-router";
 import { getSession, commitSession, destroySession } from "./session-storage";
-import { API_BASE_URL } from "../config/api-end-points";
 
 /**
  * Extrae el token JWT de la sesión cookie del request.

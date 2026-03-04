@@ -24,9 +24,9 @@ export async function apiClient<T>({
       ...options?.headers,
     },
   };
-
+  
   const response = await fetch(url, config);
-
+  // console.log("response", response);
   if (!response.ok) {
     const responseError: ErrorResponse = await response.json().catch(() => ({
       error: {

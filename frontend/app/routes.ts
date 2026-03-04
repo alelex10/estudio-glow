@@ -13,8 +13,6 @@ export default [
       route("products", "./routes/products/products.tsx"),
     ]),
     route("product/:id", "./routes/products/product.$id.tsx"),
-    route("test", "./routes/page-test/test.tsx"),
-    route("test-2", "./routes/page-test/test-2.tsx"),
   ]),
 
   // Rutas del admin
@@ -30,6 +28,4 @@ export default [
     route("admin/categories/new", "./routes/admin/category.new.tsx"),
     route("admin/categories/:id", "./routes/admin/category.$id.tsx"),
   ]),
-  route("test-auth", "./routes/test-auth.tsx"),
-  // Rutas de pruebas
 ] satisfies RouteConfig;

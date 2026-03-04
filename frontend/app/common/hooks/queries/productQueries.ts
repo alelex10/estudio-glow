@@ -9,11 +9,7 @@ import type {
   PaginationResponse,
   ResponseSchema,
 } from "~/common/types/response";
-import { contextProvider, tokenContext } from "~/common/context/context";
 
-/**
- * Query keys para productos
- */
 export const productKeys = {
   all: ["products"] as const,
   lists: () => [...productKeys.all, "list"] as const,
@@ -36,29 +32,13 @@ export const productKeys = {
     [...productKeys.lists(), "search", params] as const,
 };
 
-/**
- * Hook para obtener productos nuevos
- */
 export const newProductsQuery = () =>
   queryOptions({
     queryKey: ["products"],
     queryFn: () => productService.getNewProducts(),
   });
 
-/**
- * Hook para obtener productos paginados
- */
-export function useProductsPaginated(page: number = 1, limit: number = 10) {
-  return useQuery<PaginationResponse<ProductResponse>>({
-    queryKey: productKeys.paginated(page, limit),
-    queryFn: () => productService.getProductsPaginated(page, limit),
-  });
-}
-
-/**
- * Query options para productos paginados (para SSR)
- */
-export function productPaginatedQuery(page: number = 1, limit: number = 10, token?: string) {
+export function productPaginatedQuery(page: number = 1, limit: number = 10) {
   return queryOptions({
     queryKey: productKeys.paginated(page, limit),
     queryFn: () => productService.getProductsPaginated(page, limit),
@@ -66,10 +46,6 @@ export function productPaginatedQuery(page: number = 1, limit: number = 10, toke
   });
 }
 
-
-/**
- * Hook para obtener un producto por ID
- */
 export function useProduct(id: number | string) {
   return useQuery<ResponseSchema<ProductResponse>>({
     queryKey: productKeys.detail(id),
@@ -78,9 +54,6 @@ export function useProduct(id: number | string) {
   });
 }
 
-/**
- * Hook para buscar productos
- */
 export function useSearchProducts(params: SearchProductParams) {
   return useQuery<Product[]>({
     queryKey: productKeys.search(params),
@@ -89,29 +62,10 @@ export function useSearchProducts(params: SearchProductParams) {
   });
 }
 
-/**
- * Hook para obtener estadísticas de productos (cliente)
- */
-export function useProductStats() {
-  return useQuery({
-    queryKey: productKeys.stats(),
-    queryFn: () => {
-      const token = contextProvider.get(tokenContext);
-      if (!token) throw new Error("Token de autenticación requerido");
-      return productService.getProductStats(token);
-    },
-    enabled: !!contextProvider.get(tokenContext),
-  });
-}
-
-/**
- * Query options para estadísticas de productos (para SSR)
- */
-export const productStatsQuery = (token?: string) =>
+export const productStatsQuery = (token: string) =>
   queryOptions({
     queryKey: productKeys.stats(),
     queryFn: () => {
-      if (!token) throw new Error("Token de autenticación requerido para SSR");
       return productService.getProductStats(token);
     },
     enabled: !!token,
