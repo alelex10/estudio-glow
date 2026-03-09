@@ -1,7 +1,7 @@
 import { API_ENDPOINTS } from "../config/api-end-points";
 import { apiClient } from "../config/api-client";
 import type { LoginCredentials, RegisterData } from "../types/user-types";
-import type { MessageResponse } from "../types/response";
+import type {  LoginResponse, MessageResponse } from "../types/response";
 
 /**
  * Servicio de autenticación
@@ -9,7 +9,7 @@ import type { MessageResponse } from "../types/response";
  */
 class AuthService {
   login = (data: LoginCredentials) => {
-    return apiClient({
+    return apiClient<LoginResponse>({
       options: {
         method: "POST",
         body: JSON.stringify(data),

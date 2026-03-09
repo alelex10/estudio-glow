@@ -1,4 +1,11 @@
-import { Form, Link, redirect, type LoaderFunctionArgs } from "react-router";
+import {
+  Form,
+  Link,
+  redirect,
+  useSubmit,
+  type ActionFunctionArgs,
+  type LoaderFunctionArgs,
+} from "react-router";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import clsx from "clsx";
@@ -8,10 +15,11 @@ import { FormButton } from "~/common/components/Form/FormButton";
 import { FormError } from "~/common/components/Form/FormError";
 import { loginSchema, type LoginFormData } from "~/common/schemas/auth";
 import type { Route } from "./+types/login";
-import { getToken } from "~/common/services/auth.server";
+import { createAuthSession, getToken } from "~/common/services/auth.server";
 import { API_ENDPOINTS } from "~/common/config/api-end-points";
 import type { MessageResponse } from "~/common/types/response";
 import { apiClient } from "~/common/config/api-client";
+import { authService } from "~/common/services/authService";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -23,9 +31,24 @@ export function meta({}: Route.MetaArgs) {
   ];
 }
 
+export async function action({ request }: ActionFunctionArgs) {
+  try {
+    const formData = await request.formData();
+    const email = formData.get("email") as string;
+    const password = formData.get("password") as string;
+
+    const response = await authService.login({ email, password });
+    return createAuthSession(request, response.token, response.user);
+  } catch (error) {
+    if (error instanceof Error) {
+      return { message: error.message };
+    }
+    return { message: "Error de autenticación desconocido" };
+  }
+}
+
 export async function loader({ request }: LoaderFunctionArgs) {
   const token = await getToken(request);
-  
 
   if (!token) {
     return { authenticated: false };
@@ -49,13 +72,19 @@ export async function loader({ request }: LoaderFunctionArgs) {
 }
 
 export default function AdminLogin({ actionData }: Route.ComponentProps) {
-  const { error } = (actionData as unknown as { error?: string }) || {};
+  const submit = useSubmit();
+  const onSubmit = (data: LoginFormData) => {
+    submit(data, {
+      method: "post",
+      action: "/auth/login",
+    });
+  };
 
+  const { message } = actionData || {};
   const {
     register,
     handleSubmit,
     formState: { errors },
-    setError,
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
   });
@@ -91,14 +120,9 @@ export default function AdminLogin({ actionData }: Route.ComponentProps) {
         {/* Formulario */}
         <Form
           className="space-y-5"
-          method="post"
           onSubmit={(e) => {
             e.preventDefault();
-            const form = e.currentTarget;
-            handleSubmit((data) => {
-              form.action = "/auth/login-action";
-              form.submit();
-            })();
+            handleSubmit(onSubmit)();
           }}
         >
           {/* Email */}
@@ -122,7 +146,7 @@ export default function AdminLogin({ actionData }: Route.ComponentProps) {
           />
 
           {/* Error */}
-          <FormError message={error} />
+          <FormError message={message} />
 
           {/* Submit */}
           <FormButton loadingText="Ingresando...">Ingresar</FormButton>

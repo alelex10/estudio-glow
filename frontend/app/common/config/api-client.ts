@@ -26,7 +26,6 @@ export async function apiClient<T>({
   };
   
   const response = await fetch(url, config);
-  // console.log("response", response);
   if (!response.ok) {
     const responseError: ErrorResponse = await response.json().catch(() => ({
       error: {
