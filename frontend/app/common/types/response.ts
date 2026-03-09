@@ -1,14 +1,17 @@
 import type { User } from "./user-types";
 
 // ========== RESPUESTAS API ==========
+export interface ApiResponse<T> {
+  data?: T;
+  message?: string;
+  error?: string;
+}
 
 export interface LoginResponse {
   message: string;
   user: User;
   token: string;
 }
-
-export type ApiResponse<T> = Promise<T | ErrorResponse>;
 
 export interface PaginationResponse<T> {
   data: T[];

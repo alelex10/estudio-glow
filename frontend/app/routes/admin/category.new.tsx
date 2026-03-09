@@ -32,12 +32,11 @@ export async function action({ request }: Route.ActionArgs) {
     };
 
     await categoryService.createCategory(rawData, token || undefined);
-
     return redirect("/admin/categories");
   } catch (error) {
     const errorMessage =
       error instanceof Error ? error.message : "Error al crear categoría";
-    return { errors: errorMessage };
+    return { errors: [errorMessage] };
   }
 }
 
