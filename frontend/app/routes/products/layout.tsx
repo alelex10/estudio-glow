@@ -21,32 +21,6 @@ export async function loader() {
   }
 }
 
-export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
-  if (isRouteErrorResponse(error)) {
-    return (
-      <div className="p-4 bg-red-50 border border-red-200 rounded-lg mt-20">
-        <h1 className="text-2xl font-bold text-red-600">
-          {error.status} {error.statusText}
-        </h1>
-        <p className="text-gray-600">{error.data}</p>
-      </div>
-    );
-  } else if (error instanceof Error) {
-    return (
-      <div className="p-4">
-        <h1 className="text-2xl font-bold text-red-600">Error</h1>
-        <p className="text-gray-600">{error.message}</p>
-        <p className="text-gray-500 mt-2">The stack trace is:</p>
-        <pre className="text-sm text-gray-400 mt-1 whitespace-pre-wrap">
-          {error.stack}
-        </pre>
-      </div>
-    );
-  } else {
-    return <h1 className="p-4">Unknown Error</h1>;
-  }
-}
-
 export default function ProductsLayout({ loaderData }: Route.ComponentProps) {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [isSortOpen, setIsSortOpen] = useState(false);
@@ -95,7 +69,7 @@ export default function ProductsLayout({ loaderData }: Route.ComponentProps) {
                       filter.sortBy === option.sortBy &&
                         filter.sortOrder === option.sortOrder
                         ? "text-primary-600 font-medium bg-primary-50"
-                        : "text-gray-600"
+                        : "text-gray-600",
                     )}
                   >
                     {option.label}

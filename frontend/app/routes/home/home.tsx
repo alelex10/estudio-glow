@@ -18,15 +18,7 @@ export async function loader() {
   return { newProducts };
 }
 
-export default function HomeRoute({ loaderData }: Route.ComponentProps) {
-  return (
-    <Suspense fallback={<div>Cargando productos...</div>}>
-      <Home newProducts={loaderData.newProducts} />
-    </Suspense>
-  );
-}
-
-function Home({ newProducts }: { newProducts: any }) {
+export default function Home({ loaderData }: Route.ComponentProps) {
   const [isHeroVisible, setIsHeroVisible] = useState(true);
 
   useEffect(() => {
@@ -54,7 +46,9 @@ function Home({ newProducts }: { newProducts: any }) {
           className="text-center text-primary-800 text-3xl md:text-5xl py-10"
         >
           <h2 className="font-playfair tracking-wide mb-10">Lo mas nuevo </h2>
-          <ProductCarousel products={newProducts.data || []} />
+          <Suspense fallback={<div>Cargando productos...</div>}>
+            <ProductCarousel products={loaderData.newProducts.data || []} />
+          </Suspense>
         </section>
       </main>
       <Footer />
