@@ -6,7 +6,7 @@ import type { CreateCategoryFormData, UpdateCategoryFormData } from "../schemas/
  * Tipo base para categoría con todos sus campos
  */
 export interface Category {
-    id: number;
+    id: string;
     name: string;
     description: string | null;
     createdAt: string;

@@ -5,7 +5,7 @@ export interface Product {
   description: string;
   price: number;
   stock: number;
-  categoryId: number;
+  categoryId: string;
   imageUrl: string;
   createdAt: string;
   updatedAt: string;
@@ -39,7 +39,7 @@ export interface CreateProductData {
   description?: string;
   price: number;
   stock: number;
-  categoryId: number;
+  categoryId: string;
 }
 
 export interface UpdateProductData {
@@ -47,7 +47,7 @@ export interface UpdateProductData {
   description?: string;
   price?: number;
   stock?: number;
-  categoryId?: number;
+  categoryId?: string;
 }
 
 export interface SearchProductParams {

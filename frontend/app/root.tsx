@@ -9,11 +9,6 @@ import {
 
 import type { Route } from "./+types/root";
 import "./app.css";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import React from "react";
-import { queryClient } from "./common/config/query-client";
-import { ApiConnectionError, RouteError, DevError } from "./common/errors";
 
 interface RootLoaderData {
   children: React.ReactNode;
@@ -29,10 +24,7 @@ export function Layout({ children }: RootLoaderData) {
         <Links />
       </head>
       <body className="font-gabarito">
-        <QueryClientProvider client={queryClient}>
-          {children}
-          <ReactQueryDevtools initialIsOpen={false} />
-        </QueryClientProvider>
+        {children}
         <ScrollRestoration />
         <Scripts />
       </body>
@@ -49,25 +41,30 @@ export default function App() {
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
-  // Error personalizado para conexión a API
-  if (error instanceof Error) {
-    if (error.message.includes('ECONNREFUSED') || 
-        error.message.includes('fetch failed') ||
-        error.cause instanceof Error && error.cause.message.includes('ECONNREFUSED')) {
-      return <ApiConnectionError />;
-    }
-  }
+  let message = "Oops!";
+  let details = "An unexpected error occurred.";
+  let stack: string | undefined;
 
-  // Error de ruta (404, etc.)
   if (isRouteErrorResponse(error)) {
-    return <RouteError error={error} />;
+    message = error.status === 404 ? "404" : "Error";
+    details =
+      error.status === 404
+        ? "The requested page could not be found."
+        : error.statusText || details;
+  } else if (import.meta.env.DEV && error && error instanceof Error) {
+    details = error.message;
+    stack = error.stack;
   }
 
-  // Error en desarrollo
-  if (import.meta.env.DEV && error && error instanceof Error) {
-    return <DevError error={error} />;
-  }
-
-  // Error genérico
-  return <RouteError error={error} />;
+  return (
+    <main className="pt-16 p-4 container mx-auto">
+      <h1>{message}</h1>
+      <p>{details}</p>
+      {stack && (
+        <pre className="w-full p-4 overflow-x-auto">
+          <code>{stack}</code>
+        </pre>
+      )}
+    </main>
+  );
 }

@@ -4,13 +4,7 @@ import Hero from "./components/Hero";
 import Footer from "~/common/components/Footer";
 import { useState, useEffect, Suspense } from "react";
 import Navbar from "~/common/components/Navbar";
-import {
-  dehydrate,
-  HydrationBoundary,
-  useSuspenseQuery,
-} from "@tanstack/react-query";
-import { queryClient } from "~/common/config/query-client";
-import { newProductsQuery } from "~/common/hooks/queries/productQueries";
+import { productService } from "~/common/services/productService";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -20,23 +14,20 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export async function loader() {
-  await queryClient.ensureQueryData(newProductsQuery());
-  return { dehydratedState: dehydrate(queryClient) };
+  const newProducts = await productService.getNewProducts();
+  return { newProducts };
 }
 
 export default function HomeRoute({ loaderData }: Route.ComponentProps) {
   return (
-    <HydrationBoundary state={loaderData.dehydratedState}>
-      <Suspense fallback={<div>Cargando productos...</div>}>
-        <Home />
-      </Suspense>
-    </HydrationBoundary>
+    <Suspense fallback={<div>Cargando productos...</div>}>
+      <Home newProducts={loaderData.newProducts} />
+    </Suspense>
   );
 }
 
-function Home() {
+function Home({ newProducts }: { newProducts: any }) {
   const [isHeroVisible, setIsHeroVisible] = useState(true);
-  const { data: newProducts } = useSuspenseQuery(newProductsQuery());
 
   useEffect(() => {
     const handleScroll = () => {

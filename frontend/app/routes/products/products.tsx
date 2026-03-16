@@ -1,16 +1,9 @@
+import { useState } from "react";
 import { ProductCard } from "~/common/components/Card";
 import { productService } from "~/common/services/productService";
-import type { Route } from "./+types/products";
-import {
-  dehydrate,
-  queryOptions,
-  useQuery,
-  useSuspenseQuery,
-} from "@tanstack/react-query";
-import { queryClient } from "~/common/config/query-client";
-import { HydrationBoundary } from "@tanstack/react-query";
-import { Suspense } from "react";
-import { Await } from "react-router";
+import type { PaginationResponse } from "~/common/types/response";
+import type { Category, Product } from "~/common/types/product-types";
+import type { Route } from "./+types/layout";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -19,27 +12,17 @@ export function meta({}: Route.MetaArgs) {
   ];
 }
 
-const productListQuery = () =>
-  queryOptions({
-    queryKey: ["products"],
-    queryFn: () => productService.getProductsPaginated(1, 10),
-  });
-
 export async function loader() {
-  await queryClient.ensureQueryData(productListQuery());
-  return { dehydratedState: dehydrate(queryClient) };
+  const products = await productService.getProductsPaginated(1, 10);
+  return { products };
+}
+interface Props {
+  loaderData: { products: PaginationResponse<Product> };
 }
 
-export default function ProductsRoute({ loaderData }: Route.ComponentProps) {
-  return (
-    <HydrationBoundary state={loaderData.dehydratedState}>
-      <Products />
-    </HydrationBoundary>
-  );
-}
-
-function Products() {
-  const { data: products } = useSuspenseQuery(productListQuery());
+export default function Products({ loaderData }: Props) {
+  const { products: productsData } = loaderData;
+  const [products, setProducts] = useState(productsData);
 
   return (
     <>
@@ -49,20 +32,14 @@ function Products() {
         </div>
       )}
       <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-x-4">
-        {products?.data.map((product) => (
+        {products.data.map((product) => (
           <div key={product.id}>
-            <Suspense fallback={<div>Loading...</div>}>
-              <Await resolve={product}>
-                {(product) => (
-                  <ProductCard
-                    productId={product.id}
-                    imageUrl={product.imageUrl}
-                    name={product.name}
-                    price={product.price}
-                  />
-                )}
-              </Await>
-            </Suspense>
+            <ProductCard
+              productId={product.id}
+              imageUrl={product.imageUrl}
+              name={product.name}
+              price={product.price}
+            />
           </div>
         ))}
       </div>

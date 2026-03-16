@@ -35,7 +35,7 @@ export function ProductForm({
     description: "",
     price: 0,
     stock: 0,
-    categoryId: 0,
+    categoryId: "",
   });
   const [image, setImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);

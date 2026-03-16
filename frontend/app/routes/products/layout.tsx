@@ -6,28 +6,20 @@ import { Suspense, useState } from "react";
 import { FilterDrawer } from "./components/FilterDrawer";
 import { productService } from "~/common/services/productService";
 import { isRouteErrorResponse } from "react-router";
-import {
-  dehydrate,
-  queryOptions,
-  useSuspenseQuery,
-} from "@tanstack/react-query";
+import { data } from "react-router";
 import type { Route } from "./+types/layout";
 import { FilterSideBar } from "./components/FilterSideBar";
 import Footer from "~/common/components/Footer";
 import Popover from "~/common/components/Popover";
-import { queryClient } from "~/common/config/query-client";
-import { HydrationBoundary } from "@tanstack/react-query";
 
-const categoryListQuery = () =>
-  queryOptions({
-    queryKey: ["categories"],
-    queryFn: () => productService.getCategories(),
-  });
-
-export const loader = async () => {
-  await queryClient.prefetchQuery(categoryListQuery());
-  return { dehydratedState: dehydrate(queryClient) };
-};
+export async function loader() {
+  try {
+    const categories = await productService.getCategories();
+    return { categories: categories.data };
+  } catch (error) {
+    throw data("Error loading categories", { status: 500 });
+  }
+}
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   if (isRouteErrorResponse(error)) {
@@ -55,21 +47,11 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   }
 }
 
-export default function ProductsLayoutRoute({
-  loaderData,
-}: Route.ComponentProps) {
-  return (
-    <HydrationBoundary state={loaderData.dehydratedState}>
-      <ProductsLayout />
-    </HydrationBoundary>
-  );
-}
-
-function ProductsLayout() {
+export default function ProductsLayout({ loaderData }: Route.ComponentProps) {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [isSortOpen, setIsSortOpen] = useState(false);
   const [filter, setFilter] = useState({ sortBy: "name", sortOrder: "asc" });
-  const { data: categories } = useSuspenseQuery(categoryListQuery());
+  const { categories } = loaderData;
 
   const SORT_OPTIONS = [
     { label: "Precio: Menor a Mayor", sortBy: "price", sortOrder: "asc" },
@@ -127,14 +109,14 @@ function ProductsLayout() {
           <Await resolve={categories}>
             <div className="flex gap-4 w-full justify-center">
               <div className="hidden md:block">
-                <FilterSideBar categories={categories.data || []} />
+                <FilterSideBar categories={categories || []} />
               </div>
               <Outlet />
             </div>
 
             <div className="md:hidden">
               <FilterDrawer
-                categories={categories.data || []}
+                categories={categories || []}
                 isOpen={isFilterOpen}
                 onClose={() => setIsFilterOpen(false)}
               />

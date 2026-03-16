@@ -6,7 +6,6 @@ interface LogoProps {
 }
 
 export const Logo = ({ className, variant = "full" }: LogoProps) => {
-    // Versión solo icono para espacios pequeños
     if (variant === "icon") {
         return (
             <div className={clsx("rounded-full overflow-hidden", className)}>

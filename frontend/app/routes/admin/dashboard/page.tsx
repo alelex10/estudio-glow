@@ -6,16 +6,7 @@ import { SalesValue } from "./components/SalesValue";
 import { RecentProducts } from "./components/RecentProducts";
 import { QuickActions } from "./components/QuickActions";
 import type { Route } from "./+types/page";
-import { queryClient } from "~/common/config/query-client";
-import {
-  dehydrate,
-  HydrationBoundary,
-  useSuspenseQuery,
-} from "@tanstack/react-query";
-import {
-  productStatsQuery,
-  productPaginatedQuery,
-} from "~/common/hooks/queries/productQueries";
+import { productService } from "~/common/services/productService";
 import { redirect } from "react-router";
 
 export function meta({}: Route.MetaArgs) {
@@ -32,11 +23,12 @@ export async function loader({ request }: Route.LoaderArgs) {
     throw redirect("/auth/login");
   }
 
-  await queryClient.ensureQueryData(productStatsQuery(token));
-  await queryClient.ensureQueryData(productPaginatedQuery(1, 5));
+  const statsResponse = await productService.getProductStats(token);
+  const products = await productService.getProductsPaginated(1, 5);
 
   return {
-    dehydratedState: dehydrate(queryClient),
+    stats: statsResponse.data,
+    products: products.data,
     token,
   };
 }
@@ -45,26 +37,30 @@ export default function AdminDashboardRoute({
   loaderData,
 }: Route.ComponentProps) {
   return (
-    <HydrationBoundary state={loaderData.dehydratedState}>
-      <Suspense fallback={<div>Cargando productos...</div>}>
-        <AdminDashboard token={loaderData.token} />
-      </Suspense>
-    </HydrationBoundary>
+    <Suspense fallback={<div>Cargando productos...</div>}>
+      <AdminDashboard 
+        stats={loaderData.stats} 
+        products={loaderData.products}
+        token={loaderData.token} 
+      />
+    </Suspense>
   );
 }
-function AdminDashboard({ token }: { token: string }) {
-  const { data: statsResponse } = useSuspenseQuery(productStatsQuery(token));
-  const { data: products } = useSuspenseQuery(productPaginatedQuery(1, 5));
-
-  const stats = statsResponse?.data;
-  const productsList = products?.data;  
-
+function AdminDashboard({ 
+  stats, 
+  products, 
+  token 
+}: { 
+  stats: any; 
+  products: any; 
+  token: string 
+}) {
   return (
     <div className="space-y-8">
       <StatsGrid stats={stats} />
       <InventoryValue totalValue={stats?.totalValue} />
       <SalesValue totalValue={stats?.totalValue} />
-      <RecentProducts products={productsList} />
+      <RecentProducts products={products} />
       <QuickActions />
     </div>
   );

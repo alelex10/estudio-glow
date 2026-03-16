@@ -110,7 +110,6 @@ export function DataTable<T>({
   );
 }
 
-// Botón de acción para la tabla
 interface ActionButtonProps {
   onClick: () => void;
   variant?: "edit" | "delete" | "view";
