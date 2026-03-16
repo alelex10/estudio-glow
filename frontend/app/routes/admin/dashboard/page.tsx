@@ -10,8 +10,7 @@ import {
   StatsGridSkeleton, 
   RecentProductsSkeleton,
   InventoryValueSkeleton,
-  SalesValueSkeleton,
-  QuickActionsSkeleton 
+  SalesValueSkeleton
 } from "./components/DashboardSkeletons";
 import type { Route } from "./+types/page";
 import { productService } from "~/common/services/productService";
@@ -39,10 +38,6 @@ export async function loader({ request }: Route.LoaderArgs) {
 }
 
 export default function AdminDashboard({ loaderData }: Route.ComponentProps) {
-  if (!loaderData) {
-    return <div>Cargando...</div>;
-  }
-  
   return (
     <div className="space-y-8">
       <Suspense fallback={<StatsGridSkeleton />}>
@@ -71,9 +66,7 @@ export default function AdminDashboard({ loaderData }: Route.ComponentProps) {
         </Await>
       </Suspense>
 
-      <Suspense fallback={<QuickActionsSkeleton />}>
-        <QuickActions />
-      </Suspense>
+      <QuickActions />
     </div>
   );
 }
