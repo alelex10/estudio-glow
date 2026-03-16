@@ -2,7 +2,7 @@ import type { Request, Response } from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { db } from "../db";
-import { users } from "../models/user";
+import { users } from "../models/relations";
 import dotenv from "dotenv";
 import { eq } from "drizzle-orm";
 import { validateBody } from "../middleware/validation";
@@ -84,8 +84,8 @@ export const login = [
     }
 
     const token = jwt.sign(
-      { id: user?.id, email: user?.email, role: user?.role },
-      JWT_SECRET,
+      { id: user.id, email: user.email, role: user.role },
+      process.env.JWT_SECRET!,
       { expiresIn: "1h" }
     );
 
@@ -99,14 +99,15 @@ export const login = [
     const responseDto = AuthResponseSchema.safeParse({
       message: "Login exitoso",
       user: {
-        id: user?.id,
-        name: user?.name,
-        email: user?.email,
-        role: user?.role,
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
       },
     });
 
     if (!responseDto.success) {
+      console.error("Schema validation error:", responseDto.error);
       throw new DatabaseError("Error al procesar respuesta");
     }
 

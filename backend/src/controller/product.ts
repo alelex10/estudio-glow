@@ -1,7 +1,6 @@
 import type { Request, Response } from "express";
 import { eq, like, and, gte, lte, desc, asc, count, lt } from "drizzle-orm";
-import { products } from "../models/product";
-import { categories } from "../models/category";
+import { products, categories } from "../models/relations";
 import type { NewProduct, Product } from "../models/product";
 import { validateBody, validateQuery } from "../middleware/validation";
 import {
@@ -35,21 +34,27 @@ export const listProductsPaginated = [
 
       const total = totalResult[0]?.total || 0;
 
-      const dbResult = await db.query.products.findMany({
-        with: {
+      const dbResult = await db
+        .select({
+          id: products.id,
+          name: products.name,
+          description: products.description,
+          price: products.price,
+          stock: products.stock,
+          categoryId: products.categoryId,
+          imageUrl: products.imageUrl,
+          createdAt: products.createdAt,
+          updatedAt: products.updatedAt,
           category: {
-            columns: {
-              id: true,
-              name: true,
-            },
+            id: categories.id,
+            name: categories.name,
           },
-        },
-        orderBy: {
-          [sortBy]: sortOrder,
-        },
-        limit,
-        offset,
-      });
+        })
+        .from(products)
+        .leftJoin(categories, eq(products.categoryId, categories.id))
+        .orderBy(sortOrder === "desc" ? desc(products[sortBy]) : asc(products[sortBy]))
+        .limit(limit)
+        .offset(offset);
 
       const paginationMetadata = PaginationHelper.calculateMetadata(
         page,
@@ -73,14 +78,26 @@ export const listProductsPaginated = [
 export const getProduct = asyncHandler(async (req: Request, res: Response) => {
   const id = IdSchema.parse(req.params.id);
 
-  const result = await db.query.products.findFirst({
-    with: {
-      category: true,
-    },
-    where: {
-      id: id,
-    },
-  });
+  const result = await db
+    .select({
+      id: products.id,
+      name: products.name,
+      description: products.description,
+      price: products.price,
+      stock: products.stock,
+      categoryId: products.categoryId,
+      imageUrl: products.imageUrl,
+      createdAt: products.createdAt,
+      updatedAt: products.updatedAt,
+      category: {
+        id: categories.id,
+        name: categories.name,
+      },
+    })
+    .from(products)
+    .leftJoin(categories, eq(products.categoryId, categories.id))
+    .where(eq(products.id, id))
+    .limit(1);
 
   if (!result) {
     throw new NotFoundError("Producto no encontrado");
@@ -354,16 +371,15 @@ export const checkProductNameExists = async (name: string) => {
 };
 
 export const checkProductIdExists = async (id: string) => {
-  const result = await db.query.products.findFirst({
-    with: {
-      category: true,
-    },
-    where: {
-      id,
-    },
-  });
-  if (!result) {
+  const result = await db
+    .select()
+    .from(products)
+    .where(eq(products.id, id))
+    .limit(1);
+  
+  if (!result[0]) {
     throw new NotFoundError("Producto no encontrado");
   }
-  return result;
+  
+  return result[0];
 };

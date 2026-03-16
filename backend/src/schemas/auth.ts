@@ -39,20 +39,20 @@ export const LoginSchema = z
 
 export const UserResponseSchema = z
   .object({
-    id: z.string().uuid().openapi({
-      example: "550e8400-e29b-41d4-a716-446655440000",
+    id: z.string().openapi({
+      example: "admin-user-001",
       description: "ID del usuario",
     }),
     name: z.string().openapi({
-      example: "Juan Pérez",
+      example: "Admin Estudio Glow",
       description: "Nombre del usuario",
     }),
     email: z.email().openapi({
-      example: "juan@example.com",
+      example: "yasitacardenas3637@gmail.com",
       description: "Correo electrónico del usuario",
     }),
     role: z.enum(["admin", "customer"]).openapi({
-      example: "customer",
+      example: "admin",
       description: "Rol del usuario",
     }),
   })
