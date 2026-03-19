@@ -9,6 +9,7 @@ import {
 
 import type { Route } from "./+types/root";
 import "./app.css";
+import { ToastContainer } from "./common/components/Toast";
 
 interface RootLoaderData {
   children: React.ReactNode;
@@ -25,6 +26,7 @@ export function Layout({ children }: RootLoaderData) {
       </head>
       <body className="font-gabarito">
         {children}
+        <ToastContainer />
         <ScrollRestoration />
         <Scripts />
       </body>

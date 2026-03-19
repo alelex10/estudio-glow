@@ -20,13 +20,13 @@ export interface Stats {
 }
 
 export interface ProductResponse {
-  id: number;
+  id: string;
   name: string;
   description: string;
   price: number;
   stock: number;
   category: {
-    id: number;
+    id: string;
     name: string;
   };
   imageUrl: string;

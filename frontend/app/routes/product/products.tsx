@@ -1,9 +1,7 @@
 import { useState } from "react";
 import { ProductCard } from "~/common/components/Card";
 import { productService } from "~/common/services/productService";
-import type { PaginationResponse } from "~/common/types/response";
-import type { Category, Product } from "~/common/types/product-types";
-import type { Route } from "./+types/layout";
+import type { Route } from "./+types/products";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -16,11 +14,9 @@ export async function loader() {
   const products = await productService.getProductsPaginated(1, 10);
   return { products };
 }
-interface Props {
-  loaderData: { products: PaginationResponse<Product> };
-}
 
-export default function Products({ loaderData }: Props) {
+
+export default function Products({ loaderData }: Route.ComponentProps) {
   const { products: productsData } = loaderData;
   const [products, setProducts] = useState(productsData);
 

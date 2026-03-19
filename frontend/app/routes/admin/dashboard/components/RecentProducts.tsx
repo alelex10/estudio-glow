@@ -1,21 +1,10 @@
 import { Link } from "react-router";
 import clsx from "clsx";
 import { Package, Image, ChevronRight } from "lucide-react";
-
-interface Product {
-  id: number;
-  name: string;
-  price: number;
-  stock: number;
-  imageUrl?: string;
-  category: {
-    id: number;
-    name: string;
-  };
-}
+import type { ProductResponse } from "../../../../common/types/product-types";
 
 interface RecentProductsProps {
-  products: Product[];
+  products: ProductResponse[];
 }
 
 export function RecentProducts({ products }: RecentProductsProps) {
