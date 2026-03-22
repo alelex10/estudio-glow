@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import { eq, like, and, gte, lte, desc, asc, count, lt } from "drizzle-orm";
+import { eq, like, ilike, and, gte, lte, desc, asc, count, lt } from "drizzle-orm";
 import { products, categories } from "../models/relations";
 import type { NewProduct, Product } from "../models/product";
 import { validateBody, validateQuery } from "../middleware/validation";
@@ -26,15 +26,26 @@ export const listProductsPaginated = [
   async (req: Request, res: Response) => {
     try {
       const validatedQuery = PaginationProductQuerySchema.parse(req.query);
-      const { page, limit, sortBy, sortOrder } = validatedQuery;
+      const { page, limit, sortBy, sortOrder, q } = validatedQuery;
 
       const offset = PaginationHelper.calculateOffset(page, limit);
 
-      const totalResult = await db.select({ total: count() }).from(products);
+      const conditions = [];
+      if (q) {
+        conditions.push(ilike(products.name, `%${q}%`));
+      }
+
+      const totalResult =
+        conditions.length > 0
+          ? await db
+              .select({ total: count() })
+              .from(products)
+              .where(and(...conditions))
+          : await db.select({ total: count() }).from(products);
 
       const total = totalResult[0]?.total || 0;
 
-      const dbResult = await db
+      let query = db
         .select({
           id: products.id,
           name: products.name,
@@ -51,7 +62,13 @@ export const listProductsPaginated = [
           },
         })
         .from(products)
-        .leftJoin(categories, eq(products.categoryId, categories.id))
+        .leftJoin(categories, eq(products.categoryId, categories.id));
+
+      if (conditions.length > 0) {
+        query = query.where(and(...conditions)) as typeof query;
+      }
+
+      const dbResult = await query
         .orderBy(sortOrder === "desc" ? desc(products[sortBy]) : asc(products[sortBy]))
         .limit(limit)
         .offset(offset);

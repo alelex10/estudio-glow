@@ -27,13 +27,19 @@ class ProductService {
       endpoint: API_ENDPOINTS.PUBLIC.PRODUCTS.GET_NEW_PRODUCTS,
     });
 
-  getProductsPaginated = (page: number, limit: number) =>
-    apiClient<PaginationResponse<ProductResponse>>({
-      endpoint: `${API_ENDPOINTS.PUBLIC.PRODUCTS.GET_PAGINATED}?page=${page}&limit=${limit}`,
+  getProductsPaginated = (page: number, limit: number, searchQuery?: string) => {
+    const params = new URLSearchParams();
+    params.append("page", page.toString());
+    params.append("limit", limit.toString());
+    if (searchQuery) params.append("q", searchQuery);
+
+    return apiClient<PaginationResponse<ProductResponse>>({
+      endpoint: `${API_ENDPOINTS.PUBLIC.PRODUCTS.GET_PAGINATED}?${params.toString()}`,
     }).catch((err) => {
       if (err.message.includes("404")) return this.emptyPagination();
       throw err;
     });
+  };
 
   getProductsFilter = (
     page?: number,

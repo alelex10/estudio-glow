@@ -12,13 +12,22 @@ import type {
  * Maneja CRUD completo de categorías
  */
 class CategoryService {
-  listCategories = () =>
-    apiClient<ResponseSchema<Category[]>>({
-      endpoint: API_ENDPOINTS.PUBLIC.CATEGORIES.GET,
+  listCategories = (searchQuery?: string) => {
+    const params = new URLSearchParams();
+    if (searchQuery) params.append("q", searchQuery);
+
+    const queryString = params.toString();
+    const endpoint = queryString
+      ? `${API_ENDPOINTS.PUBLIC.CATEGORIES.GET}?${queryString}`
+      : API_ENDPOINTS.PUBLIC.CATEGORIES.GET;
+
+    return apiClient<ResponseSchema<Category[]>>({
+      endpoint,
       options: {
         method: "GET"
       }
     });
+  };
 
   getCategory = (id: number | string) =>
     apiClient<Category>({

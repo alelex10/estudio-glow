@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import { eq } from "drizzle-orm";
+import { eq, ilike, and } from "drizzle-orm";
 import { db } from "../db";
 import { categories } from "../models/category";
 import type { Category, NewCategory } from "../models/category";
@@ -12,6 +12,7 @@ import {
   CategoryListResponseSchema,
   CreateCategorySchema,
   UpdateCategorySchema,
+  SearchCategorySchema,
 } from "../schemas/category";
 import { products } from "../models/product";
 import { ResponseSchema } from "../schemas/response";
@@ -34,17 +35,27 @@ export const checkCategoryExists = async (id: string) => {
 };
 
 // GET all categories
-export const listCategories = asyncHandler(
-  async (req: Request, res: Response) => {
-    const result = await db.select().from(categories);
+export const listCategories = [
+  validateQuery(SearchCategorySchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    const { q } = req.query as { q?: string };
+
+    let query = db.select().from(categories);
+
+    if (q) {
+      query = query.where(ilike(categories.name, `%${q}%`)) as typeof query;
+    }
+
+    const result = await query.orderBy(categories.name);
+
     res.json(
       ResponseSchema.parse({
         message: "Categorías obtenidas exitosamente",
         data: CategoryListResponseSchema.parse(result),
       })
     );
-  }
-);
+  }),
+];
 
 // GET category by ID
 export const getCategory = [

@@ -51,3 +51,13 @@ export const CategoryListResponseSchema = z
     description: "Lista de categorías",
   })
   .openapi("CategoryListResponse");
+
+// Schema para búsqueda de categorías
+export const SearchCategorySchema = z
+  .object({
+    q: z.string().min(1).optional().openapi({
+      example: "electrónica",
+      description: "Término de búsqueda por nombre de categoría",
+    }),
+  })
+  .openapi("SearchCategoryRequest");

@@ -1,4 +1,4 @@
-import { useState, Suspense } from "react";
+import { useState, Suspense, useEffect } from "react";
 import { Await, Link, redirect, useNavigate, useFetcher } from "react-router";
 import clsx from "clsx";
 import { Image, Plus } from "lucide-react";
@@ -25,16 +25,18 @@ export async function loader({ request }: Route.LoaderArgs) {
     return redirect("/auth/login");
   }
 
+  const url = new URL(request.url);
+  const searchQuery = url.searchParams.get("q") || undefined;
+
   return {
-    productsPaginated: productService.getProductsPaginated(1, 10),
+    productsPaginated: productService.getProductsPaginated(1, 10, searchQuery),
+    initialSearchQuery: searchQuery || "",
   };
 }
 
 export default function AdminProducts({ loaderData }: Route.ComponentProps) {
   const navigate = useNavigate();
   const fetcher = useFetcher();
-
-  const [searchQuery, setSearchQuery] = useState("");
   const [deleteModal, setDeleteModal] = useState<{
     isOpen: boolean;
     product: ProductResponse | null;
@@ -133,9 +135,8 @@ export default function AdminProducts({ loaderData }: Route.ComponentProps) {
             {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <SearchInput
-                value={searchQuery}
-                onChange={setSearchQuery}
-                placeholder="Buscar por nombre o categoría..."
+                paramName="q"
+                placeholder="Buscar por nombre..."
                 className="w-full sm:max-w-xs"
               />
 

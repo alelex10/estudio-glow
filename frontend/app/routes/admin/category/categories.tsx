@@ -1,6 +1,5 @@
 import { Suspense, useEffect, useState } from "react";
-import { Await, Link, useFetcher, useNavigate } from "react-router";
-import { redirect } from "react-router";
+import { Await, Link, useFetcher, useNavigate, redirect } from "react-router";
 import clsx from "clsx";
 import { Plus } from "lucide-react";
 import { categoryService } from "~/common/services/categoryService";
@@ -27,16 +26,18 @@ export async function loader({ request }: Route.LoaderArgs) {
     throw redirect("/auth/login");
   }
 
+  const url = new URL(request.url);
+  const searchQuery = url.searchParams.get("q") || undefined;
+
   return {
-    categories: categoryService.listCategories(),
+    categories: categoryService.listCategories(searchQuery),
+    initialSearchQuery: searchQuery || "",
   };
 }
 
 export default function AdminCategories({ loaderData }: Route.ComponentProps) {
   const navigate = useNavigate();
   const fetcher = useFetcher();
-
-  const [searchQuery, setSearchQuery] = useState("");
   const [deleteModal, setDeleteModal] = useState<{
     isOpen: boolean;
     category: Category | null;
@@ -116,16 +117,6 @@ export default function AdminCategories({ loaderData }: Route.ComponentProps) {
       <Await resolve={loaderData.categories}>
         {(categoriesResponse) => {
           const categories = categoriesResponse?.data || [];
-          let filteredCategories = categories;
-          
-          if (searchQuery) {
-            const query = searchQuery.toLowerCase();
-            filteredCategories = categories.filter(
-              (c) =>
-                c.name.toLowerCase().includes(query) ||
-                c.description?.toLowerCase().includes(query)
-            );
-          }
 
           return (
             <div className="space-y-6">
@@ -155,15 +146,14 @@ export default function AdminCategories({ loaderData }: Route.ComponentProps) {
 
               {/* Búsqueda */}
               <SearchInput
-                value={searchQuery}
-                onChange={setSearchQuery}
-                placeholder="Buscar por nombre o descripción..."
+                paramName="q"
+                placeholder="Buscar por nombre..."
                 className="w-full sm:max-w-md"
               />
 
               {/* Table */}
               <DataTable
-                data={filteredCategories}
+                data={categories}
                 columns={columns}
                 keyExtractor={(category) => category.id}
                 emptyMessage="No se encontraron categorías"

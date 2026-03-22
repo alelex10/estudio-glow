@@ -159,6 +159,10 @@ export const PaginationProductQuerySchema = z
         example: "createdAt",
         description: "Campo por el cual ordenar",
       }),
+    q: z.string().min(1).optional().openapi({
+      example: "laptop",
+      description: "Término de búsqueda por nombre de producto",
+    }),
   })
   .safeExtend(PaginationQuerySchema.shape)
   .openapi("PaginationQuery");
