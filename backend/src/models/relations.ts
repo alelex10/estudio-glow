@@ -13,7 +13,7 @@ export const users = pgTable("user", {
 });
 
 export const categories = pgTable("category", {
-  id: varchar("id", { length: 36 }).primaryKey(),
+  id: varchar("id", { length: 36 }).primaryKey().default(sql`gen_random_uuid()`),
   name: varchar("name", { length: 100 }).notNull().unique(),
   description: varchar("description", { length: 500 }),
   createdAt: timestamp("created_at").notNull().defaultNow(),

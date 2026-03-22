@@ -116,13 +116,13 @@ export const getProduct = asyncHandler(async (req: Request, res: Response) => {
     .where(eq(products.id, id))
     .limit(1);
 
-  if (!result) {
+  if (!result || result.length === 0) {
     throw new NotFoundError("Producto no encontrado");
   }
 
   res.json(
     ResponseSchema.parse({
-      data: ProductWithCategoryResponseSchema.parse(result),
+      data: ProductWithCategoryResponseSchema.parse(result[0]),
       message: "Success",
     })
   );
