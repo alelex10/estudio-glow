@@ -46,7 +46,7 @@ class CategoryService {
       token
     });
 
-  deleteCategory = (id: number | string, token?: string) =>
+  deleteCategory = (id: number | string, token: string) =>
     apiClient<{ message: string }>({
       endpoint: API_ENDPOINTS.ADMIN.CATEGORIES.DELETE(id),
       options: {

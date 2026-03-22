@@ -32,7 +32,7 @@ export function FormTextArea({
         className={clsx(
           "w-full px-4 py-3 rounded-xl resize-none",
           "bg-white/5 border border-white/10",
-          "text-white placeholder:text-gray-500",
+          "placeholder:text-gray-500",
           "focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent",
           "transition-all duration-200",
           hasError && "border-red-500 focus:ring-red-500",

@@ -1,5 +1,6 @@
-import { useEffect, useState, useCallback } from "react";
-import { Link, useNavigate } from "react-router";
+import { Suspense, useEffect, useState } from "react";
+import { Await, Link, useFetcher, useNavigate } from "react-router";
+import { redirect } from "react-router";
 import clsx from "clsx";
 import { Plus } from "lucide-react";
 import { categoryService } from "~/common/services/categoryService";
@@ -7,8 +8,10 @@ import { DataTable, ActionButton } from "~/common/components/admin/DataTable";
 import { SearchInput } from "~/common/components/admin/SearchInput";
 import { ConfirmModal } from "~/common/components/admin/ConfirmModal";
 import { toast } from "~/common/components/Toast";
+import { CategoriesSkeleton } from "./components/CategoriesSkeleton";
 import type { Category } from "~/common/types/category-types";
 import type { Route } from "./+types/categories";
+import { getToken } from "~/common/services/auth.server";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -17,11 +20,22 @@ export function meta({}: Route.MetaArgs) {
   ];
 }
 
-export default function AdminCategories() {
+export async function loader({ request }: Route.LoaderArgs) {
+  const token = await getToken(request);
+
+  if (!token) {
+    throw redirect("/auth/login");
+  }
+
+  return {
+    categories: categoryService.listCategories(),
+  };
+}
+
+export default function AdminCategories({ loaderData }: Route.ComponentProps) {
   const navigate = useNavigate();
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [filteredCategories, setFilteredCategories] = useState<Category[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const fetcher = useFetcher();
+
   const [searchQuery, setSearchQuery] = useState("");
   const [deleteModal, setDeleteModal] = useState<{
     isOpen: boolean;
@@ -30,59 +44,29 @@ export default function AdminCategories() {
     isOpen: false,
     category: null,
   });
-  const [isDeleting, setIsDeleting] = useState(false);
-
-  const loadCategories = useCallback(async () => {
-    try {
-      const response = await categoryService.listCategories();
-      const data = response.data || [];
-      setCategories(data);
-      setFilteredCategories(data);
-    } catch (error) {
-      toast("error", "Error al cargar categorías");
-      console.error(error);
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    loadCategories();
-  }, [loadCategories]);
-
-  useEffect(() => {
-    if (!searchQuery) {
-      setFilteredCategories(categories);
-    } else {
-      const query = searchQuery.toLowerCase();
-      setFilteredCategories(
-        categories.filter(
-          (c) =>
-            c.name.toLowerCase().includes(query) ||
-            c.description?.toLowerCase().includes(query)
-        )
-      );
-    }
-  }, [searchQuery, categories]);
 
   const handleDelete = async () => {
-    if (!deleteModal.category) return;
+    await fetcher.submit(
+      {},
+      {
+        method: "post",
+        action: `/admin/categories/delete/${deleteModal.category?.id}`,
+      },
+    );
 
-    setIsDeleting(true);
-    try {
-      await categoryService.deleteCategory(deleteModal.category.id);
-      toast("success", "Categoría eliminada correctamente");
-      setDeleteModal({ isOpen: false, category: null });
-      loadCategories();
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : "Error al eliminar categoría";
-      toast("error", errorMessage);
-      console.error(error);
-    } finally {
-      setIsDeleting(false);
-    }
+    setDeleteModal({ isOpen: false, category: null });
   };
+
+  useEffect(() => {
+    if (fetcher.state === "idle" && fetcher.data) {
+      if (fetcher.data.success) {
+        toast("success", "Categoría eliminada correctamente");
+      } else {
+        const errorMessage = fetcher.data.error || "Error al eliminar categoría";
+        toast("error", errorMessage);
+      }
+    }
+  }, [fetcher.state, fetcher.data]);
 
   const columns = [
     {
@@ -128,72 +112,90 @@ export default function AdminCategories() {
   ];
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Categorías</h1>
-          <p className="text-sm text-gray-500 mt-1">
-            Gestiona las categorías de productos
-          </p>
-        </div>
+    <Suspense fallback={<CategoriesSkeleton />}>
+      <Await resolve={loaderData.categories}>
+        {(categoriesResponse) => {
+          const categories = categoriesResponse?.data || [];
+          let filteredCategories = categories;
+          
+          if (searchQuery) {
+            const query = searchQuery.toLowerCase();
+            filteredCategories = categories.filter(
+              (c) =>
+                c.name.toLowerCase().includes(query) ||
+                c.description?.toLowerCase().includes(query)
+            );
+          }
 
-        <Link
-          to="/admin/categories/new"
-          className={clsx(
-            "inline-flex items-center justify-center gap-2 px-4 py-2.5",
-            "bg-gradient-to-r from-primary-500 to-primary-600 text-white",
-            "rounded-lg font-medium text-sm",
-            "hover:from-primary-600 hover:to-primary-700",
-            "transition-all duration-200 hover:shadow-lg hover:shadow-primary-500/30"
-          )}
-        >
-          <Plus className="w-5 h-5" />
-          Nueva Categoría
-        </Link>
-      </div>
+          return (
+            <div className="space-y-6">
+              {/* Header */}
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div>
+                  <h1 className="text-2xl font-bold text-gray-900">Categorías</h1>
+                  <p className="text-sm text-gray-500 mt-1">
+                    Gestiona las categorías de productos
+                  </p>
+                </div>
 
-      {/* Búsqueda */}
-      <SearchInput
-        value={searchQuery}
-        onChange={setSearchQuery}
-        placeholder="Buscar por nombre o descripción..."
-        className="w-full sm:max-w-md"
-      />
+                <Link
+                  to="/admin/categories/new"
+                  className={clsx(
+                    "inline-flex items-center justify-center gap-2 px-4 py-2.5",
+                    "bg-gradient-to-r from-primary-500 to-primary-600 text-white",
+                    "rounded-lg font-medium text-sm",
+                    "hover:from-primary-600 hover:to-primary-700",
+                    "transition-all duration-200 hover:shadow-lg hover:shadow-primary-500/30"
+                  )}
+                >
+                  <Plus className="w-5 h-5" />
+                  Nueva Categoría
+                </Link>
+              </div>
 
-      {/* Table */}
-      <DataTable
-        data={filteredCategories}
-        columns={columns}
-        keyExtractor={(category) => category.id}
-        isLoading={isLoading}
-        emptyMessage="No se encontraron categorías"
-        onRowClick={(category) => navigate(`/admin/categories/${category.id}`)}
-        actions={(category) => (
-          <>
-            <ActionButton
-              variant="edit"
-              onClick={() => navigate(`/admin/categories/${category.id}`)}
-            />
-            <ActionButton
-              variant="delete"
-              onClick={() => setDeleteModal({ isOpen: true, category })}
-            />
-          </>
-        )}
-      />
+              {/* Búsqueda */}
+              <SearchInput
+                value={searchQuery}
+                onChange={setSearchQuery}
+                placeholder="Buscar por nombre o descripción..."
+                className="w-full sm:max-w-md"
+              />
 
-      {/* Delete confirmation modal */}
-      <ConfirmModal
-        isOpen={deleteModal.isOpen}
-        onClose={() => setDeleteModal({ isOpen: false, category: null })}
-        onConfirm={handleDelete}
-        title="Eliminar categoría"
-        message={`¿Estás seguro de eliminar "${deleteModal.category?.name}"? Esta acción no se puede deshacer. Si la categoría tiene productos asociados, no se podrá eliminar.`}
-        confirmText="Eliminar"
-        variant="danger"
-        isLoading={isDeleting}
-      />
-    </div>
+              {/* Table */}
+              <DataTable
+                data={filteredCategories}
+                columns={columns}
+                keyExtractor={(category) => category.id}
+                emptyMessage="No se encontraron categorías"
+                onRowClick={(category) => navigate(`/admin/categories/${category.id}`)}
+                actions={(category) => (
+                  <>
+                    <ActionButton
+                      variant="edit"
+                      onClick={() => navigate(`/admin/categories/${category.id}`)}
+                    />
+                    <ActionButton
+                      variant="delete"
+                      onClick={() => setDeleteModal({ isOpen: true, category })}
+                    />
+                  </>
+                )}
+              />
+
+              <ConfirmModal
+                isOpen={deleteModal.isOpen}
+                onClose={() => setDeleteModal({ isOpen: false, category: null })}
+                onConfirm={handleDelete}
+                title="Eliminar categoría"
+                message={`¿Estás seguro de eliminar "${deleteModal.category?.name}"? Esta acción no se puede deshacer. Si la categoría tiene productos asociados, no se podrá eliminar.`}
+                confirmText="Eliminar"
+                variant="danger"
+                isLoading={fetcher.state !== "idle"}
+              />
+            </div>
+          );
+        }}
+      </Await>
+    </Suspense>
   );
 }

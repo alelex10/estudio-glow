@@ -1,13 +1,14 @@
-import { useActionData, useNavigation, useSubmit } from "react-router";
+import { useActionData, useNavigation, useSubmit, useNavigate } from "react-router";
+import { useEffect } from "react";
 import { categoryService } from "~/common/services/categoryService";
 import { CategoryForm } from "~/common/components/admin/CategoryForm";
+import { toast } from "~/common/components/Toast";
 import type { Route } from "./+types/category.new";
 import type {
   CreateCategoryFormData,
   UpdateCategoryFormData,
 } from "~/common/schemas/categorySchema";
 import { getToken } from "~/common/services/auth.server";
-import { redirect } from "react-router";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -32,7 +33,7 @@ export async function action({ request }: Route.ActionArgs) {
     };
 
     await categoryService.createCategory(rawData, token || undefined);
-    return redirect("/admin/categories");
+    return { success: true };
   } catch (error) {
     const errorMessage =
       error instanceof Error ? error.message : "Error al crear categoría";
@@ -44,7 +45,19 @@ export default function NewCategory() {
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
   const submit = useSubmit();
+  const navigate = useNavigate();
   const isSubmitting = navigation.state === "submitting";
+
+  // Show toast and navigate on success
+  useEffect(() => {
+    if (actionData?.success) {
+      toast("success", "Categoría creada correctamente");
+      navigate("/admin/categories");
+    }
+    if (actionData?.errors) {
+      actionData.errors.forEach((error) => toast("error", error));
+    }
+  }, [actionData, navigate]);
 
   const handleSubmit = (
     data: CreateCategoryFormData | UpdateCategoryFormData,

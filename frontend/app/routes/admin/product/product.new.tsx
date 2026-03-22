@@ -1,4 +1,5 @@
-import { useNavigation, useSubmit, useNavigate } from "react-router";
+import { useEffect } from "react";
+import { useNavigation, useSubmit, useNavigate, useActionData } from "react-router";
 import { productService } from "~/common/services/productService";
 import { ProductForm } from "~/common/components/admin/ProductForm";
 import type {
@@ -7,7 +8,7 @@ import type {
 } from "~/common/types/product-types";
 import type { Route } from "./+types/product.new";
 import { getToken } from "~/common/services/auth.server";
-import { redirect } from "react-router";
+import { toast } from "~/common/components/Toast";
 import { useActionErrors } from "~/common/hooks/useActionErrors";
 
 export function meta({}: Route.MetaArgs) {
@@ -46,7 +47,7 @@ export async function action({ request }: Route.ActionArgs) {
     }
 
     await productService.createProduct(rawData, imageFile || undefined, token);
-    return redirect("/admin/products");
+    return { success: true };
   } catch (error) {
     const errorMessage =
       error instanceof Error ? error.message : "Error al crear producto";
@@ -54,13 +55,22 @@ export async function action({ request }: Route.ActionArgs) {
   }
 }
 
-export default function AdminProductNew({ actionData }: Route.ComponentProps) {
+export default function AdminProductNew() {
+  const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
   const submit = useSubmit();
   const navigate = useNavigate();
   const isLoading = navigation.state === "submitting";
 
   useActionErrors(actionData);
+
+  // Show toast and navigate on success
+  useEffect(() => {
+    if (actionData?.success) {
+      toast("success", "Producto creado correctamente");
+      navigate("/admin/products");
+    }
+  }, [actionData, navigate]);
 
   const handleSubmit = async (
     data: CreateProductData | UpdateProductData,

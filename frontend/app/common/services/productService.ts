@@ -107,7 +107,7 @@ class ProductService {
     });
   };
 
-  deleteProduct = (id: number | string, token: string) =>
+  deleteProduct = (id: string, token: string) =>
     apiClient<{ message: string }>({
       endpoint: API_ENDPOINTS.ADMIN.PRODUCTS.DELETE(id),
       options: {

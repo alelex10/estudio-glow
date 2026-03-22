@@ -24,12 +24,14 @@ export default [
       route("logout", "./routes/admin/logout.ts"),
       index("./routes/admin/dashboard/page.tsx"),
       ...prefix("products", [
-        route("", "./routes/admin/product/products.tsx"),
+        index("./routes/admin/product/products.tsx"),
+        route("delete/:id", "./routes/admin/product/product.delete.$id.tsx"),
         route("new", "./routes/admin/product/product.new.tsx"),
         route(":id", "./routes/admin/product/product.$id.tsx"),
       ]),
       ...prefix("categories", [
-        route("", "./routes/admin/category/categories.tsx"),
+        index("./routes/admin/category/categories.tsx"),
+        route("delete/:id", "./routes/admin/category/category.delete.$id.tsx"),
         route("new", "./routes/admin/category/category.new.tsx"),
         route("/:id", "./routes/admin/category/category.$id.tsx"),
       ])
