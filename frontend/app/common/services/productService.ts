@@ -32,39 +32,23 @@ class ProductService {
     limit: number,
     searchQuery?: string,
     category?: string,
-    stock?: "low" | "out" | "ok"
+    categoryId?: string,
+    stock?: "low" | "out" | "ok",
+    sortBy?: string,
+    sortOrder?: string
   ) => {
     const params = new URLSearchParams();
     params.append("page", page.toString());
     params.append("limit", limit.toString());
     if (searchQuery) params.append("q", searchQuery);
     if (category) params.append("category", category);
+    if (categoryId) params.append("categoryId", categoryId);
     if (stock) params.append("stock", stock);
+    if (sortBy) params.append("sortBy", sortBy);
+    if (sortOrder) params.append("sortOrder", sortOrder);
 
     return apiClient<PaginationResponse<ProductResponse>>({
       endpoint: `${API_ENDPOINTS.PUBLIC.PRODUCTS.GET_PAGINATED}?${params.toString()}`,
-    }).catch((err) => {
-      if (err.message.includes("404")) return this.emptyPagination();
-      throw err;
-    });
-  };
-
-  getProductsFilter = (
-    page?: number,
-    limit?: number,
-    category?: string,
-    sortOrder?: string,
-    sortBy?: string
-  ) => {
-    const params = new URLSearchParams();
-    if (page) params.append("page", page.toString());
-    if (limit) params.append("limit", limit.toString());
-    if (category) params.append("category", category);
-    if (sortOrder) params.append("sortOrder", sortOrder);
-    if (sortBy) params.append("sortBy", sortBy);
-
-    return apiClient<PaginationResponse<Product>>({
-      endpoint: `${API_ENDPOINTS.PUBLIC.PRODUCTS.FILTER}?${params.toString()}`,
     }).catch((err) => {
       if (err.message.includes("404")) return this.emptyPagination();
       throw err;

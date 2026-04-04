@@ -59,7 +59,7 @@ export interface SearchProductParams {
 
 // ========== CATEGORIAS ==========
 export interface Category {
-  id: number;
+  id: string;
   name: string;
   createdAt: string;
   updatedAt: string;

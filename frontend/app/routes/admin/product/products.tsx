@@ -1,13 +1,15 @@
 import { useState, Suspense, useEffect } from "react";
 import { Await, Link, redirect, useNavigate, useFetcher, useSearchParams } from "react-router";
 import clsx from "clsx";
-import { Image, Plus } from "lucide-react";
+import { Image, Plus, SlidersHorizontal } from "lucide-react";
 import { productService } from "~/common/services/productService";
+import { categoryService } from "~/common/services/categoryService";
 import { DataTable, ActionButton } from "~/common/components/admin/data-table";
-import { SearchFilter } from "~/common/components/search-filter";
 import { ConfirmModal } from "~/common/components/admin/ConfirmModal";
 import { ProductsSkeleton } from "./components/ProductsSkeleton";
-import type { ProductResponse } from "~/common/types/product-types";
+import { FilterDrawer } from "~/common/components/product-filter/FilterDrawer";
+import { FilterSideBar } from "~/common/components/product-filter/FilterSideBar";
+import type { ProductResponse, Category } from "~/common/types/product-types";
 import type { Route } from "./+types/products";
 import { getToken } from "~/common/services/auth.server";
 
@@ -28,12 +30,28 @@ export async function loader({ request }: Route.LoaderArgs) {
   const url = new URL(request.url);
   const searchQuery = url.searchParams.get("q") || undefined;
   const category = url.searchParams.get("category") || undefined;
+  const categoryId = url.searchParams.get("categoryId") || undefined;
   const stock = url.searchParams.get("stock") as "low" | "out" | "ok" | undefined;
   const page = Math.max(1, parseInt(url.searchParams.get("page") || "1", 10));
   const limit = Math.max(1, parseInt(url.searchParams.get("limit") || "10", 10));
 
+  const [productsPaginated, categoriesResult] = await Promise.all([
+    productService.getProductsPaginated(
+      page,
+      limit,
+      searchQuery,
+      category,
+      categoryId,
+      stock
+    ),
+    categoryService.listCategories(),
+  ]);
+
+  const categories: Category[] = categoriesResult.data || [];
+
   return {
-    productsPaginated: productService.getProductsPaginated(page, limit, searchQuery, category, stock),
+    productsPaginated,
+    categories,
     initialSearchQuery: searchQuery || "",
     initialPage: page,
     initialLimit: limit,
@@ -51,6 +69,8 @@ export default function AdminProducts({ loaderData }: Route.ComponentProps) {
     isOpen: false,
     product: null,
   });
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const { categories } = loaderData;
 
   const handlePageChange = (page: number) => {
     const params = new URLSearchParams(searchParams);
@@ -151,65 +171,86 @@ export default function AdminProducts({ loaderData }: Route.ComponentProps) {
     <Suspense fallback={<ProductsSkeleton />}>
       <Await resolve={loaderData.productsPaginated}>
         {(productsPaginated) => (
-          <div className="space-y-6">
-            {/* Header */}
-            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
-              <SearchFilter
-                placeholder="Nombre del producto..."
-                className="w-full sm:max-w-md"
-              />
-
-              <Link
-                to="/admin/products/new"
-                className={clsx(
-                  "inline-flex items-center justify-center gap-2 px-4 py-2.5",
-                  "bg-linear-to-r from-primary-500 to-primary-600 text-white",
-                  "rounded-lg font-medium text-sm shrink-0",
-                  "hover:from-primary-600 hover:to-primary-700",
-                  "transition-all duration-200 hover:shadow-lg hover:shadow-primary-500/30",
-                )}
-              >
-                <Plus className="w-5 h-5" />
-                Nuevo Producto
-              </Link>
+          <div className="flex gap-6">
+            {/* Sidebar de filtros - Desktop */}
+            <div className="hidden lg:block">
+              <FilterSideBar categories={categories} />
             </div>
 
-            {/* Table */}
-            <DataTable
-              data={productsPaginated?.data || []}
-              columns={columns}
-              keyExtractor={(product) => product.id}
-              emptyMessage="No se encontraron productos"
-              onRowClick={(product) =>
-                navigate(`/admin/products/${product.id}`)
-              }
-              pagination={productsPaginated?.pagination}
-              onPageChange={handlePageChange}
-              onPageSizeChange={handlePageSizeChange}
-              actions={(product) => (
-                <>
-                  <ActionButton
-                    variant="edit"
-                    onClick={() => navigate(`/admin/products/${product.id}`)}
-                  />
-                  <ActionButton
-                    variant="delete"
-                    onClick={() => setDeleteModal({ isOpen: true, product })}
-                  />
-                </>
-              )}
-            />
+            {/* Contenido principal */}
+            <div className="flex-1 space-y-6">
+              {/* Header */}
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  {/* Botón de filtros - Mobile */}
+                  <button
+                    onClick={() => setIsFilterOpen(true)}
+                    className="lg:hidden inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-white border border-gray-200 text-gray-700 rounded-lg font-medium text-sm hover:bg-gray-50 transition-all duration-200"
+                  >
+                    <SlidersHorizontal className="w-4 h-4" />
+                    Filtros
+                  </button>
+                </div>
 
-            <ConfirmModal
-              isOpen={deleteModal.isOpen}
-              onClose={() => setDeleteModal({ isOpen: false, product: null })}
-              onConfirm={handleDelete}
-              title="Eliminar producto"
-              message={`¿Estás seguro de eliminar "${deleteModal.product?.name}"? Esta acción no se puede deshacer.`}
-              confirmText="Eliminar"
-              variant="danger"
-              isLoading={fetcher.state !== "idle"}
-            />
+                <Link
+                  to="/admin/products/new"
+                  className={clsx(
+                    "inline-flex items-center justify-center gap-2 px-4 py-2.5",
+                    "bg-linear-to-r from-primary-500 to-primary-600 text-white",
+                    "rounded-lg font-medium text-sm shrink-0",
+                    "hover:from-primary-600 hover:to-primary-700",
+                    "transition-all duration-200 hover:shadow-lg hover:shadow-primary-500/30",
+                  )}
+                >
+                  <Plus className="w-5 h-5" />
+                  Nuevo Producto
+                </Link>
+              </div>
+
+              {/* Table */}
+              <DataTable
+                data={productsPaginated?.data || []}
+                columns={columns}
+                keyExtractor={(product) => product.id}
+                emptyMessage="No se encontraron productos"
+                onRowClick={(product) =>
+                  navigate(`/admin/products/${product.id}`)
+                }
+                pagination={productsPaginated?.pagination}
+                onPageChange={handlePageChange}
+                onPageSizeChange={handlePageSizeChange}
+                actions={(product) => (
+                  <>
+                    <ActionButton
+                      variant="edit"
+                      onClick={() => navigate(`/admin/products/${product.id}`)}
+                    />
+                    <ActionButton
+                      variant="delete"
+                      onClick={() => setDeleteModal({ isOpen: true, product })}
+                    />
+                  </>
+                )}
+              />
+
+              <ConfirmModal
+                isOpen={deleteModal.isOpen}
+                onClose={() => setDeleteModal({ isOpen: false, product: null })}
+                onConfirm={handleDelete}
+                title="Eliminar producto"
+                message={`¿Estás seguro de eliminar "${deleteModal.product?.name}"? Esta acción no se puede deshacer.`}
+                confirmText="Eliminar"
+                variant="danger"
+                isLoading={fetcher.state !== "idle"}
+              />
+
+              {/* Drawer de filtros - Mobile */}
+              <FilterDrawer
+                categories={categories}
+                isOpen={isFilterOpen}
+                onClose={() => setIsFilterOpen(false)}
+              />
+            </div>
           </div>
         )}
       </Await>

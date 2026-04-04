@@ -47,8 +47,8 @@ export function CardView<T>({
 
                 {/* Info columns - grid layout */}
                 <div className="flex-1 min-w-0 grid grid-cols-2 gap-x-3 gap-y-1.5">
-                  {mainColumns.map((column) => (
-                    <div key={String(column.key)} className={clsx(
+                  {mainColumns.map((column, colIndex) => (
+                    <div key={`card-${colIndex}-${String(column.key)}`} className={clsx(
                       "flex flex-col",
                       // Span full width for certain columns
                       column.key === "name" && "col-span-2"
@@ -72,12 +72,12 @@ export function CardView<T>({
             ) : (
               /* Single column layout for non-image data */
               <div className="space-y-1.5">
-                {columns.map((column, index) => (
+                {columns.map((column, colIndex) => (
                   <div 
-                    key={String(column.key)} 
+                    key={`card-list-${colIndex}-${String(column.key)}`} 
                     className={clsx(
                       "flex gap-2",
-                      index === 0 ? "items-start" : "items-center"
+                      colIndex === 0 ? "items-start" : "items-center"
                     )}
                   >
                     <span className="text-[10px] text-gray-400 uppercase tracking-wide shrink-0 min-w-16">

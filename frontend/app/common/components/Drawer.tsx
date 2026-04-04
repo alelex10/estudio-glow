@@ -23,7 +23,7 @@ export default function Drawer({ isOpen, onClose, children }: DrawerProps) {
             />
 
             <div
-                className={clsx("absolute top-0 left-0 w-80 h-screen bg-primary-900 shadow-2xl p-6 transform transition-transform duration-500 cubic-bezier(0.4, 0, 0.2, 1) ",
+                className={clsx("absolute top-0 left-0 w-80 h-screen bg-primary-900 shadow-2xl p-6 transform transition-transform duration-500 cubic-bezier(0.4, 0, 0.2, 1) flex flex-col",
                     isOpen ? "translate-x-0" : "-translate-x-full"
                 )}
             >
@@ -36,7 +36,7 @@ export default function Drawer({ isOpen, onClose, children }: DrawerProps) {
                         <X size={24} />
                     </button>
                 </div>
-                <div className="flex flex-col h-full">
+                <div className="flex-1 overflow-hidden">
                     {children}
                 </div>
             </div>

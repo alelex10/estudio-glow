@@ -1,14 +1,14 @@
-import { Await, Outlet, useLoaderData } from "react-router";
+import { Await, Outlet, useLoaderData, useSearchParams } from "react-router";
 import { Button } from "~/common/components/Button";
 import { SlidersHorizontal, ChevronDown } from "lucide-react";
 import clsx from "clsx";
 import { Suspense, useState } from "react";
-import { FilterDrawer } from "./components/FilterDrawer";
+import { FilterDrawer } from "../../common/components/product-filter/FilterDrawer";
 import { productService } from "~/common/services/productService";
 import { isRouteErrorResponse } from "react-router";
 import { data } from "react-router";
 import type { Route } from "./+types/layout";
-import { FilterSideBar } from "./components/FilterSideBar";
+import { FilterSideBar } from "../../common/components/product-filter/FilterSideBar";
 import Footer from "~/common/components/Footer";
 import Popover from "~/common/components/Popover";
 
@@ -22,9 +22,13 @@ export async function loader() {
 }
 
 export default function ProductsLayout({ loaderData }: Route.ComponentProps) {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [isSortOpen, setIsSortOpen] = useState(false);
-  const [filter, setFilter] = useState({ sortBy: "name", sortOrder: "asc" });
+
+  const currentSortBy = searchParams.get("sortBy") || "name";
+  const currentSortOrder = searchParams.get("sortOrder") || "asc";
+
   const { categories } = loaderData;
 
   const SORT_OPTIONS = [
@@ -35,7 +39,10 @@ export default function ProductsLayout({ loaderData }: Route.ComponentProps) {
   ];
 
   const handleSort = (sortBy: string, sortOrder: string) => {
-    setFilter({ sortBy, sortOrder });
+    const newParams = new URLSearchParams(searchParams);
+    newParams.set("sortBy", sortBy);
+    newParams.set("sortOrder", sortOrder);
+    setSearchParams(newParams, { replace: true });
     setIsSortOpen(false);
   };
 
@@ -66,8 +73,8 @@ export default function ProductsLayout({ loaderData }: Route.ComponentProps) {
                     onClick={() => handleSort(option.sortBy, option.sortOrder)}
                     className={clsx(
                       "w-full text-left px-4 py-2.5 text-sm transition-colors hover:bg-primary-50",
-                      filter.sortBy === option.sortBy &&
-                        filter.sortOrder === option.sortOrder
+                      currentSortBy === option.sortBy &&
+                        currentSortOrder === option.sortOrder
                         ? "text-primary-600 font-medium bg-primary-50"
                         : "text-gray-600",
                     )}

@@ -10,15 +10,33 @@ export function meta({}: Route.MetaArgs) {
   ];
 }
 
-export async function loader() {
-  const products = await productService.getProductsPaginated(1, 10);
+export async function loader({ request }: Route.LoaderArgs) {
+  const url = new URL(request.url);
+  const page = parseInt(url.searchParams.get("page") || "1", 10);
+  const limit = parseInt(url.searchParams.get("limit") || "10", 10);
+  const q = url.searchParams.get("q") || undefined;
+  const category = url.searchParams.get("category") || undefined;
+  const categoryId = url.searchParams.get("categoryId") || undefined;
+  const stock = (url.searchParams.get("stock") as "low" | "out" | "ok") || undefined;
+  const sortBy = url.searchParams.get("sortBy") || undefined;
+  const sortOrder = url.searchParams.get("sortOrder") || undefined;
+
+  const products = await productService.getProductsPaginated(
+    page,
+    limit,
+    q,
+    category,
+    categoryId,
+    stock,
+    sortBy,
+    sortOrder
+  );
   return { products };
 }
 
 
 export default function Products({ loaderData }: Route.ComponentProps) {
-  const { products: productsData } = loaderData;
-  const [products, setProducts] = useState(productsData);
+  const { products } = loaderData;
 
   return (
     <>

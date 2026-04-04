@@ -49,9 +49,9 @@ export function TableView<T>({
                 onRowClick && "cursor-pointer hover:bg-gray-50"
               )}
             >
-              {columns.map((column) => (
+              {columns.map((column, colIndex) => (
                 <td
-                  key={String(column.key)}
+                  key={`table-${colIndex}-${String(column.key)}`}
                   className={clsx(
                     "px-6 py-4 whitespace-nowrap",
                     column.className
