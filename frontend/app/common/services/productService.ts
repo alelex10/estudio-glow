@@ -27,11 +27,19 @@ class ProductService {
       endpoint: API_ENDPOINTS.PUBLIC.PRODUCTS.GET_NEW_PRODUCTS,
     });
 
-  getProductsPaginated = (page: number, limit: number, searchQuery?: string) => {
+  getProductsPaginated = (
+    page: number,
+    limit: number,
+    searchQuery?: string,
+    category?: string,
+    stock?: "low" | "out" | "ok"
+  ) => {
     const params = new URLSearchParams();
     params.append("page", page.toString());
     params.append("limit", limit.toString());
     if (searchQuery) params.append("q", searchQuery);
+    if (category) params.append("category", category);
+    if (stock) params.append("stock", stock);
 
     return apiClient<PaginationResponse<ProductResponse>>({
       endpoint: `${API_ENDPOINTS.PUBLIC.PRODUCTS.GET_PAGINATED}?${params.toString()}`,

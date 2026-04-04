@@ -1,10 +1,10 @@
 import { useState, Suspense, useEffect } from "react";
-import { Await, Link, redirect, useNavigate, useFetcher } from "react-router";
+import { Await, Link, redirect, useNavigate, useFetcher, useSearchParams } from "react-router";
 import clsx from "clsx";
 import { Image, Plus } from "lucide-react";
 import { productService } from "~/common/services/productService";
-import { DataTable, ActionButton } from "~/common/components/admin/DataTable";
-import { SearchInput } from "~/common/components/admin/SearchInput";
+import { DataTable, ActionButton } from "~/common/components/admin/data-table";
+import { SearchFilter } from "~/common/components/search-filter";
 import { ConfirmModal } from "~/common/components/admin/ConfirmModal";
 import { ProductsSkeleton } from "./components/ProductsSkeleton";
 import type { ProductResponse } from "~/common/types/product-types";
@@ -27,16 +27,23 @@ export async function loader({ request }: Route.LoaderArgs) {
 
   const url = new URL(request.url);
   const searchQuery = url.searchParams.get("q") || undefined;
+  const category = url.searchParams.get("category") || undefined;
+  const stock = url.searchParams.get("stock") as "low" | "out" | "ok" | undefined;
+  const page = Math.max(1, parseInt(url.searchParams.get("page") || "1", 10));
+  const limit = Math.max(1, parseInt(url.searchParams.get("limit") || "10", 10));
 
   return {
-    productsPaginated: productService.getProductsPaginated(1, 10, searchQuery),
+    productsPaginated: productService.getProductsPaginated(page, limit, searchQuery, category, stock),
     initialSearchQuery: searchQuery || "",
+    initialPage: page,
+    initialLimit: limit,
   };
 }
 
 export default function AdminProducts({ loaderData }: Route.ComponentProps) {
   const navigate = useNavigate();
   const fetcher = useFetcher();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [deleteModal, setDeleteModal] = useState<{
     isOpen: boolean;
     product: ProductResponse | null;
@@ -44,6 +51,19 @@ export default function AdminProducts({ loaderData }: Route.ComponentProps) {
     isOpen: false,
     product: null,
   });
+
+  const handlePageChange = (page: number) => {
+    const params = new URLSearchParams(searchParams);
+    params.set("page", page.toString());
+    setSearchParams(params);
+  };
+
+  const handlePageSizeChange = (limit: number) => {
+    const params = new URLSearchParams(searchParams);
+    params.set("limit", limit.toString());
+    params.set("page", "1");
+    setSearchParams(params);
+  };
 
   const handleDelete = async () => {
     await fetcher.submit(
@@ -133,11 +153,10 @@ export default function AdminProducts({ loaderData }: Route.ComponentProps) {
         {(productsPaginated) => (
           <div className="space-y-6">
             {/* Header */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-              <SearchInput
-                paramName="q"
-                placeholder="Buscar por nombre..."
-                className="w-full sm:max-w-xs"
+            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+              <SearchFilter
+                placeholder="Nombre del producto..."
+                className="w-full sm:max-w-md"
               />
 
               <Link
@@ -145,7 +164,7 @@ export default function AdminProducts({ loaderData }: Route.ComponentProps) {
                 className={clsx(
                   "inline-flex items-center justify-center gap-2 px-4 py-2.5",
                   "bg-linear-to-r from-primary-500 to-primary-600 text-white",
-                  "rounded-lg font-medium text-sm",
+                  "rounded-lg font-medium text-sm shrink-0",
                   "hover:from-primary-600 hover:to-primary-700",
                   "transition-all duration-200 hover:shadow-lg hover:shadow-primary-500/30",
                 )}
@@ -164,6 +183,9 @@ export default function AdminProducts({ loaderData }: Route.ComponentProps) {
               onRowClick={(product) =>
                 navigate(`/admin/products/${product.id}`)
               }
+              pagination={productsPaginated?.pagination}
+              onPageChange={handlePageChange}
+              onPageSizeChange={handlePageSizeChange}
               actions={(product) => (
                 <>
                   <ActionButton

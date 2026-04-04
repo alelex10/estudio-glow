@@ -4,7 +4,6 @@ import { z } from "zod";
 import { ResponseSchema } from "../schemas/response";
 import {
   CreateProductSchema,
-  FilterProductsSchema,
   PaginatedProductsResponseSchema,
   PaginationProductQuerySchema,
   ProductBaseSchema,
@@ -228,26 +227,6 @@ registry.registerPath({
   tags: ["Products (Public)"],
   request: {
     query: PaginationProductQuerySchema,
-  },
-  responses: {
-    200: {
-      description: "Lista de productos paginada",
-      content: {
-        "application/json": {
-          schema: PaginatedProductsResponseSchema,
-        },
-      },
-    },
-  },
-  security: [],
-});
-
-registry.registerPath({
-  method: "get",
-  path: "/products/filter",
-  tags: ["Products (Public)"],
-  request: {
-    query: FilterProductsSchema,
   },
   responses: {
     200: {

@@ -98,12 +98,13 @@ export const ProductWithCategoryResponseSchema = z
           description: "Nombre de la categoría",
         }),
       })
+      .nullable()
       .openapi({
         example: {
           id: "550e8400-e29b-41d4-a716-446655440000",
           name: "Electrónica",
         },
-        description: "Categoría del producto",
+        description: "Categoría del producto (null si no tiene categoría asignada)",
       }),
     imageUrl: z.string().nullable().openapi({
       example: "https://example.com/image.jpg",
@@ -163,6 +164,18 @@ export const PaginationProductQuerySchema = z
       example: "laptop",
       description: "Término de búsqueda por nombre de producto",
     }),
+    category: z.string().min(1).optional().openapi({
+      example: "skincare",
+      description: "Filtrar por nombre de categoría",
+    }),
+    categoryId: z.string().uuid().optional().openapi({
+      example: "550e8400-e29b-41d4-a716-446655440000",
+      description: "Filtrar por ID de categoría",
+    }),
+    stock: z.enum(["low", "out", "ok"]).optional().openapi({
+      example: "low",
+      description: "Filtrar por nivel de stock: low (≤10), out (=0), ok (>10)",
+    }),
   })
   .safeExtend(PaginationQuerySchema.shape)
   .openapi("PaginationQuery");
@@ -177,16 +190,6 @@ export const PaginatedProductsResponseSchema = z
   })
   .openapi("PaginatedProductsResponse");
 
-export const FilterProductsSchema = z
-  .object({
-    categoryId: z.uuid().optional().openapi({
-      example: "550e8400-e29b-41d4-a716-446655440000",
-      description: "ID de la categoría del producto",
-    }),
-  })
-  .extend(PaginationProductQuerySchema.shape)
-  .openapi("FilterProductsRequest");
-
 export const GetNewProductsSchema = z.array(ProductBaseSchema);
 
 // Tipos TypeScript exportados
@@ -196,4 +199,3 @@ export type GetNewProducts = z.infer<typeof GetNewProductsSchema>;
 export type PaginatedProductsResponse = z.infer<
   typeof PaginatedProductsResponseSchema
 >;
-export type FilterProducts = z.infer<typeof FilterProductsSchema>;

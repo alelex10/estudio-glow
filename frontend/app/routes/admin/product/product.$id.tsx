@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useFetcher } from "react-router";
 import { productService } from "~/common/services/productService";
 import { ProductForm } from "~/common/components/admin/ProductForm";
@@ -86,9 +86,11 @@ export default function AdminProductEdit({ loaderData, actionData }: Route.Compo
   };
 
   // Redirigir si la actualización fue exitosa
-  if (fetcher.data?.success) {
-    navigate("/admin/products");
-  }
+  useEffect(() => {
+    if (fetcher.state === "idle" && fetcher.data?.success) {
+      navigate("/admin/products");
+    }
+  }, [fetcher.state, fetcher.data?.success, navigate]);
 
   if (!loaderData?.product?.data) {
     return (

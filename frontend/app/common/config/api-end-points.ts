@@ -1,5 +1,14 @@
-// Configuración de la API
-export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+// Configuración de la API - soporta tanto cliente como SSR
+const getApiBaseUrl = () => {
+  // Cliente: usar VITE_API_BASE_URL
+  if (typeof window !== "undefined") {
+    return import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
+  }
+  // SSR: intentar process.env primero, luego import.meta.env, con fallback a localhost
+  return process.env.API_BASE_URL || import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
+};
+
+export const API_BASE_URL = getApiBaseUrl();
 
 // Endpoints
 export const API_ENDPOINTS = {

@@ -17,10 +17,14 @@ import dashboardRouter from "./routes/dashboard";
 const app = express();
 const PORT = 3000;
 
+// Check if in development mode
+const isDevelopment = process.env.NODE_ENV === "development";
+
 // CORS configuration
 const allowedOrigins = [
   "http://localhost:3000",
   "http://localhost:5173",
+  "http://localhost:5174",
   process.env.FRONTEND_URL,
 ].filter((origin): origin is string => Boolean(origin));
 
@@ -28,6 +32,11 @@ app.use(
   cors({
     credentials: true,
     origin: (origin, callback) => {
+      // Allow any origin in development mode
+      if (isDevelopment) {
+        return callback(null, true);
+      }
+      
       // Allow requests with no origin (mobile apps, curl, etc)
       if (!origin) return callback(null, true);
       

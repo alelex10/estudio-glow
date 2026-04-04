@@ -33,7 +33,10 @@ const getProductSchema = (mode: "create" | "edit") =>
     image: z
       .any()
       .transform((files) => files?.[0])
-      .refine((file) => file instanceof File, "Archivo requerido"),
+      .refine(
+        (file) => mode === "edit" || file instanceof File,
+        mode === "create" ? "Archivo requerido" : undefined
+      ),
   });
 
 interface ProductFormProps {
@@ -210,6 +213,8 @@ export function ProductForm({
           register={register}
           name="image"
           errors={errors}
+          initialPreview={initialData?.imageUrl}
+          required={mode === "create"}
         />
       </div>
 
