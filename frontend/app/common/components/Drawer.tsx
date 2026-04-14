@@ -6,9 +6,10 @@ interface DrawerProps {
     isOpen: boolean;
     onClose: () => void;
     children: React.ReactNode;
+    showCloseButton?: boolean;
 }
 
-export default function Drawer({ isOpen, onClose, children }: DrawerProps) {
+export default function Drawer({ isOpen, onClose, children, showCloseButton = true }: DrawerProps) {
     return (
         <div
             className={clsx("fixed inset-0 z-50 transition-all duration-500 ease-in-out",
@@ -27,15 +28,17 @@ export default function Drawer({ isOpen, onClose, children }: DrawerProps) {
                     isOpen ? "translate-x-0" : "-translate-x-full"
                 )}
             >
-                <div className="flex justify-end mb-6">
-                    <button
-                        onClick={onClose}
-                        className="text-primary-100 hover:text-white transition-colors p-2 rounded-full hover:bg-white/10"
-                        aria-label="Close drawer"
-                    >
-                        <X size={24} />
-                    </button>
-                </div>
+                {showCloseButton && (
+                    <div className="flex justify-end mb-6">
+                        <button
+                            onClick={onClose}
+                            className="text-primary-100 hover:text-white transition-colors p-2 rounded-full hover:bg-white/10"
+                            aria-label="Close drawer"
+                        >
+                            <X size={24} />
+                        </button>
+                    </div>
+                )}
                 <div className="flex-1 overflow-hidden">
                     {children}
                 </div>

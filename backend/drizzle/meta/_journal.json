@@ -15,6 +15,13 @@
       "when": 1774769542483,
       "tag": "0001_bent_jimmy_woo",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1775300722023,
+      "tag": "0002_strange_zaran",
+      "breakpoints": true
     }
   ]
 }

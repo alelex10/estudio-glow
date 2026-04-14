@@ -17,6 +17,7 @@ import { ConflictError, AuthenticationError, DatabaseError } from "../errors";
 dotenv.config();
 
 const JWT_SECRET = process.env.JWT_SECRET || "your_jwt_secret_key";
+const TOKEN_MAX_AGE = 15 * 60 * 1000; // 15 minutos en milisegundos
 
 export const register = [
   validateBody(RegisterSchema),
@@ -36,21 +37,23 @@ export const register = [
     const passwordHash = await bcrypt.hash(password, salt);
 
     const id = crypto.randomUUID();
+    const userRole = "customer";
 
     await db.insert(users).values({
       id,
       name,
       email,
       password_hash: passwordHash,
-      role: role || "customer",
+      provider: "LOCAL",
+      role: userRole,
     });
 
-    const token = jwt.sign({ email, role }, JWT_SECRET, { expiresIn: "1h" });
+    const token = jwt.sign({ id, email, role: userRole }, JWT_SECRET, { expiresIn: "7d" });
 
     res.cookie("token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      maxAge: 3600000,
+      maxAge: TOKEN_MAX_AGE,
       sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
     });
 
@@ -78,6 +81,13 @@ export const login = [
       throw new AuthenticationError("Usuario no encontrado");
     }
 
+    // Block Google-only users from password login
+    if (!user.password_hash) {
+      throw new AuthenticationError(
+        "Esta cuenta usa Google para iniciar sesión. Usá el botón de Google."
+      );
+    }
+
     const isMatch = await bcrypt.compare(password, user.password_hash);
     if (!isMatch) {
       throw new AuthenticationError("Credenciales inválidas");
@@ -86,13 +96,13 @@ export const login = [
     const token = jwt.sign(
       { id: user.id, email: user.email, role: user.role },
       process.env.JWT_SECRET!,
-      { expiresIn: "1h" }
+      { expiresIn: "7d" }
     );
 
     res.cookie("token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      maxAge: 3600000,
+      maxAge: TOKEN_MAX_AGE,
       sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
     });
 
@@ -103,6 +113,7 @@ export const login = [
         name: user.name,
         email: user.email,
         role: user.role,
+        provider: user.provider,
       },
     });
 

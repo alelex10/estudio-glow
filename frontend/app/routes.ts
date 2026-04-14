@@ -5,6 +5,10 @@ import {
   prefix,
   route,
 } from "@react-router/dev/routes";
+import { AUTH } from "./common/constants/rute-client";
+
+const BASE_ROUTE = "./routes/";
+const EXTENSION = ".tsx";
 
 export default [
   // Rutas públicas (tienda)
@@ -16,25 +20,47 @@ export default [
     route("product/:id", "./routes/product/product.$id.tsx"),
   ]),
 
-  // Rutas del admin
-  route("auth/login", "./routes/auth/login.tsx"),
-  route("auth/login-action", "./routes/auth/login-action.ts"),
+  // Rutas de autenticación
+  route(`${AUTH.REGISTER()}`, `${BASE_ROUTE}${AUTH.REGISTER()}${EXTENSION}`),
+  route("login", "./routes/auth/login.tsx"),
+
+  route("favorites", "./routes/favorites/favorites.tsx"),
   layout("./routes/admin/layout.tsx", [
     ...prefix("admin", [
-      route("logout", "./routes/admin/logout.ts"),
       index("./routes/admin/dashboard/page.tsx"),
       ...prefix("products", [
         index("./routes/admin/product/products.tsx"),
-        route("delete/:id", "./routes/admin/product/product.delete.$id.tsx"),
         route("new", "./routes/admin/product/product.new.tsx"),
         route(":id", "./routes/admin/product/product.$id.tsx"),
       ]),
       ...prefix("categories", [
         index("./routes/admin/category/categories.tsx"),
-        route("delete/:id", "./routes/admin/category/category.delete.$id.tsx"),
         route("new", "./routes/admin/category/category.new.tsx"),
         route("/:id", "./routes/admin/category/category.$id.tsx"),
-      ])
+      ]),
     ]),
-  ])
+  ]),
+
+  // Actions
+  ...prefix("actions", [
+    // Category actions
+    ...prefix("category", [
+      route("delete/:id", "./actions/category/category-delete.$id.tsx"),
+    ]),
+    // Product actions
+    ...prefix("product", [
+      route("delete/:id", "./actions/product/product-delete.$id.tsx"),
+    ]),
+    // Favorite actions
+    ...prefix("favorite", [
+      route("add/:productId", "./actions/favorite/add.$id.tsx"),
+      route("remove/:productId", "./actions/favorite/remove.$id.tsx"),
+    ]),
+    // Auth actions
+    ...prefix("auth", [
+      route("login-action", "./actions/auth/login-action.tsx"),
+      route("register-action", "./actions/auth/register-action.tsx"),
+      route("logout", "./actions/auth/logout.tsx"),
+    ]),
+  ]),
 ] satisfies RouteConfig;

@@ -1,4 +1,4 @@
-import { Form, Link, redirect, type LoaderFunctionArgs } from "react-router";
+import { Form, Link, redirect } from "react-router";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import clsx from "clsx";
@@ -7,111 +7,136 @@ import { FormInput } from "~/common/components/Form/FormInput";
 import { FormButton } from "~/common/components/Form/FormButton";
 import { FormError } from "~/common/components/Form/FormError";
 import { loginSchema, type LoginFormData } from "~/common/schemas/auth";
+import { GoogleLoginButton } from "~/common/components/GoogleLoginButton";
+import { useState } from "react";
 import type { Route } from "./+types/login";
-import { getToken } from "~/common/services/auth.server";
-import { API_ENDPOINTS } from "~/common/config/api-end-points";
-import type { MessageResponse } from "~/common/types/response";
-import { apiClient } from "~/common/config/api-client";
+import { getUserRole, isAuthenticated } from "~/common/services/auth.server";
+import { ADMIN } from "~/common/constants/rute-client";
 
-export function meta({}: Route.MetaArgs) {
+export function meta() {
   return [
-    { title: "Login | Glow Studio" },
+    { title: "Iniciar Sesión | Glow Studio" },
     {
       name: "description",
-      content: "Inicia sesión en el panel de administración de Glow Studio",
+      content: "Iniciá sesión en Glow Studio para acceder a tus favoritos",
     },
   ];
 }
 
-export async function loader({ request }: LoaderFunctionArgs) {
-  const token = await getToken(request);
-  
+export async function loader({ request }: Route.LoaderArgs) {
+  const isAuth = await isAuthenticated(request);
 
-  if (!token) {
-    return { authenticated: false };
+  if (isAuth) {
+    const userRole = (await getUserRole(request)) as "admin" | "customer";
+    return {
+      admin: redirect(ADMIN.BASE_ROUTE),
+      customer: redirect("/"),
+    }[userRole];
   }
 
-  try {
-    const data = await apiClient<MessageResponse>({
-      endpoint: API_ENDPOINTS.AUTH.VERIFY,
-      options: {
-        method: "GET",
-      },
-      token,
-    });
-
-    if (data) {
-      return redirect("/admin");
-    }
-  } catch {}
-
-  return { authenticated: false };
+  return null;
 }
 
-export default function AdminLogin({ actionData }: Route.ComponentProps) {
-  const { error } = (actionData as unknown as { error?: string }) || {};
+export default function CustomerLogin({ actionData }: Route.ComponentProps) {
+  const serverError =
+    (actionData as { error?: string } | undefined)?.error ?? undefined;
+  const [googleError, setGoogleError] = useState<string | undefined>(undefined);
+  const [isGoogleSubmitting, setIsGoogleSubmitting] = useState(false);
 
   const {
     register,
     handleSubmit,
     formState: { errors },
-    setError,
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
   });
 
+  // const handleGoogleSuccess = async (idToken: string) => {
+  //   setGoogleError(undefined);
+  //   setIsGoogleSubmitting(true);
+  //   try {
+  //     await loginWithGoogle(idToken);
+  //     navigate("/");
+  //   } catch (err: any) {
+  //     setGoogleError(err.message || "Error al iniciar sesión con Google");
+  //   } finally {
+  //     setIsGoogleSubmitting(false);
+  //   }
+  // };
+
   return (
-    <div className="min-h-screen bg-linear-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center p-4">
-      {/* Fondo decorativo */}
+    <div className="min-h-screen bg-linear-to-br from-primary-50 via-white to-primary-100 flex items-center justify-center p-4">
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-primary-500/20 rounded-full blur-3xl" />
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-primary-400/10 rounded-full blur-3xl" />
+        <div className="absolute -top-40 -right-40 w-96 h-96 bg-primary-300/20 rounded-full blur-3xl" />
+        <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-primary-200/20 rounded-full blur-3xl" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-primary-100/30 rounded-full blur-3xl" />
       </div>
 
-      {/* Card de login */}
       <div
         className={clsx(
           "relative w-full max-w-md",
-          "bg-white/10 backdrop-blur-xl rounded-2xl",
-          "border border-white/20 shadow-2xl",
+          "bg-white/70 backdrop-blur-xl rounded-3xl",
+          "border border-primary-200/50 shadow-xl shadow-primary-200/20",
           "p-8",
         )}
       >
-        {/* Logo y título */}
         <div className="text-center mb-8">
           <div className="flex justify-center mb-4">
             <div className="p-4 bg-linear-to-br from-primary-400 to-primary-600 rounded-2xl shadow-lg shadow-primary-500/30">
-              <Logo variant="icon" className="w-12 h-12" />
+              <Logo variant="icon" className="w-10 h-10" />
             </div>
           </div>
-          <h1 className="text-2xl font-bold text-white">Estudio Glow</h1>
-          <p className="text-gray-400 mt-2">Panel de Administración</p>
+          <h1 className="text-2xl font-bold text-gray-800">
+            Bienvenida de vuelta
+          </h1>
+          <p className="text-gray-500 mt-1 text-sm">
+            Iniciá sesión para ver tus favoritos
+          </p>
         </div>
 
-        {/* Formulario */}
-        <Form
-          className="space-y-5"
-          method="post"
-          onSubmit={(e) => {
-            e.preventDefault();
-            const form = e.currentTarget;
-            handleSubmit((data) => {
-              form.action = "/auth/login-action";
-              form.submit();
-            })();
-          }}
+        {/* Google Login */}
+        <div
+          className={clsx(
+            "mb-6",
+            isGoogleSubmitting && "opacity-50 pointer-events-none",
+          )}
         >
-          {/* Email */}
+          <GoogleLoginButton
+            onSuccess={() => {}}
+            onError={(err) => setGoogleError(err)}
+          />
+        </div>
+
+        {/* Divider */}
+        <div className="relative mb-6">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-gray-200" />
+          </div>
+          <div className="relative flex justify-center text-sm">
+            <span className="px-4 bg-white/70 text-gray-400">
+              o con tu email
+            </span>
+          </div>
+        </div>
+
+        {/* Formulario - Server-side submission */}
+        <Form
+          className="space-y-4"
+          onSubmit={handleSubmit((_, e) => {
+            e?.target.submit();
+          })}
+          method="post"
+          action="/actions/auth/login-action"
+        >
           <FormInput
             label="Email"
             type="email"
-            placeholder="admin@estudioglow.com"
+            placeholder="tu@email.com"
             register={register}
             name="email"
             errors={errors}
           />
 
-          {/* Password */}
           <FormInput
             label="Contraseña"
             type="password"
@@ -121,19 +146,28 @@ export default function AdminLogin({ actionData }: Route.ComponentProps) {
             errors={errors}
           />
 
-          {/* Error */}
-          <FormError message={error} />
+          <FormError message={serverError || googleError} />
 
-          {/* Submit */}
-          <FormButton loadingText="Ingresando...">Ingresar</FormButton>
+          <FormButton loadingText="Ingresando...">Iniciar Sesión</FormButton>
         </Form>
 
-        {/* Link a tienda */}
-        <p className="mt-6 text-center text-sm text-gray-400">
-          <Link to="/" className="hover:text-primary-400 transition-colors">
-            ← Volver a la tienda
-          </Link>
-        </p>
+        {/* Links */}
+        <div className="mt-6 text-center space-y-3">
+          <p className="text-sm text-gray-500">
+            ¿No tenés cuenta?{" "}
+            <Link
+              to="/register"
+              className="text-primary-600 hover:text-primary-700 font-medium transition-colors"
+            >
+              Registrate
+            </Link>
+          </p>
+          <p className="text-sm text-gray-400">
+            <Link to="/" className="hover:text-primary-500 transition-colors">
+              ← Volver a la tienda
+            </Link>
+          </p>
+        </div>
       </div>
     </div>
   );

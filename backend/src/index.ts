@@ -5,6 +5,8 @@ import { generateOpenApi } from "./docs/openapi";
 import productRouter from "./routes/products";
 import categoryRouter from "./routes/categories";
 import { authRouter } from "./routes/auth";
+import usersRouter from "./routes/users";
+import favoritesRouter from "./routes/favorites";
 import { validateImageFile } from "./middleware/file-validation";
 import cors from "cors";
 import {
@@ -84,6 +86,8 @@ app.get("/", (req, res) => {
 app.use("/products", upload.single("image"), productRouter);
 app.use("/categories", categoryRouter);
 app.use("/auth", authRouter);
+app.use("/users", usersRouter);
+app.use("/favorites", favoritesRouter);
 app.use("/dashboard", dashboardRouter);
 
 // Error handling middleware (DEBE IR AL FINAL, después de todas las rutas)

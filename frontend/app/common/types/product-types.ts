@@ -1,6 +1,8 @@
+import type { UUID } from "crypto";
+
 // ========== PRODUCTOS ==========
 export interface Product {
-  id: number;
+  id: UUID;
   name: string;
   description: string;
   price: number;
@@ -19,17 +21,11 @@ export interface Stats {
   totalValue: number;
 }
 
-export interface ProductResponse {
-  id: string;
-  name: string;
-  description: string;
-  price: number;
-  stock: number;
+export interface ProductResponse extends Product {
   category: {
-    id: string;
+    id: UUID;
     name: string;
   };
-  imageUrl: string;
   createdAt: string;
   updatedAt: string;
 }

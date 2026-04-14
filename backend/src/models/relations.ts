@@ -6,3 +6,6 @@ export type { Category, NewCategory } from './category';
 
 export { products } from './product';
 export type { Product, NewProduct } from './product';
+
+export { favorites } from './favorite';
+export type { Favorite, NewFavorite } from './favorite';

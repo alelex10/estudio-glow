@@ -7,9 +7,10 @@ import type {
   UpdateProductData,
 } from "~/common/types/product-types";
 import type { Route } from "./+types/product.new";
-import { getToken } from "~/common/services/auth.server";
+import { requireAuth } from "~/common/actions/auth-helpers";
+import { parseFormData, getFileFromFormData } from "~/common/actions/form-helpers";
+import { handleActionError } from "~/common/actions/error-helpers";
 import { toast } from "~/common/components/Toast";
-import { useActionErrors } from "~/common/hooks/useActionErrors";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -19,39 +20,56 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export async function loader({ request }: Route.ActionArgs) {
-  const token = await getToken(request);
+  const token = await requireAuth(request);
   return { token };
 }
 
-export async function action({ request }: Route.ActionArgs) {
-  const token = await getToken(request);
-  const formData = await request.formData();
+interface ProductFormData {
+  name: string;
+  description: string | undefined;
+  price: number;
+  stock: number;
+  categoryId: string;
+}
 
+interface ActionSuccess {
+  success: true;
+}
+
+interface ActionError {
+  success: false;
+  errors: string[];
+}
+
+type ActionData = ActionSuccess | ActionError;
+
+function isActionError(data: ActionData): data is ActionError {
+  return data.success === false;
+}
+
+export async function action({ request }: Route.ActionArgs): Promise<ActionData> {
   try {
-    const rawData = {
-      name: formData.get("name") as string,
-      description: (formData.get("description") as string) || undefined,
-      price: parseFloat(formData.get("price") as string),
-      stock: parseInt(formData.get("stock") as string),
-      categoryId: formData.get("categoryId") as string,
-    };
+    const token = await requireAuth(request);
+    const formData = await request.formData();
 
-    const imageFile = formData.get("image") as File | null;
+    const data = parseFormData<ProductFormData>(formData, {
+      name: (v) => String(v),
+      description: (v) => v ? String(v) : undefined,
+      price: (v) => parseFloat(String(v)),
+      stock: (v) => parseInt(String(v)),
+      categoryId: (v) => String(v),
+    });
 
-    if (!imageFile || imageFile.size === 0) {
-      return { errors: ["La imagen es requerida"] };
+    const imageFile = getFileFromFormData(formData, "image");
+
+    if (!imageFile) {
+      return { success: false, errors: ["La imagen es requerida"] };
     }
 
-    if (!token) {
-      return { errors: ["No autorizado"] };
-    }
-
-    await productService.createProduct(rawData, imageFile || undefined, token);
+    await productService.createProduct(data, imageFile, token);
     return { success: true };
   } catch (error) {
-    const errorMessage =
-      error instanceof Error ? error.message : "Error al crear producto";
-    return { errors: [errorMessage] };
+    return handleActionError(error);
   }
 }
 
@@ -62,13 +80,14 @@ export default function AdminProductNew() {
   const navigate = useNavigate();
   const isLoading = navigation.state === "submitting";
 
-  useActionErrors(actionData);
-
-  // Show toast and navigate on success
+  // Show toast and navigate on success/error
   useEffect(() => {
     if (actionData?.success) {
       toast("success", "Producto creado correctamente");
       navigate("/admin/products");
+    }
+    if (actionData && isActionError(actionData)) {
+      actionData.errors.forEach((error) => toast("error", error));
     }
   }, [actionData, navigate]);
 

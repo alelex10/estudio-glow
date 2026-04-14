@@ -18,6 +18,18 @@ export const API_ENDPOINTS = {
     REGISTER: "/auth/register",
     LOGOUT: "/auth/logout",
     VERIFY: "/auth/verify",
+    GOOGLE: "/auth/google",
+  },
+  // Users
+  USERS: {
+    ME: "/users/me",
+  },
+  // Favorites
+  FAVORITES: {
+    LIST: "/favorites",
+    IDS: "/favorites/ids",
+    ADD: (productId: string) => `/favorites/${productId}`,
+    REMOVE: (productId: string) => `/favorites/${productId}`,
   },
   // Admin Products
   ADMIN: {

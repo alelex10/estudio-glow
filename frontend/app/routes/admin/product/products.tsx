@@ -11,7 +11,7 @@ import { FilterDrawer } from "~/common/components/product-filter/FilterDrawer";
 import { FilterSideBar } from "~/common/components/product-filter/FilterSideBar";
 import type { ProductResponse, Category } from "~/common/types/product-types";
 import type { Route } from "./+types/products";
-import { getToken } from "~/common/services/auth.server";
+import { requireAuth } from "~/common/actions/auth-helpers";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -21,11 +21,7 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export async function loader({ request }: Route.LoaderArgs) {
-  const token = await getToken(request);
-
-  if (!token) {
-    return redirect("/auth/login");
-  }
+  const token = await requireAuth(request);
 
   const url = new URL(request.url);
   const searchQuery = url.searchParams.get("q") || undefined;
@@ -90,7 +86,7 @@ export default function AdminProducts({ loaderData }: Route.ComponentProps) {
       {},
       {
         method: "post",
-        action: `/admin/products/delete/${deleteModal.product?.id}`,
+        action: `/actions/product/delete/${deleteModal.product?.id}`,
       },
     );
 

@@ -1,9 +1,19 @@
+import type { Product } from "./product-types";
+
 // ========== USUARIOS ==========
+const ROLES = {
+  ADMIN: "admin",
+  CUSTOMER: "customer",
+} as const;
+
+type Role = (typeof ROLES)[keyof typeof ROLES];
+
 export interface User {
-  id: number;
+  id: string;
   name: string;
   email: string;
-  role: "admin" | "customer";
+  role: Role;
+  provider?: "LOCAL" | "GOOGLE";
 }
 
 export interface LoginCredentials {
@@ -15,5 +25,15 @@ export interface RegisterData {
   name: string;
   email: string;
   password: string;
-  role?: "admin" | "customer";
+}
+
+export interface GoogleAuthData {
+  idToken: string;
+}
+
+// ========== FAVORITOS ==========
+export interface FavoriteItem {
+  id: string;
+  createdAt: string;
+  product: Product;
 }

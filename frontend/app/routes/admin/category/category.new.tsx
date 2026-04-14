@@ -8,7 +8,9 @@ import type {
   CreateCategoryFormData,
   UpdateCategoryFormData,
 } from "~/common/schemas/categorySchema";
-import { getToken } from "~/common/services/auth.server";
+import { requireAuth } from "~/common/actions/auth-helpers";
+import { parseFormData } from "~/common/actions/form-helpers";
+import { handleActionError } from "~/common/actions/error-helpers";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -18,26 +20,44 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export async function loader({ request }: Route.ActionArgs) {
-  const token = await getToken(request);
+  const token = await requireAuth(request);
   return { token };
 }
 
-export async function action({ request }: Route.ActionArgs) {
-  const token = await getToken(request);
-  const formData = await request.formData();
+interface CategoryFormData {
+  name: string;
+  description: string | undefined;
+}
 
+interface ActionSuccess {
+  success: true;
+}
+
+interface ActionError {
+  success: false;
+  errors: string[];
+}
+
+type ActionData = ActionSuccess | ActionError;
+
+function isActionError(data: ActionData): data is ActionError {
+  return data.success === false;
+}
+
+export async function action({ request }: Route.ActionArgs): Promise<ActionData> {
   try {
-    const rawData = {
-      name: formData.get("name") as string,
-      description: (formData.get("description") as string) || undefined,
-    };
+    const token = await requireAuth(request);
+    const formData = await request.formData();
 
-    await categoryService.createCategory(rawData, token || undefined);
+    const data = parseFormData<CategoryFormData>(formData, {
+      name: (v) => String(v),
+      description: (v) => v ? String(v) : undefined,
+    });
+
+    await categoryService.createCategory(data, token);
     return { success: true };
   } catch (error) {
-    const errorMessage =
-      error instanceof Error ? error.message : "Error al crear categoría";
-    return { errors: [errorMessage] };
+    return handleActionError(error);
   }
 }
 
@@ -54,7 +74,7 @@ export default function NewCategory() {
       toast("success", "Categoría creada correctamente");
       navigate("/admin/categories");
     }
-    if (actionData?.errors) {
+    if (actionData && isActionError(actionData)) {
       actionData.errors.forEach((error) => toast("error", error));
     }
   }, [actionData, navigate]);
@@ -78,7 +98,7 @@ export default function NewCategory() {
         <CategoryForm
           mode="create"
           isSubmitting={isSubmitting}
-          errors={actionData?.errors}
+          errors={actionData && isActionError(actionData) ? actionData.errors : undefined}
           onSubmit={handleSubmit}
         />
       </div>

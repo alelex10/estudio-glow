@@ -2,8 +2,7 @@ import { ProductCarousel } from "~/common/components/ProductCarousel";
 import type { Route } from "./+types/home";
 import Hero from "./components/Hero";
 import Footer from "~/common/components/Footer";
-import { useState, useEffect, Suspense } from "react";
-import Navbar from "~/common/components/Navbar";
+import { Suspense } from "react";
 import { productService } from "~/common/services/productService";
 
 export function meta({}: Route.MetaArgs) {
@@ -19,23 +18,8 @@ export async function loader() {
 }
 
 export default function Home({ loaderData }: Route.ComponentProps) {
-  const [isHeroVisible, setIsHeroVisible] = useState(true);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsHeroVisible(window.scrollY === 0);
-    };
-
-    window.addEventListener("scroll", handleScroll);
-
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-    };
-  }, []);
-
   return (
     <>
-      <Navbar isBackgroundVisible={isHeroVisible} />
       <main className="relative text-primary-100">
         <section id="hero">
           <Hero />

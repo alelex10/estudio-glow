@@ -1,8 +1,7 @@
 import { NavLink, useLocation, useSubmit } from "react-router";
 import clsx from "clsx";
-import { Logo } from "../../Logo";
-import { Box, Home, LogOut, Tag, X, User } from "lucide-react";
-import { authService } from "~/common/services/authService";
+import DrawerHeader from "../../DrawerHeader";
+import { Box, Home, LogOut, Tag, User } from "lucide-react";
 import { SidebarItem } from "./SidebarItem";
 
 interface SidebarProps {
@@ -41,7 +40,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
     onClose();
     try {
       submit(null, {
-        action: "/admin/logout",
+        action: "/actions/auth/logout",
         method: "post",
         navigate: false,
       });
@@ -71,22 +70,14 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
         )}
       >
         <div className="flex flex-col h-full">
-          {/* Logo */}
-          <div className="flex items-center justify-between p-6 border-b border-gray-700">
-            <div className="flex items-center gap-3">
-              <Logo variant="icon" className="w-10 h-10" />
-              <div>
-                <h1 className="text-white font-bold text-lg">Estudio Glow</h1>
-                <span className="text-xs text-gray-400">Panel Admin</span>
-              </div>
-            </div>
-            <button
-              onClick={onClose}
-              className="lg:hidden text-gray-400 hover:text-white transition-colors"
-            >
-              <X className="w-6 h-6" />
-            </button>
-          </div>
+          <DrawerHeader
+            title="Estudio Glow"
+            subtitle="Panel Admin"
+            onClose={onClose}
+            borderColor="border-gray-700"
+            subtitleColor="text-gray-400"
+            closeButtonColor="lg:hidden text-gray-400 hover:text-white"
+          />
 
           {/* Navegación */}
           <nav className="flex-1 p-4 space-y-1">

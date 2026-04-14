@@ -55,6 +55,10 @@ export const UserResponseSchema = z
       example: "admin",
       description: "Rol del usuario",
     }),
+    provider: z.enum(["LOCAL", "GOOGLE"]).optional().openapi({
+      example: "LOCAL",
+      description: "Proveedor de autenticación",
+    }),
   })
   .openapi("UserResponse");
 

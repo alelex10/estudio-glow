@@ -11,7 +11,7 @@ import { toast } from "~/common/components/Toast";
 import { CategoriesSkeleton } from "./components/CategoriesSkeleton";
 import type { Category } from "~/common/types/category-types";
 import type { Route } from "./+types/categories";
-import { getToken } from "~/common/services/auth.server";
+import { requireAuth } from "~/common/actions/auth-helpers";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -21,11 +21,7 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export async function loader({ request }: Route.LoaderArgs) {
-  const token = await getToken(request);
-
-  if (!token) {
-    throw redirect("/auth/login");
-  }
+  const token = await requireAuth(request);
 
   const url = new URL(request.url);
   const searchQuery = url.searchParams.get("q") || undefined;
@@ -52,7 +48,7 @@ export default function AdminCategories({ loaderData }: Route.ComponentProps) {
       {},
       {
         method: "post",
-        action: `/admin/categories/delete/${deleteModal.category?.id}`,
+        action: `/actions/category/delete/${deleteModal.category?.id}`,
       },
     );
 

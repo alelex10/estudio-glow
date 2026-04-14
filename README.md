@@ -21,7 +21,7 @@ Este proyecto sigue patrones utilizados por empresas como Shopify, Vercel y Netf
 
 - Separación clara entre datos públicos y privados
 - Cache global compartido vía CDN/Edge
-- SSR personalizado por usuario con TanStack Query
+- SSR personalizado por usuario
 - Escalabilidad horizontal y seguridad por diseño
 
 ## 📋 Desarrollo

@@ -3,7 +3,9 @@ import { useNavigate, useFetcher } from "react-router";
 import { productService } from "~/common/services/productService";
 import { ProductForm } from "~/common/components/admin/ProductForm";
 import { LoadingSpinner } from "~/common/components/admin/LoadingSpinner";
-import { getToken } from "~/common/services/auth.server";
+import { requireAuth } from "~/common/actions/auth-helpers";
+import { parseFormData, getFileFromFormData } from "~/common/actions/form-helpers";
+import { handleActionError } from "~/common/actions/error-helpers";
 import type {
   Product,
   ProductResponse,
@@ -19,11 +21,7 @@ export function meta({ params }: Route.MetaArgs) {
 }
 
 export async function loader({ params, request }: Route.LoaderArgs) {
-  const token = await getToken(request);
-  
-  if (!token) {
-    throw new Response("Unauthorized", { status: 401 });
-  }
+  const token = await requireAuth(request);
 
   try {
     const product = await productService.getProduct(params.id);
@@ -33,31 +31,50 @@ export async function loader({ params, request }: Route.LoaderArgs) {
   }
 }
 
-export async function action({ params, request }: Route.ActionArgs) {
-  const token = await getToken(request);
-  
-  if (!token) {
-    throw new Response("Unauthorized", { status: 401 });
-  }
+interface ProductFormData {
+  name: string;
+  description: string;
+  price: number;
+  stock: number;
+  categoryId: string;
+}
 
-  const formData = await request.formData();
-  const data: UpdateProductData = {
-    name: formData.get("name") as string,
-    description: formData.get("description") as string,
-    price: Number(formData.get("price")),
-    stock: Number(formData.get("stock")),
-    categoryId: formData.get("categoryId") as string,
-  };
+interface ActionSuccess {
+  success: true;
+}
 
-  const image = formData.get("image") as File | null;
+interface ActionError {
+  success: false;
+  error: string;
+}
 
+type ActionData = ActionSuccess | ActionError;
+
+function isActionError(data: ActionData): data is ActionError {
+  return data.success === false;
+}
+
+export async function action({ params, request }: Route.ActionArgs): Promise<ActionData> {
   try {
+    const token = await requireAuth(request);
+    const formData = await request.formData();
+
+    const data = parseFormData<ProductFormData>(formData, {
+      name: (v) => String(v),
+      description: (v) => String(v),
+      price: (v) => Number(String(v)),
+      stock: (v) => Number(String(v)),
+      categoryId: (v) => String(v),
+    });
+
+    const image = getFileFromFormData(formData, "image");
+
     await productService.updateProduct(params.id, data, image || undefined, token);
     return { success: true };
   } catch (error) {
-    return { 
-      success: false, 
-      error: error instanceof Error ? error.message : "Error al actualizar producto" 
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Error al actualizar producto"
     };
   }
 }
@@ -111,10 +128,11 @@ export default function AdminProductEdit({ loaderData, actionData }: Route.Compo
           isLoading={fetcher.state !== "idle"}
         />
         
-        {(actionData?.error || fetcher.data?.error) && (
+        {((actionData && isActionError(actionData)) || (fetcher.data && isActionError(fetcher.data))) && (
           <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
             <p className="text-red-800 text-sm">
-              {actionData?.error || fetcher.data?.error}
+              {(actionData && isActionError(actionData) ? actionData.error : null) || 
+               (fetcher.data && isActionError(fetcher.data) ? fetcher.data.error : null)}
             </p>
           </div>
         )}

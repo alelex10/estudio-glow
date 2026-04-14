@@ -10,12 +10,23 @@ import {
 import type { Route } from "./+types/root";
 import "./app.css";
 import { ToastContainer } from "./common/components/Toast";
+import { getUser } from "./common/services/auth.server";
+import type { User } from "./common/types/user-types";
 
-interface RootLoaderData {
+export interface RootLoaderData {
+  user: User | null;
+}
+
+export async function loader({ request }: Route.LoaderArgs): Promise<RootLoaderData> {
+  const user = await getUser(request);
+  return { user };
+}
+
+interface LayoutProps {
   children: React.ReactNode;
 }
 
-export function Layout({ children }: RootLoaderData) {
+export function Layout({ children }: LayoutProps) {
   return (
     <html lang="en">
       <head>

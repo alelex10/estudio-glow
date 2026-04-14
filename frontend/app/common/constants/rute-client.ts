@@ -1,12 +1,12 @@
 
-const AUTH_BASE_ROUTE = "/auth";
-export const AUTH = {
-    RUTE: AUTH_BASE_ROUTE,
-    LOGIN: (RUTE = AUTH_BASE_ROUTE) => `${RUTE}/login`,
-    LOGIN_ACTION: (RUTE = AUTH_BASE_ROUTE) => `${RUTE}/login-action`,
-};
+export class AUTH {
+  static BASE_ROUTE = "auth";
+  static LOGIN = (RUTE = AUTH.BASE_ROUTE) => `/login`;
+  static LOGIN_ACTION = (RUTE = AUTH.BASE_ROUTE) => `${RUTE}/login-action`;
+  static REGISTER = () => `${AUTH.BASE_ROUTE}/register`;
+}
 
-export const ADMIN = {
-    RUTE: "/admin",
-    LOGOUT: "/admin/logout",
-};
+export class ADMIN {
+  static BASE_ROUTE = "/admin";
+  static LOGOUT = (RUTE = ADMIN.BASE_ROUTE) => `${RUTE}/logout`;
+}

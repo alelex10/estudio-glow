@@ -1,7 +1,9 @@
-import { useState } from "react";
 import { ProductCard } from "~/common/components/Card";
 import { productService } from "~/common/services/productService";
 import type { Route } from "./+types/products";
+import { getToken, isAuthenticated } from "~/common/services/auth.server";
+import type { UUID } from "crypto";
+import { favoriteService } from "~/common/services/favoriteService";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -17,7 +19,8 @@ export async function loader({ request }: Route.LoaderArgs) {
   const q = url.searchParams.get("q") || undefined;
   const category = url.searchParams.get("category") || undefined;
   const categoryId = url.searchParams.get("categoryId") || undefined;
-  const stock = (url.searchParams.get("stock") as "low" | "out" | "ok") || undefined;
+  const stock =
+    (url.searchParams.get("stock") as "low" | "out" | "ok") || undefined;
   const sortBy = url.searchParams.get("sortBy") || undefined;
   const sortOrder = url.searchParams.get("sortOrder") || undefined;
 
@@ -29,14 +32,22 @@ export async function loader({ request }: Route.LoaderArgs) {
     categoryId,
     stock,
     sortBy,
-    sortOrder
+    sortOrder,
   );
-  return { products };
+
+  const isAuth = await isAuthenticated(request);
+  let favorites: UUID[] = [];
+  if (isAuth) {
+    const token = await getToken(request);
+    const response = await favoriteService.getIds(token!);
+    favorites = response.data;
+  }
+
+  return { products, favorites };
 }
 
-
 export default function Products({ loaderData }: Route.ComponentProps) {
-  const { products } = loaderData;
+  const { products, favorites } = loaderData;
 
   return (
     <>
@@ -45,7 +56,7 @@ export default function Products({ loaderData }: Route.ComponentProps) {
           <p className="text-2xl font-bold ">No hay productos</p>
         </div>
       )}
-      <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-x-4">
+      <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 ">
         {products.data.map((product) => (
           <div key={product.id}>
             <ProductCard
@@ -53,6 +64,7 @@ export default function Products({ loaderData }: Route.ComponentProps) {
               imageUrl={product.imageUrl}
               name={product.name}
               price={product.price}
+              isFav={favorites.includes(product.id)}
             />
           </div>
         ))}

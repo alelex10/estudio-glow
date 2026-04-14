@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import { Await } from "react-router";
-import { getToken } from "~/common/services/auth.server";
+import { requireAuth } from "~/common/actions/auth-helpers";
 import { StatsGrid } from "./components/StatsGrid";
 import { InventoryValue } from "./components/InventoryValue";
 import { SalesValue } from "./components/SalesValue";
@@ -14,7 +14,6 @@ import {
 } from "./components/DashboardSkeletons";
 import type { Route } from "./+types/page";
 import { productService } from "~/common/services/productService";
-import { redirect } from "react-router";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -24,11 +23,7 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export async function loader({ request }: Route.LoaderArgs) {
-  const token = await getToken(request);
-
-  if (!token) {
-    throw redirect("/auth/login");
-  }
+  const token = await requireAuth(request);
 
   return {
     stats: productService.getProductStats(token),
