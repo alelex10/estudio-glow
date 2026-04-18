@@ -1,16 +1,18 @@
-import { Form, Link, useActionData, redirect } from "react-router";
+import { Form, Link, useActionData, redirect, useSubmit } from "react-router";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import clsx from "clsx";
 import { Logo } from "~/common/components/Logo";
 import { FormInput } from "~/common/components/Form/FormInput";
 import { FormButton } from "~/common/components/Form/FormButton";
+import { FormError } from "~/common/components/Form/FormError";
 import { registerSchema, type RegisterFormData } from "~/common/schemas/auth";
 import { GoogleLoginButton } from "~/common/components/GoogleLoginButton";
 import { useState } from "react";
 import type { Route } from "./+types/register";
-import { getUserRole, isAuthenticated } from "~/common/services/auth.server";
+import { getUserRole, isAuthenticated, createAuthSession } from "~/common/services/auth.server";
 import { ADMIN } from "~/common/constants/rute-client";
+import { API_BASE_URL } from "~/common/config/api-end-points";
 
 export function meta() {
   return [
@@ -35,9 +37,42 @@ export async function loader({ request }: Route.LoaderArgs) {
   }
 }
 
+async function serverGoogleRegister(idToken: string) {
+  const response = await fetch(`${API_BASE_URL}/auth/google/register`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ idToken }),
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ message: "Error en registro con Google" }));
+    throw new Error(error.message || "Error al registrarse con Google");
+  }
+
+  return response.json();
+}
+
+export async function action({ request }: Route.ActionArgs) {
+  const formData = await request.formData();
+  const idToken = formData.get("idToken") as string;
+
+  if (!idToken) {
+    return { error: "Token de Google no proporcionado" };
+  }
+
+  try {
+    const { token, user } = await serverGoogleRegister(idToken);
+    return createAuthSession(request, token, user, user.role === "admin" ? ADMIN.BASE_ROUTE : "/");
+  } catch (err: any) {
+    return { error: err.message || "Error al registrarse con Google" };
+  }
+}
+
 export default function Register() {
+  const actionData = useActionData() as { error?: string } | undefined;
   const [googleError, setGoogleError] = useState<string | null>(null);
   const [isGoogleSubmitting, setIsGoogleSubmitting] = useState(false);
+  const submit = useSubmit();
 
   const {
     register,
@@ -47,17 +82,12 @@ export default function Register() {
     resolver: zodResolver(registerSchema),
   });
 
-  const handleGoogleSuccess = async (idToken: string) => {
+  const handleGoogleSuccess = (idToken: string) => {
     setGoogleError(null);
     setIsGoogleSubmitting(true);
-    try {
-      // TODO: Implementar login con Google
-      // await loginWithGoogle(idToken);
-    } catch (err: any) {
-      setGoogleError(err.message || "Error al registrarse con Google");
-    } finally {
-      setIsGoogleSubmitting(false);
-    }
+    const formData = new FormData();
+    formData.append("idToken", idToken);
+    submit(formData, { method: "post" });
   };
 
   return (
@@ -159,7 +189,7 @@ export default function Register() {
             errors={errors}
           />
 
-          {/* <FormError message={serverError || googleError || undefined} /> */}
+          <FormError message={actionData?.error || googleError || undefined} />
 
           <FormButton loadingText="Creando cuenta...">Crear cuenta</FormButton>
         </Form>

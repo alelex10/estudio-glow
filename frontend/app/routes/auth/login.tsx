@@ -1,4 +1,4 @@
-import { Form, Link, redirect } from "react-router";
+import { Form, Link, redirect, useSubmit } from "react-router";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import clsx from "clsx";
@@ -10,8 +10,9 @@ import { loginSchema, type LoginFormData } from "~/common/schemas/auth";
 import { GoogleLoginButton } from "~/common/components/GoogleLoginButton";
 import { useState } from "react";
 import type { Route } from "./+types/login";
-import { getUserRole, isAuthenticated } from "~/common/services/auth.server";
+import { getUserRole, isAuthenticated, createAuthSession } from "~/common/services/auth.server";
 import { ADMIN } from "~/common/constants/rute-client";
+import { API_BASE_URL } from "~/common/config/api-end-points";
 
 export function meta() {
   return [
@@ -37,11 +38,53 @@ export async function loader({ request }: Route.LoaderArgs) {
   return null;
 }
 
+async function serverGoogleLogin(idToken: string) {
+  const response = await fetch(`${API_BASE_URL}/auth/google/login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ idToken }),
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ message: "Error en login con Google" }));
+    throw new Error(error.message || "Error al iniciar sesión con Google");
+  }
+
+  return response.json();
+}
+
+export async function action({ request }: Route.ActionArgs) {
+  const formData = await request.formData();
+  const idToken = formData.get("idToken") as string;
+
+  if (!idToken) {
+    return { error: "Token de Google no proporcionado" };
+  }
+
+  try {
+    const { token, user } = await serverGoogleLogin(idToken);
+    return createAuthSession(request, token, user, user.role === "admin" ? ADMIN.BASE_ROUTE : "/");
+  } catch (err: any) {
+    const errorMessage = err.message || "Error al iniciar sesión con Google";
+    
+    if (errorMessage.includes("no registrado") || errorMessage.includes("401")) {
+      return { 
+        error: "Usuario no registrado con Google. Por favor, registrate primero.",
+        suggestion: "register"
+      };
+    }
+    
+    return { error: errorMessage };
+  }
+}
+
 export default function CustomerLogin({ actionData }: Route.ComponentProps) {
   const serverError =
-    (actionData as { error?: string } | undefined)?.error ?? undefined;
+    (actionData as { error?: string; suggestion?: string } | undefined)?.error ?? undefined;
+  const suggestion = (actionData as { suggestion?: string } | undefined)?.suggestion;
   const [googleError, setGoogleError] = useState<string | undefined>(undefined);
   const [isGoogleSubmitting, setIsGoogleSubmitting] = useState(false);
+  const submit = useSubmit();
 
   const {
     register,
@@ -50,19 +93,6 @@ export default function CustomerLogin({ actionData }: Route.ComponentProps) {
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
   });
-
-  // const handleGoogleSuccess = async (idToken: string) => {
-  //   setGoogleError(undefined);
-  //   setIsGoogleSubmitting(true);
-  //   try {
-  //     await loginWithGoogle(idToken);
-  //     navigate("/");
-  //   } catch (err: any) {
-  //     setGoogleError(err.message || "Error al iniciar sesión con Google");
-  //   } finally {
-  //     setIsGoogleSubmitting(false);
-  //   }
-  // };
 
   return (
     <div className="min-h-screen bg-linear-to-br from-primary-50 via-white to-primary-100 flex items-center justify-center p-4">
@@ -102,8 +132,17 @@ export default function CustomerLogin({ actionData }: Route.ComponentProps) {
           )}
         >
           <GoogleLoginButton
-            onSuccess={() => {}}
-            onError={(err) => setGoogleError(err)}
+            onSuccess={(idToken) => {
+              setGoogleError(undefined);
+              setIsGoogleSubmitting(true);
+              const formData = new FormData();
+              formData.append("idToken", idToken);
+              submit(formData, { method: "post" });
+            }}
+            onError={(err) => {
+              setIsGoogleSubmitting(false);
+              setGoogleError(err);
+            }}
           />
         </div>
 
@@ -147,6 +186,16 @@ export default function CustomerLogin({ actionData }: Route.ComponentProps) {
           />
 
           <FormError message={serverError || googleError} />
+          {suggestion === "register" && (
+            <p className="text-sm text-center mt-2">
+              <Link
+                to="/register"
+                className="text-primary-600 hover:text-primary-700 font-medium transition-colors"
+              >
+                Ir a registro →
+              </Link>
+            </p>
+          )}
 
           <FormButton loadingText="Ingresando...">Iniciar Sesión</FormButton>
         </Form>
