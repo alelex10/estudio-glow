@@ -1,29 +1,16 @@
 import "dotenv/config";
 import { db } from "../src/db";
-import { users } from "../src/models/relations";
-import { hash } from "bcryptjs";
+import { seedUsers } from "../src/seeds/data/user";
 
 async function seed() {
-  console.log("🌱 Iniciando seed de usuario...");
+  console.log("🌱 Iniciando seed de usuarios...");
 
   try {
-    // Hash de la contraseña
-    const passwordHash = await hash("estudioglow@423", 12);
+    const results = await seedUsers(db);
 
-    // Insertar usuario
-    const result = await db.insert(users).values({
-      id: "admin-user-001",
-      name: "Admin Estudio Glow",
-      email: "yasitacardenas3637@gmail.com",
-      password_hash: passwordHash,
-      role: "admin",
-    }).returning();
-
-    console.log("✅ Usuario creado exitosamente:", {
-      id: result[0].id,
-      name: result[0].name,
-      email: result[0].email,
-      role: result[0].role,
+    console.log("✅ Usuarios creados exitosamente:");
+    results.forEach((user: any) => {
+      console.log(`  - ${user.name} (${user.email}) - Role: ${user.role}`);
     });
 
     console.log("🎉 Seed completado exitosamente!");

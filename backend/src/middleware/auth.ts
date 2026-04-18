@@ -2,6 +2,7 @@ import type { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 import { AuthenticationError, AuthorizationError } from "../errors";
+import type { User } from "../models/relations";
 
 dotenv.config();
 
@@ -10,9 +11,13 @@ const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
 interface JwtPayload {
   id: string;
   email: string;
-  role: string; 
+  role: string;
   iat?: number;
   exp?: number;
+}
+
+export interface AuthRequest extends Request {
+  user: User;
 }
 
 export function authenticate(req: Request, res: Response, next: NextFunction) {

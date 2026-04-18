@@ -146,12 +146,44 @@ export const googleRegister = [
 
     if (existingByEmail.length > 0) {
       const existingUser = existingByEmail[0];
-      if (existingUser?.provider === "GOOGLE") {
+      if (!existingUser) {
+        throw new DatabaseError("Error al buscar usuario existente");
+      }
+
+      if (existingUser.provider === "GOOGLE") {
         throw new ConflictError("El usuario ya está registrado con Google");
       } else {
-        throw new ConflictError(
-          "El email ya está registrado con contraseña. Usá login con contraseña o vinculá tu cuenta."
+        // Usuario existe como LOCAL -> vincular cuenta a Google
+        await db
+          .update(users)
+          .set({ google_id: googleId, provider: "GOOGLE" })
+          .where(eq(users.id, existingUser.id));
+
+        // Generar JWT y retornar login exitoso
+        const token = jwt.sign(
+          { id: existingUser.id, email: existingUser.email, role: existingUser.role },
+          JWT_SECRET,
+          { expiresIn: "7d" }
         );
+
+        res.cookie("token", token, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === "production",
+          maxAge: TOKEN_MAX_AGE,
+          sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+        });
+
+        return res.status(200).json({
+          message: "Cuenta vinculada con Google exitosamente",
+          token,
+          user: {
+            id: existingUser.id,
+            name: existingUser.name,
+            email: existingUser.email,
+            role: existingUser.role,
+            provider: "GOOGLE",
+          },
+        });
       }
     }
 
@@ -208,21 +240,39 @@ export const googleLogin = [
   validateBody(GoogleAuthSchema),
   asyncHandler(async (req: Request, res: Response) => {
     const { idToken } = req.body;
-    const { email, googleId } = await verifyGoogleToken(idToken);
+    const { email, name, googleId } = await verifyGoogleToken(idToken);
 
     // Buscar usuario por googleId
-    const userResult = await db
+    let userResult = await db
       .select()
       .from(users)
       .where(eq(users.google_id, googleId));
 
-    if (userResult.length === 0) {
-      throw new AuthenticationError(
-        "Usuario no registrado. Por favor, registrate primero con Google."
-      );
-    }
+    let user = userResult[0];
 
-    const user = userResult[0];
+    if (!user) {
+      // Buscar por email (puede existir como LOCAL)
+      userResult = await db
+        .select()
+        .from(users)
+        .where(eq(users.email, email));
+
+      user = userResult[0];
+
+      if (user) {
+        // Usuario existe con email pero sin googleId -> vincular cuenta
+        await db
+          .update(users)
+          .set({ google_id: googleId, provider: "GOOGLE" })
+          .where(eq(users.id, user.id));
+        user.google_id = googleId;
+        user.provider = "GOOGLE";
+      } else {
+        throw new AuthenticationError(
+          "Usuario no registrado. Por favor, registrate primero con Google."
+        );
+      }
+    }
 
     if (!user) {
       throw new AuthenticationError("Usuario no encontrado");

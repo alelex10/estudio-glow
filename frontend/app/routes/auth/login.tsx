@@ -46,8 +46,9 @@ async function serverGoogleLogin(idToken: string) {
   });
 
   if (!response.ok) {
-    const error = await response.json().catch(() => ({ message: "Error en login con Google" }));
-    throw new Error(error.message || "Error al iniciar sesión con Google");
+    const errorData = await response.json().catch(() => ({ error: { message: "Error en login con Google" } }));
+    const errorMessage = errorData.error?.message || errorData.message || "Error al iniciar sesión con Google";
+    throw new Error(errorMessage);
   }
 
   return response.json();

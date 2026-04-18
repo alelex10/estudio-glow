@@ -5,6 +5,7 @@ import { db } from "../db";
 import { users } from "../models/relations";
 import dotenv from "dotenv";
 import { eq } from "drizzle-orm";
+import { z } from "zod";
 import { validateBody } from "../middleware/validation";
 import {
   RegisterSchema,
@@ -13,16 +14,56 @@ import {
 } from "../schemas/auth";
 import { asyncHandler } from "../middleware/async-handler";
 import { ConflictError, AuthenticationError, DatabaseError } from "../errors";
+import type { AuthRequest } from "../middleware/auth";
 
 dotenv.config();
 
 const JWT_SECRET = process.env.JWT_SECRET || "your_jwt_secret_key";
 const TOKEN_MAX_AGE = 15 * 60 * 1000; // 15 minutos en milisegundos
 
+/**
+ * @internal
+ * Helper function para setear cookie de autenticación
+ */
+function setAuthCookie(res: Response, token: string): void {
+  res.cookie("token", token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    maxAge: TOKEN_MAX_AGE,
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+  });
+}
+
+/**
+ * @internal
+ * Helper function para construir respuesta de autenticación
+ */
+function buildAuthResponse(
+  message: string,
+  user: { id: string; name: string; email: string; role: string; provider: string }
+): z.infer<typeof AuthResponseSchema> {
+  const responseDto = AuthResponseSchema.safeParse({
+    message,
+    user: {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      provider: user.provider,
+    },
+  });
+
+  if (!responseDto.success) {
+    throw new DatabaseError("Error al procesar respuesta");
+  }
+
+  return responseDto.data;
+}
+
 export const register = [
   validateBody(RegisterSchema),
   asyncHandler(async (req: Request, res: Response) => {
-    const { name, email, password, role } = req.body;
+    const { name, email, password } = req.body;
 
     const existingUser = await db
       .select()
@@ -50,14 +91,17 @@ export const register = [
 
     const token = jwt.sign({ id, email, role: userRole }, JWT_SECRET, { expiresIn: "7d" });
 
-    res.cookie("token", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      maxAge: TOKEN_MAX_AGE,
-      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+    setAuthCookie(res, token);
+
+    const response = buildAuthResponse("Usuario registrado exitosamente", {
+      id,
+      name,
+      email,
+      role: userRole,
+      provider: "LOCAL",
     });
 
-    res.status(201).json({ message: "Usuario registrado exitosamente", token });
+    res.status(201).json({ ...response, token });
   }),
 ];
 
@@ -99,30 +143,17 @@ export const login = [
       { expiresIn: "7d" }
     );
 
-    res.cookie("token", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      maxAge: TOKEN_MAX_AGE,
-      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+    setAuthCookie(res, token);
+
+    const response = buildAuthResponse("Login exitoso", {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      provider: user.provider,
     });
 
-    const responseDto = AuthResponseSchema.safeParse({
-      message: "Login exitoso",
-      user: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        provider: user.provider,
-      },
-    });
-
-    if (!responseDto.success) {
-      console.error("Schema validation error:", responseDto.error);
-      throw new DatabaseError("Error al procesar respuesta");
-    }
-
-    res.status(200).json({ ...responseDto.data, token });
+    res.status(200).json({ ...response, token });
   }),
 ];
 
@@ -132,8 +163,8 @@ export const logout = asyncHandler(async (req: Request, res: Response) => {
 });
 
 export const verifyToken = asyncHandler(async (req: Request, res: Response) => {
-  const user = (req as any).user;
-  
+  const user = (req as AuthRequest).user;
+
   if (!user) {
     throw new AuthenticationError("Token inválido o expirado");
   }

@@ -3,7 +3,7 @@ import { createAuthSession } from "~/common/services/auth.server";
 import { serverRegister } from "~/common/services/authApi.server";
 import { ADMIN } from "~/common/constants/rute-client";
 import { parseFormData } from "~/common/actions/form-helpers";
-import { handleActionError } from "~/common/actions/error-helpers";
+import { handleAuthActionError } from "~/common/actions/error-helpers";
 
 interface RegisterFormData {
   name: string;
@@ -31,6 +31,6 @@ export async function action({ request }: ActionFunctionArgs) {
 
     return createAuthSession(request, response.token, response.user, redirectPath);
   } catch (error) {
-    return handleActionError(error);
+    return handleAuthActionError(error);
   }
 }

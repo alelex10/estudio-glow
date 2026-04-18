@@ -11,12 +11,18 @@ export const usersData: UserSeed[] = [
     email: "yasitacardenas3637@gmail.com",
     password: "estudioglow@423",
     role: "admin",
+    provider: "LOCAL",
+  },
+  {
+    name: "Eliz Vida",
+    email: "elvizvida@gmail.com",
+    password: "User@1234",
+    role: "admin",
+    provider: "LOCAL",
   },
 ];
 
 export async function seedUsers(db: any) {
-  console.log("🌱 Insertando usuarios...");
-
   const saltRounds = 10;
   const usersWithHashedPasswords = await Promise.all(
     usersData.map(async (user) => ({
@@ -28,8 +34,6 @@ export async function seedUsers(db: any) {
   );
 
   const inserted = await db.insert(users).values(usersWithHashedPasswords).returning();
-
-  console.log(`✅ ${inserted.length} usuarios insertados`);
 
   return inserted;
 }
