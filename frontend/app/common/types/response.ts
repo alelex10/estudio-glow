@@ -43,3 +43,39 @@ export interface ErrorResponse {
     error: string;
   };
 }
+
+// ========== GOOGLE LOGIN ACTION CONTRACT ==========
+
+/**
+ * Typed response for Google login action
+ * Success returns undefined (redirect), failure returns this type
+ */
+export type GoogleLoginActionData =
+  | { error: string; suggestion?: "register"; debugId?: string }
+  | undefined;
+
+/**
+ * Normalized error metadata for Google login action
+ */
+export interface GoogleLoginErrorMetadata {
+  code: string;
+  message: string;
+  retryable: boolean;
+  suggestion?: "register";
+  debugId?: string;
+}
+
+/**
+ * Backend response from Google login endpoint
+ */
+export interface BackendGoogleLoginResponse {
+  token: string;
+  user: {
+    id: string;
+    email: string;
+    role: "admin" | "customer";
+    name: string;
+    provider: "LOCAL" | "GOOGLE";
+  };
+  message: string;
+}

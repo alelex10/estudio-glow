@@ -12,21 +12,26 @@
     "routeIdToServerBundleId": {
       "root": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/home/home": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
-      "routes/products/products": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
-      "routes/products/product.$id": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
-      "routes/page-test/test": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
-      "routes/page-test/test-2": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/product/products": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/product/product.$id": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/auth/register": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/auth/login": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
-      "routes/auth/login-action": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
-      "routes/admin/logout": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/favorites/favorites": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/admin/dashboard/page": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
-      "routes/admin/products": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
-      "routes/admin/product.new": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
-      "routes/admin/product.$id": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
-      "routes/admin/categories": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
-      "routes/admin/category.new": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
-      "routes/admin/category.$id": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
-      "routes/test-auth": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0"
+      "routes/admin/product/products": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/admin/product/product.new": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/admin/product/product.$id": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/admin/category/categories": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/admin/category/category.new": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/admin/category/category.$id": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "actions/category/category-delete.$id": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "actions/product/product-delete.$id": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "actions/favorite/add.$id": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "actions/favorite/remove.$id": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "actions/auth/login-action": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "actions/auth/register-action": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "actions/auth/logout": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "actions/auth/google-login-action": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0"
     },
     "routes": {
       "root": {
@@ -50,59 +55,45 @@
         "index": true,
         "config": {}
       },
-      "routes/products/layout": {
-        "id": "routes/products/layout",
+      "routes/product/layout": {
+        "id": "routes/product/layout",
         "parentId": "routes/layout",
-        "file": "app/routes/products/layout.tsx",
+        "file": "app/routes/product/layout.tsx",
         "config": {}
       },
-      "routes/products/products": {
-        "id": "routes/products/products",
-        "parentId": "routes/products/layout",
-        "file": "app/routes/products/products.tsx",
+      "routes/product/products": {
+        "id": "routes/product/products",
+        "parentId": "routes/product/layout",
+        "file": "app/routes/product/products.tsx",
         "path": "products",
         "config": {}
       },
-      "routes/products/product.$id": {
-        "id": "routes/products/product.$id",
+      "routes/product/product.$id": {
+        "id": "routes/product/product.$id",
         "parentId": "routes/layout",
-        "file": "app/routes/products/product.$id.tsx",
+        "file": "app/routes/product/product.$id.tsx",
         "path": "product/:id",
         "config": {}
       },
-      "routes/page-test/test": {
-        "id": "routes/page-test/test",
-        "parentId": "routes/layout",
-        "file": "app/routes/page-test/test.tsx",
-        "path": "test",
-        "config": {}
-      },
-      "routes/page-test/test-2": {
-        "id": "routes/page-test/test-2",
-        "parentId": "routes/layout",
-        "file": "app/routes/page-test/test-2.tsx",
-        "path": "test-2",
+      "routes/auth/register": {
+        "id": "routes/auth/register",
+        "parentId": "root",
+        "file": "app/routes/auth/register.tsx",
+        "path": "auth/register",
         "config": {}
       },
       "routes/auth/login": {
         "id": "routes/auth/login",
         "parentId": "root",
         "file": "app/routes/auth/login.tsx",
-        "path": "auth/login",
+        "path": "login",
         "config": {}
       },
-      "routes/auth/login-action": {
-        "id": "routes/auth/login-action",
+      "routes/favorites/favorites": {
+        "id": "routes/favorites/favorites",
         "parentId": "root",
-        "file": "app/routes/auth/login-action.ts",
-        "path": "auth/login-action",
-        "config": {}
-      },
-      "routes/admin/logout": {
-        "id": "routes/admin/logout",
-        "parentId": "root",
-        "file": "app/routes/admin/logout.ts",
-        "path": "admin/logout",
+        "file": "app/routes/favorites/favorites.tsx",
+        "path": "favorites",
         "config": {}
       },
       "routes/admin/layout": {
@@ -116,55 +107,107 @@
         "parentId": "routes/admin/layout",
         "file": "app/routes/admin/dashboard/page.tsx",
         "path": "admin",
+        "index": true,
         "config": {}
       },
-      "routes/admin/products": {
-        "id": "routes/admin/products",
+      "routes/admin/product/products": {
+        "id": "routes/admin/product/products",
         "parentId": "routes/admin/layout",
-        "file": "app/routes/admin/products.tsx",
+        "file": "app/routes/admin/product/products.tsx",
         "path": "admin/products",
+        "index": true,
         "config": {}
       },
-      "routes/admin/product.new": {
-        "id": "routes/admin/product.new",
+      "routes/admin/product/product.new": {
+        "id": "routes/admin/product/product.new",
         "parentId": "routes/admin/layout",
-        "file": "app/routes/admin/product.new.tsx",
+        "file": "app/routes/admin/product/product.new.tsx",
         "path": "admin/products/new",
         "config": {}
       },
-      "routes/admin/product.$id": {
-        "id": "routes/admin/product.$id",
+      "routes/admin/product/product.$id": {
+        "id": "routes/admin/product/product.$id",
         "parentId": "routes/admin/layout",
-        "file": "app/routes/admin/product.$id.tsx",
+        "file": "app/routes/admin/product/product.$id.tsx",
         "path": "admin/products/:id",
         "config": {}
       },
-      "routes/admin/categories": {
-        "id": "routes/admin/categories",
+      "routes/admin/category/categories": {
+        "id": "routes/admin/category/categories",
         "parentId": "routes/admin/layout",
-        "file": "app/routes/admin/categories.tsx",
+        "file": "app/routes/admin/category/categories.tsx",
         "path": "admin/categories",
+        "index": true,
         "config": {}
       },
-      "routes/admin/category.new": {
-        "id": "routes/admin/category.new",
+      "routes/admin/category/category.new": {
+        "id": "routes/admin/category/category.new",
         "parentId": "routes/admin/layout",
-        "file": "app/routes/admin/category.new.tsx",
+        "file": "app/routes/admin/category/category.new.tsx",
         "path": "admin/categories/new",
         "config": {}
       },
-      "routes/admin/category.$id": {
-        "id": "routes/admin/category.$id",
+      "routes/admin/category/category.$id": {
+        "id": "routes/admin/category/category.$id",
         "parentId": "routes/admin/layout",
-        "file": "app/routes/admin/category.$id.tsx",
+        "file": "app/routes/admin/category/category.$id.tsx",
         "path": "admin/categories/:id",
         "config": {}
       },
-      "routes/test-auth": {
-        "id": "routes/test-auth",
+      "actions/category/category-delete.$id": {
+        "id": "actions/category/category-delete.$id",
         "parentId": "root",
-        "file": "app/routes/test-auth.tsx",
-        "path": "test-auth",
+        "file": "app/actions/category/category-delete.$id.tsx",
+        "path": "actions/category/delete/:id",
+        "config": {}
+      },
+      "actions/product/product-delete.$id": {
+        "id": "actions/product/product-delete.$id",
+        "parentId": "root",
+        "file": "app/actions/product/product-delete.$id.tsx",
+        "path": "actions/product/delete/:id",
+        "config": {}
+      },
+      "actions/favorite/add.$id": {
+        "id": "actions/favorite/add.$id",
+        "parentId": "root",
+        "file": "app/actions/favorite/add.$id.tsx",
+        "path": "actions/favorite/add/:productId",
+        "config": {}
+      },
+      "actions/favorite/remove.$id": {
+        "id": "actions/favorite/remove.$id",
+        "parentId": "root",
+        "file": "app/actions/favorite/remove.$id.tsx",
+        "path": "actions/favorite/remove/:productId",
+        "config": {}
+      },
+      "actions/auth/login-action": {
+        "id": "actions/auth/login-action",
+        "parentId": "root",
+        "file": "app/actions/auth/login-action.tsx",
+        "path": "actions/auth/login-action",
+        "config": {}
+      },
+      "actions/auth/register-action": {
+        "id": "actions/auth/register-action",
+        "parentId": "root",
+        "file": "app/actions/auth/register-action.tsx",
+        "path": "actions/auth/register-action",
+        "config": {}
+      },
+      "actions/auth/logout": {
+        "id": "actions/auth/logout",
+        "parentId": "root",
+        "file": "app/actions/auth/logout.tsx",
+        "path": "actions/auth/logout",
+        "config": {}
+      },
+      "actions/auth/google-login-action": {
+        "id": "actions/auth/google-login-action",
+        "parentId": "root",
+        "file": "app/actions/auth/google-login-action.tsx",
+        "path": "actions/auth/google-login-action",
         "config": {}
       }
     }
@@ -197,52 +240,40 @@
         "file": "./routes/home/home.tsx",
         "index": true
       },
-      "routes/products/layout": {
-        "id": "routes/products/layout",
+      "routes/product/layout": {
+        "id": "routes/product/layout",
         "parentId": "routes/layout",
-        "file": "./routes/products/layout.tsx"
+        "file": "./routes/product/layout.tsx"
       },
-      "routes/products/products": {
-        "id": "routes/products/products",
-        "parentId": "routes/products/layout",
-        "file": "./routes/products/products.tsx",
+      "routes/product/products": {
+        "id": "routes/product/products",
+        "parentId": "routes/product/layout",
+        "file": "./routes/product/products.tsx",
         "path": "products"
       },
-      "routes/products/product.$id": {
-        "id": "routes/products/product.$id",
+      "routes/product/product.$id": {
+        "id": "routes/product/product.$id",
         "parentId": "routes/layout",
-        "file": "./routes/products/product.$id.tsx",
+        "file": "./routes/product/product.$id.tsx",
         "path": "product/:id"
       },
-      "routes/page-test/test": {
-        "id": "routes/page-test/test",
-        "parentId": "routes/layout",
-        "file": "./routes/page-test/test.tsx",
-        "path": "test"
-      },
-      "routes/page-test/test-2": {
-        "id": "routes/page-test/test-2",
-        "parentId": "routes/layout",
-        "file": "./routes/page-test/test-2.tsx",
-        "path": "test-2"
+      "routes/auth/register": {
+        "id": "routes/auth/register",
+        "parentId": "root",
+        "file": "./routes/auth/register.tsx",
+        "path": "auth/register"
       },
       "routes/auth/login": {
         "id": "routes/auth/login",
         "parentId": "root",
         "file": "./routes/auth/login.tsx",
-        "path": "auth/login"
+        "path": "login"
       },
-      "routes/auth/login-action": {
-        "id": "routes/auth/login-action",
+      "routes/favorites/favorites": {
+        "id": "routes/favorites/favorites",
         "parentId": "root",
-        "file": "./routes/auth/login-action.ts",
-        "path": "auth/login-action"
-      },
-      "routes/admin/logout": {
-        "id": "routes/admin/logout",
-        "parentId": "root",
-        "file": "./routes/admin/logout.ts",
-        "path": "admin/logout"
+        "file": "./routes/favorites/favorites.tsx",
+        "path": "favorites"
       },
       "routes/admin/layout": {
         "id": "routes/admin/layout",
@@ -253,49 +284,94 @@
         "id": "routes/admin/dashboard/page",
         "parentId": "routes/admin/layout",
         "file": "./routes/admin/dashboard/page.tsx",
-        "path": "admin"
+        "path": "admin",
+        "index": true
       },
-      "routes/admin/products": {
-        "id": "routes/admin/products",
+      "routes/admin/product/products": {
+        "id": "routes/admin/product/products",
         "parentId": "routes/admin/layout",
-        "file": "./routes/admin/products.tsx",
-        "path": "admin/products"
+        "file": "./routes/admin/product/products.tsx",
+        "path": "admin/products",
+        "index": true
       },
-      "routes/admin/product.new": {
-        "id": "routes/admin/product.new",
+      "routes/admin/product/product.new": {
+        "id": "routes/admin/product/product.new",
         "parentId": "routes/admin/layout",
-        "file": "./routes/admin/product.new.tsx",
+        "file": "./routes/admin/product/product.new.tsx",
         "path": "admin/products/new"
       },
-      "routes/admin/product.$id": {
-        "id": "routes/admin/product.$id",
+      "routes/admin/product/product.$id": {
+        "id": "routes/admin/product/product.$id",
         "parentId": "routes/admin/layout",
-        "file": "./routes/admin/product.$id.tsx",
+        "file": "./routes/admin/product/product.$id.tsx",
         "path": "admin/products/:id"
       },
-      "routes/admin/categories": {
-        "id": "routes/admin/categories",
+      "routes/admin/category/categories": {
+        "id": "routes/admin/category/categories",
         "parentId": "routes/admin/layout",
-        "file": "./routes/admin/categories.tsx",
-        "path": "admin/categories"
+        "file": "./routes/admin/category/categories.tsx",
+        "path": "admin/categories",
+        "index": true
       },
-      "routes/admin/category.new": {
-        "id": "routes/admin/category.new",
+      "routes/admin/category/category.new": {
+        "id": "routes/admin/category/category.new",
         "parentId": "routes/admin/layout",
-        "file": "./routes/admin/category.new.tsx",
+        "file": "./routes/admin/category/category.new.tsx",
         "path": "admin/categories/new"
       },
-      "routes/admin/category.$id": {
-        "id": "routes/admin/category.$id",
+      "routes/admin/category/category.$id": {
+        "id": "routes/admin/category/category.$id",
         "parentId": "routes/admin/layout",
-        "file": "./routes/admin/category.$id.tsx",
+        "file": "./routes/admin/category/category.$id.tsx",
         "path": "admin/categories/:id"
       },
-      "routes/test-auth": {
-        "id": "routes/test-auth",
+      "actions/category/category-delete.$id": {
+        "id": "actions/category/category-delete.$id",
         "parentId": "root",
-        "file": "./routes/test-auth.tsx",
-        "path": "test-auth"
+        "file": "./actions/category/category-delete.$id.tsx",
+        "path": "actions/category/delete/:id"
+      },
+      "actions/product/product-delete.$id": {
+        "id": "actions/product/product-delete.$id",
+        "parentId": "root",
+        "file": "./actions/product/product-delete.$id.tsx",
+        "path": "actions/product/delete/:id"
+      },
+      "actions/favorite/add.$id": {
+        "id": "actions/favorite/add.$id",
+        "parentId": "root",
+        "file": "./actions/favorite/add.$id.tsx",
+        "path": "actions/favorite/add/:productId"
+      },
+      "actions/favorite/remove.$id": {
+        "id": "actions/favorite/remove.$id",
+        "parentId": "root",
+        "file": "./actions/favorite/remove.$id.tsx",
+        "path": "actions/favorite/remove/:productId"
+      },
+      "actions/auth/login-action": {
+        "id": "actions/auth/login-action",
+        "parentId": "root",
+        "file": "./actions/auth/login-action.tsx",
+        "path": "actions/auth/login-action"
+      },
+      "actions/auth/register-action": {
+        "id": "actions/auth/register-action",
+        "parentId": "root",
+        "file": "./actions/auth/register-action.tsx",
+        "path": "actions/auth/register-action"
+      },
+      "actions/auth/logout": {
+        "id": "actions/auth/logout",
+        "parentId": "root",
+        "file": "./actions/auth/logout.tsx",
+        "path": "actions/auth/logout"
+      },
+      "actions/auth/google-login-action": {
+        "id": "actions/auth/google-login-action",
+        "parentId": "root",
+        "file": "./actions/auth/google-login-action.tsx",
+        "path": "actions/auth/google-login-action"
       }
     },
     "routeDiscovery": {
@@ -319,76 +395,99 @@
                 "index": true
               },
               {
-                "file": "./routes/products/layout.tsx",
+                "file": "./routes/product/layout.tsx",
                 "children": [
                   {
-                    "file": "./routes/products/products.tsx",
+                    "file": "./routes/product/products.tsx",
                     "path": "products"
                   }
                 ]
               },
               {
-                "file": "./routes/products/product.$id.tsx",
+                "file": "./routes/product/product.$id.tsx",
                 "path": "product/:id"
-              },
-              {
-                "file": "./routes/page-test/test.tsx",
-                "path": "test"
-              },
-              {
-                "file": "./routes/page-test/test-2.tsx",
-                "path": "test-2"
               }
             ]
           },
           {
+            "file": "./routes/auth/register.tsx",
+            "path": "auth/register"
+          },
+          {
             "file": "./routes/auth/login.tsx",
-            "path": "auth/login"
+            "path": "login"
           },
           {
-            "file": "./routes/auth/login-action.ts",
-            "path": "auth/login-action"
-          },
-          {
-            "file": "./routes/admin/logout.ts",
-            "path": "admin/logout"
+            "file": "./routes/favorites/favorites.tsx",
+            "path": "favorites"
           },
           {
             "file": "./routes/admin/layout.tsx",
             "children": [
               {
                 "file": "./routes/admin/dashboard/page.tsx",
+                "index": true,
                 "path": "admin"
               },
               {
-                "file": "./routes/admin/products.tsx",
+                "file": "./routes/admin/product/products.tsx",
+                "index": true,
                 "path": "admin/products"
               },
               {
-                "file": "./routes/admin/product.new.tsx",
+                "file": "./routes/admin/product/product.new.tsx",
                 "path": "admin/products/new"
               },
               {
-                "file": "./routes/admin/product.$id.tsx",
+                "file": "./routes/admin/product/product.$id.tsx",
                 "path": "admin/products/:id"
               },
               {
-                "file": "./routes/admin/categories.tsx",
+                "file": "./routes/admin/category/categories.tsx",
+                "index": true,
                 "path": "admin/categories"
               },
               {
-                "file": "./routes/admin/category.new.tsx",
+                "file": "./routes/admin/category/category.new.tsx",
                 "path": "admin/categories/new"
               },
               {
-                "file": "./routes/admin/category.$id.tsx",
+                "file": "./routes/admin/category/category.$id.tsx",
                 "path": "admin/categories/:id"
               }
             ]
           },
           {
-            "file": "./routes/test-auth.tsx",
-            "path": "test-auth"
+            "file": "./actions/category/category-delete.$id.tsx",
+            "path": "actions/category/delete/:id"
+          },
+          {
+            "file": "./actions/product/product-delete.$id.tsx",
+            "path": "actions/product/delete/:id"
+          },
+          {
+            "file": "./actions/favorite/add.$id.tsx",
+            "path": "actions/favorite/add/:productId"
+          },
+          {
+            "file": "./actions/favorite/remove.$id.tsx",
+            "path": "actions/favorite/remove/:productId"
+          },
+          {
+            "file": "./actions/auth/login-action.tsx",
+            "path": "actions/auth/login-action"
+          },
+          {
+            "file": "./actions/auth/register-action.tsx",
+            "path": "actions/auth/register-action"
+          },
+          {
+            "file": "./actions/auth/logout.tsx",
+            "path": "actions/auth/logout"
+          },
+          {
+            "file": "./actions/auth/google-login-action.tsx",
+            "path": "actions/auth/google-login-action"
           }
         ]
       }

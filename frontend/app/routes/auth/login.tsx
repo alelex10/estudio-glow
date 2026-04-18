@@ -10,9 +10,8 @@ import { loginSchema, type LoginFormData } from "~/common/schemas/auth";
 import { GoogleLoginButton } from "~/common/components/GoogleLoginButton";
 import { useState } from "react";
 import type { Route } from "./+types/login";
-import { getUserRole, isAuthenticated, createAuthSession } from "~/common/services/auth.server";
+import { getUserRole, isAuthenticated } from "~/common/services/auth.server";
 import { ADMIN } from "~/common/constants/rute-client";
-import { API_BASE_URL } from "~/common/config/api-end-points";
 
 export function meta() {
   return [
@@ -36,47 +35,6 @@ export async function loader({ request }: Route.LoaderArgs) {
   }
 
   return null;
-}
-
-async function serverGoogleLogin(idToken: string) {
-  const response = await fetch(`${API_BASE_URL}/auth/google/login`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ idToken }),
-  });
-
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({ error: { message: "Error en login con Google" } }));
-    const errorMessage = errorData.error?.message || errorData.message || "Error al iniciar sesión con Google";
-    throw new Error(errorMessage);
-  }
-
-  return response.json();
-}
-
-export async function action({ request }: Route.ActionArgs) {
-  const formData = await request.formData();
-  const idToken = formData.get("idToken") as string;
-
-  if (!idToken) {
-    return { error: "Token de Google no proporcionado" };
-  }
-
-  try {
-    const { token, user } = await serverGoogleLogin(idToken);
-    return createAuthSession(request, token, user, user.role === "admin" ? ADMIN.BASE_ROUTE : "/");
-  } catch (err: any) {
-    const errorMessage = err.message || "Error al iniciar sesión con Google";
-    
-    if (errorMessage.includes("no registrado") || errorMessage.includes("401")) {
-      return { 
-        error: "Usuario no registrado con Google. Por favor, registrate primero.",
-        suggestion: "register"
-      };
-    }
-    
-    return { error: errorMessage };
-  }
 }
 
 export default function CustomerLogin({ actionData }: Route.ComponentProps) {
@@ -138,7 +96,7 @@ export default function CustomerLogin({ actionData }: Route.ComponentProps) {
               setIsGoogleSubmitting(true);
               const formData = new FormData();
               formData.append("idToken", idToken);
-              submit(formData, { method: "post" });
+              submit(formData, { method: "post", action: "/actions/auth/google-login-action" });
             }}
             onError={(err) => {
               setIsGoogleSubmitting(false);

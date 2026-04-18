@@ -61,6 +61,7 @@ export default [
       route("login-action", "./actions/auth/login-action.tsx"),
       route("register-action", "./actions/auth/register-action.tsx"),
       route("logout", "./actions/auth/logout.tsx"),
+      route("google-login-action", "./actions/auth/google-login-action.tsx"),
     ]),
   ]),
 ] satisfies RouteConfig;
