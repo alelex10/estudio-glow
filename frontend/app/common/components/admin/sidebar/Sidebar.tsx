@@ -30,6 +30,11 @@ const navItems = [
     path: "/admin/logout",
     icon: <LogOut />,
   },
+  {
+    name: "Pedidos",
+    path: "/admin/orders",
+    icon: <Box />,
+  },
 ];
 
 export function Sidebar({ isOpen, onClose }: SidebarProps) {

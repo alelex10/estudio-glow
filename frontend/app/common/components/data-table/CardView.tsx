@@ -1,5 +1,5 @@
 import clsx from "clsx";
-import type { Column } from "./types";
+import type { Column } from ".";
 
 interface CardViewProps<T> {
   data: T[];
@@ -7,6 +7,7 @@ interface CardViewProps<T> {
   actions?: (item: T) => React.ReactNode;
   onRowClick?: (item: T) => void;
   keyExtractor: (item: T) => string | number;
+  variant?: "default" | "compact";
 }
 
 export function CardView<T>({
@@ -15,6 +16,7 @@ export function CardView<T>({
   actions,
   onRowClick,
   keyExtractor,
+  variant = "default",
 }: CardViewProps<T>) {
   return (
     <div className="sm:hidden space-y-3">
@@ -29,7 +31,7 @@ export function CardView<T>({
             key={keyExtractor(item)}
             onClick={() => onRowClick?.(item)}
             className={clsx(
-              "bg-white rounded-xl border border-gray-200 p-4",
+              "bg-white rounded-xl border border-primary-400 p-4",
               onRowClick && "cursor-pointer active:bg-gray-50"
             )}
           >
@@ -71,30 +73,56 @@ export function CardView<T>({
               </div>
             ) : (
               /* Single column layout for non-image data */
-              <div className="space-y-1.5">
-                {columns.map((column, colIndex) => (
-                  <div 
-                    key={`card-list-${colIndex}-${String(column.key)}`} 
-                    className={clsx(
-                      "flex gap-2",
-                      colIndex === 0 ? "items-start" : "items-center"
-                    )}
-                  >
-                    <span className="text-[10px] text-gray-400 uppercase tracking-wide shrink-0 min-w-16">
-                      {column.header}:
-                    </span>
-                    <div className="text-sm text-gray-700 flex-1 min-w-0">
-                      {column.render
-                        ? column.render(item)
-                        : String(
-                            (item as Record<string, unknown>)[
-                              column.key as string
-                            ] ?? ""
-                          )}
+              variant === "compact" ? (
+                /* Compact layout - grid of 2 columns */
+                <div className="grid grid-cols-2 gap-x-3 gap-y-1.5">
+                  {columns.map((column, colIndex) => (
+                    <div 
+                      key={`card-compact-${colIndex}-${String(column.key)}`} 
+                      className="flex flex-col"
+                    >
+                      <span className="text-[10px] text-primary-900 uppercase tracking-wide">
+                        {column.header}
+                      </span>
+                      <div className="text-sm text-gray-700 truncate">
+                        {column.render
+                          ? column.render(item)
+                          : String(
+                              (item as Record<string, unknown>)[
+                                column.key as string
+                              ] ?? ""
+                            )}
+                      </div>
                     </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              ) : (
+                /* Default layout - vertical list */
+                <div className="space-y-1.5">
+                  {columns.map((column, colIndex) => (
+                    <div 
+                      key={`card-list-${colIndex}-${String(column.key)}`} 
+                      className={clsx(
+                        "flex gap-2",
+                        colIndex === 0 ? "items-start" : "items-center"
+                      )}
+                    >
+                      <span className="text-[10px] text-gray-400 uppercase tracking-wide shrink-0 min-w-16">
+                        {column.header}:
+                      </span>
+                      <div className="text-sm text-gray-700 flex-1 min-w-0">
+                        {column.render
+                          ? column.render(item)
+                          : String(
+                              (item as Record<string, unknown>)[
+                                column.key as string
+                              ] ?? ""
+                            )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )
             )}
 
             {/* Card Actions */}

@@ -60,14 +60,16 @@ export function FavoriteButton({
     <button
       type="button"
       onClick={handleClick}
+      disabled={isSubmitting}
       className={clsx(
         "rounded-full flex items-center justify-center transition-all duration-300",
         "hover:scale-110 active:scale-95",
         sizeClasses[size],
         isFavState
-          ? "bg-red-500/20 text-red-500 hover:bg-red-500/30"
-          : "bg-white/80 backdrop-blur-sm text-gray-400 hover:text-red-400 hover:bg-white",
+          ? "bg-danger-100 text-danger-500 border-3 border-danger-400 hover:bg-danger-200"
+          : "bg-white text-primary-400 border-3 border-primary-300 hover:bg-primary-50 hover:text-primary-500",
         "shadow-lg hover:shadow-xl",
+        isSubmitting && "opacity-50 cursor-not-allowed",
         className,
       )}
       aria-label={

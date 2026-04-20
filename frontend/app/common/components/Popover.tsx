@@ -1,5 +1,5 @@
 import { SlidersHorizontal } from "lucide-react";
-import { Button } from "./Button";
+import { Button } from "./button/Button";
 import clsx from "clsx";
 import { ChevronDown } from "lucide-react";
 

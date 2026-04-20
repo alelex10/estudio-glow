@@ -4,6 +4,33 @@ import { ResponseSchema } from "../schemas/response";
 import { NotFoundError } from "../errors";
 import { products } from "../models/product";
 import { categories } from "../models/category";
+import { orders } from "../models/order";
+
+/**
+ * Verifica si una entidad existe por ID (genérico)
+ * @param table - Tabla de Drizzle
+ * @param id - ID de la entidad
+ * @param errorMessage - Mensaje de error si no se encuentra
+ * @returns La entidad encontrada
+ * @throws NotFoundError si no existe
+ */
+export async function checkEntityExists<T extends { id: string }>(
+  table: any,
+  id: string,
+  errorMessage: string = "Entidad no encontrada"
+): Promise<T> {
+  const result = await db
+    .select()
+    .from(table)
+    .where(eq(table.id, id))
+    .limit(1);
+
+  if (!result[0]) {
+    throw new NotFoundError(errorMessage);
+  }
+
+  return result[0];
+}
 
 /**
  * Verifica si un producto existe por ID
@@ -16,17 +43,7 @@ export async function checkProductExists(
   id: string,
   errorMessage: string = "Producto no encontrado"
 ): Promise<typeof products.$inferSelect> {
-  const result = await db
-    .select()
-    .from(products)
-    .where(eq(products.id, id))
-    .limit(1);
-
-  if (!result[0]) {
-    throw new NotFoundError(errorMessage);
-  }
-
-  return result[0];
+  return checkEntityExists(products, id, errorMessage);
 }
 
 /**
@@ -40,17 +57,21 @@ export async function checkCategoryExistsById(
   id: string,
   errorMessage: string = "Categoría no encontrada"
 ): Promise<typeof categories.$inferSelect> {
-  const result = await db
-    .select()
-    .from(categories)
-    .where(eq(categories.id, id))
-    .limit(1);
+  return checkEntityExists(categories, id, errorMessage);
+}
 
-  if (!result[0]) {
-    throw new NotFoundError(errorMessage);
-  }
-
-  return result[0];
+/**
+ * Verifica si una orden existe por ID
+ * @param id - ID de la orden
+ * @param errorMessage - Mensaje de error si no se encuentra
+ * @returns La orden encontrada
+ * @throws NotFoundError si no existe
+ */
+export async function checkOrderExists(
+  id: string,
+  errorMessage: string = "Orden no encontrada"
+): Promise<typeof orders.$inferSelect> {
+  return checkEntityExists(orders, id, errorMessage);
 }
 
 /**

@@ -17,6 +17,7 @@ export function DataTable<T>({
   onPageChange,
   pageSizeOptions = [10, 25, 50],
   onPageSizeChange,
+  cardViewVariant,
 }: DataTableProps<T>) {
   if (isLoading) {
     return <LoadingState />;
@@ -35,6 +36,7 @@ export function DataTable<T>({
         actions={actions}
         onRowClick={onRowClick}
         keyExtractor={keyExtractor}
+        variant={cardViewVariant}
       />
 
       {/* Desktop: Table View */}

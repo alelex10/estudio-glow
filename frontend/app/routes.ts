@@ -18,13 +18,17 @@ export default [
       route("products", "./routes/product/products.tsx"),
     ]),
     route("product/:id", "./routes/product/product.$id.tsx"),
+
+    // Rutas protegidas/cliente que usan el layout principal
+    route("favorites", "./routes/favorites/favorites.tsx"),
+    route("cart", "./routes/cart/cart.tsx"),
+    route("checkout", "./routes/checkout/checkout.tsx"),
+    route("orders", "./routes/orders/orders.tsx"),
   ]),
 
   // Rutas de autenticación
   route(`${AUTH.REGISTER()}`, `${BASE_ROUTE}${AUTH.REGISTER()}${EXTENSION}`),
   route("login", "./routes/auth/login.tsx"),
-
-  route("favorites", "./routes/favorites/favorites.tsx"),
   layout("./routes/admin/layout.tsx", [
     ...prefix("admin", [
       index("./routes/admin/dashboard/page.tsx"),
@@ -38,6 +42,7 @@ export default [
         route("new", "./routes/admin/category/category.new.tsx"),
         route("/:id", "./routes/admin/category/category.$id.tsx"),
       ]),
+      route("orders", "./routes/admin/order/order.tsx"),
     ]),
   ]),
 

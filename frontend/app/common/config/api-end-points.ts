@@ -60,4 +60,15 @@ export const API_ENDPOINTS = {
       GET: "/categories",
     },
   },
+  // Cart
+  CART: {
+    GET: "/cart",
+    SYNC: "/cart/sync",
+    REMOVE: (productId: string) => `/cart/${productId}`,
+  },
+  // Checkout
+  CHECKOUT: {
+    MERCADO_PAGO: "/checkout/mercadopago",
+    TRANSFER: "/checkout/transfer",
+  },
 } as const;

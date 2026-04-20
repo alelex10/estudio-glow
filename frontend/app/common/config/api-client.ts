@@ -24,10 +24,17 @@ export async function apiClient<T>({
       ...options?.headers,
     },
   };
-  
+
   const response = await fetch(url, config);
-  // console.log("response", response);
+  console.log("API Request:", {
+    url,
+    method: config.method,
+    status: response.status,
+  });
   if (!response.ok) {
+    if (response.status === 404) {
+      console.error(`Endpoint ${endpoint} not found at ${url}`);
+    }
     const responseError: ErrorResponse = await response.json().catch(() => ({
       error: {
         message: "Unknown error",

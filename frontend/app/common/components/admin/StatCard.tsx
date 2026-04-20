@@ -33,17 +33,17 @@ export function StatCard({
       text: "text-white",
     },
     success: {
-      bg: "bg-gradient-to-br from-green-400 to-green-600",
+      bg: "bg-gradient-to-br from-success-400 to-success-600",
       icon: "bg-white/20 text-white",
       text: "text-white",
     },
     warning: {
-      bg: "bg-gradient-to-br from-amber-400 to-amber-600",
+      bg: "bg-gradient-to-br from-warning-400 to-warning-600",
       icon: "bg-white/20 text-white",
       text: "text-white",
     },
     danger: {
-      bg: "bg-gradient-to-br from-red-400 to-red-600",
+      bg: "bg-gradient-to-br from-danger-400 to-danger-600",
       icon: "bg-white/20 text-white",
       text: "text-white",
     },
@@ -101,7 +101,7 @@ export function StatCard({
           )}
         </div>
         <p className={clsx("text-3xl font-bold", styles.text)}>
-          {typeof value === "number" ? value.toLocaleString() : value}
+          {typeof value === "number" ? value.toLocaleString("en-US") : value}
         </p>
       </div>
     </div>

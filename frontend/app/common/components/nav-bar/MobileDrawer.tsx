@@ -9,6 +9,7 @@ import type { User } from "../../types/user-types";
 const NAV_LINKS = [
   { href: "/", label: "Home" },
   { href: "/products", label: "Productos" },
+  { href: "/orders", label: "Mis Ordenes" },
 ];
 
 interface MobileDrawerProps {

@@ -19,7 +19,7 @@ import {
   FormImageUpload,
 } from "../Form";
 import { LoadingSpinner } from "./LoadingSpinner";
-import { Button } from "../Button";
+import { Button } from "../button/Button";
 
 type ProductFormData = CreateProductData & { image?: File };
 

@@ -26,4 +26,5 @@ export interface DataTableProps<T> {
   onPageChange?: (page: number) => void;
   pageSizeOptions?: number[];
   onPageSizeChange?: (size: number) => void;
+  cardViewVariant?: "default" | "compact";
 }

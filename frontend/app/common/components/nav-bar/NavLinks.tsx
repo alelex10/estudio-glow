@@ -4,6 +4,7 @@ import clsx from "clsx";
 const NAV_LINKS = [
   { href: "/", label: "Home" },
   { href: "/products", label: "Productos" },
+  { href: "/orders", label: "Mis Ordenes" },
 ];
 
 interface NavLinksProps {

@@ -1,7 +1,9 @@
 import clsx from "clsx";
 import { Link } from "react-router";
-import { FavoriteButton } from "./FavoriteButton";
+import { FavoriteButton } from "./button/FavoriteButton";
+import { CartButton } from "./button/CartButton";
 import type { UUID } from "crypto";
+import { useCart } from "~/common/context/CartContext";
 
 interface ProductCardProps {
   imageUrl: string;
@@ -18,6 +20,13 @@ export function ProductCard({
   productId,
   isFav = false,
 }: ProductCardProps) {
+  const { addToCart } = useCart();
+  
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.preventDefault();
+    addToCart({ productId, name, price, imageUrl, quantity: 1 });
+  };
+
   return (
     <div className="p-2">
       <Link to={`/product/${productId}`}>
@@ -43,7 +52,13 @@ export function ProductCard({
             </h2>
             <div className="flex items-end justify-between gap-2">
               <p className="text-sm text-gray-600 mb-2">${price.toFixed(2)}</p>
-              <FavoriteButton size="md" productId={productId} isFav={isFav} />
+              <div className="flex gap-2">
+                <FavoriteButton size="md" productId={productId} isFav={isFav} />
+                <CartButton 
+                  size="md"
+                  onClick={handleAddToCart}
+                />
+              </div>
             </div>
           </div>
         </div>

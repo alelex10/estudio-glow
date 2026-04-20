@@ -4,7 +4,7 @@ import clsx from "clsx";
 import { Image, Plus, SlidersHorizontal } from "lucide-react";
 import { productService } from "~/common/services/productService";
 import { categoryService } from "~/common/services/categoryService";
-import { DataTable, ActionButton } from "~/common/components/admin/data-table";
+import { DataTable, ActionButton } from "~/common/components/data-table";
 import { ConfirmModal } from "~/common/components/admin/ConfirmModal";
 import { ProductsSkeleton } from "./components/ProductsSkeleton";
 import { FilterDrawer } from "~/common/components/product-filter/FilterDrawer";
@@ -31,23 +31,24 @@ export async function loader({ request }: Route.LoaderArgs) {
   const page = Math.max(1, parseInt(url.searchParams.get("page") || "1", 10));
   const limit = Math.max(1, parseInt(url.searchParams.get("limit") || "10", 10));
 
-  const [productsPaginated, categoriesResult] = await Promise.all([
-    productService.getProductsPaginated(
-      page,
-      limit,
-      searchQuery,
-      category,
-      categoryId,
-      stock
-    ),
-    categoryService.listCategories(),
-  ]);
-
-  const categories: Category[] = categoriesResult.data || [];
-
   return {
-    productsPaginated,
-    categories,
+    productsPaginated: Promise.all([
+      productService.getProductsPaginated(
+        page,
+        limit,
+        searchQuery,
+        category,
+        categoryId,
+        stock
+      ),
+      categoryService.listCategories(),
+    ]).then(([productsPaginated, categoriesResult]) => {
+      const categories: Category[] = categoriesResult.data || [];
+      return {
+        productsPaginated,
+        categories,
+      };
+    }),
     initialSearchQuery: searchQuery || "",
     initialPage: page,
     initialLimit: limit,
@@ -66,7 +67,6 @@ export default function AdminProducts({ loaderData }: Route.ComponentProps) {
     product: null,
   });
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const { categories } = loaderData;
 
   const handlePageChange = (page: number) => {
     const params = new URLSearchParams(searchParams);
@@ -166,7 +166,7 @@ export default function AdminProducts({ loaderData }: Route.ComponentProps) {
   return (
     <Suspense fallback={<ProductsSkeleton />}>
       <Await resolve={loaderData.productsPaginated}>
-        {(productsPaginated) => (
+        {({ productsPaginated, categories }) => (
           <div className="flex gap-6">
             {/* Sidebar de filtros - Desktop */}
             <div className="hidden lg:block">

@@ -14,9 +14,12 @@
       "routes/home/home": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/product/products": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/product/product.$id": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/favorites/favorites": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/cart/cart": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/checkout/checkout": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/orders/orders": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/auth/register": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/auth/login": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
-      "routes/favorites/favorites": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/admin/dashboard/page": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/admin/product/products": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/admin/product/product.new": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
@@ -24,6 +27,7 @@
       "routes/admin/category/categories": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/admin/category/category.new": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/admin/category/category.$id": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/admin/order/order": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "actions/category/category-delete.$id": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "actions/product/product-delete.$id": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "actions/favorite/add.$id": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
@@ -75,6 +79,34 @@
         "path": "product/:id",
         "config": {}
       },
+      "routes/favorites/favorites": {
+        "id": "routes/favorites/favorites",
+        "parentId": "routes/layout",
+        "file": "app/routes/favorites/favorites.tsx",
+        "path": "favorites",
+        "config": {}
+      },
+      "routes/cart/cart": {
+        "id": "routes/cart/cart",
+        "parentId": "routes/layout",
+        "file": "app/routes/cart/cart.tsx",
+        "path": "cart",
+        "config": {}
+      },
+      "routes/checkout/checkout": {
+        "id": "routes/checkout/checkout",
+        "parentId": "routes/layout",
+        "file": "app/routes/checkout/checkout.tsx",
+        "path": "checkout",
+        "config": {}
+      },
+      "routes/orders/orders": {
+        "id": "routes/orders/orders",
+        "parentId": "routes/layout",
+        "file": "app/routes/orders/orders.tsx",
+        "path": "orders",
+        "config": {}
+      },
       "routes/auth/register": {
         "id": "routes/auth/register",
         "parentId": "root",
@@ -87,13 +119,6 @@
         "parentId": "root",
         "file": "app/routes/auth/login.tsx",
         "path": "login",
-        "config": {}
-      },
-      "routes/favorites/favorites": {
-        "id": "routes/favorites/favorites",
-        "parentId": "root",
-        "file": "app/routes/favorites/favorites.tsx",
-        "path": "favorites",
         "config": {}
       },
       "routes/admin/layout": {
@@ -152,6 +177,13 @@
         "parentId": "routes/admin/layout",
         "file": "app/routes/admin/category/category.$id.tsx",
         "path": "admin/categories/:id",
+        "config": {}
+      },
+      "routes/admin/order/order": {
+        "id": "routes/admin/order/order",
+        "parentId": "routes/admin/layout",
+        "file": "app/routes/admin/order/order.tsx",
+        "path": "admin/orders",
         "config": {}
       },
       "actions/category/category-delete.$id": {
@@ -257,6 +289,30 @@
         "file": "./routes/product/product.$id.tsx",
         "path": "product/:id"
       },
+      "routes/favorites/favorites": {
+        "id": "routes/favorites/favorites",
+        "parentId": "routes/layout",
+        "file": "./routes/favorites/favorites.tsx",
+        "path": "favorites"
+      },
+      "routes/cart/cart": {
+        "id": "routes/cart/cart",
+        "parentId": "routes/layout",
+        "file": "./routes/cart/cart.tsx",
+        "path": "cart"
+      },
+      "routes/checkout/checkout": {
+        "id": "routes/checkout/checkout",
+        "parentId": "routes/layout",
+        "file": "./routes/checkout/checkout.tsx",
+        "path": "checkout"
+      },
+      "routes/orders/orders": {
+        "id": "routes/orders/orders",
+        "parentId": "routes/layout",
+        "file": "./routes/orders/orders.tsx",
+        "path": "orders"
+      },
       "routes/auth/register": {
         "id": "routes/auth/register",
         "parentId": "root",
@@ -268,12 +324,6 @@
         "parentId": "root",
         "file": "./routes/auth/login.tsx",
         "path": "login"
-      },
-      "routes/favorites/favorites": {
-        "id": "routes/favorites/favorites",
-        "parentId": "root",
-        "file": "./routes/favorites/favorites.tsx",
-        "path": "favorites"
       },
       "routes/admin/layout": {
         "id": "routes/admin/layout",
@@ -324,6 +374,12 @@
         "parentId": "routes/admin/layout",
         "file": "./routes/admin/category/category.$id.tsx",
         "path": "admin/categories/:id"
+      },
+      "routes/admin/order/order": {
+        "id": "routes/admin/order/order",
+        "parentId": "routes/admin/layout",
+        "file": "./routes/admin/order/order.tsx",
+        "path": "admin/orders"
       },
       "actions/category/category-delete.$id": {
         "id": "actions/category/category-delete.$id",
@@ -406,6 +462,22 @@
               {
                 "file": "./routes/product/product.$id.tsx",
                 "path": "product/:id"
+              },
+              {
+                "file": "./routes/favorites/favorites.tsx",
+                "path": "favorites"
+              },
+              {
+                "file": "./routes/cart/cart.tsx",
+                "path": "cart"
+              },
+              {
+                "file": "./routes/checkout/checkout.tsx",
+                "path": "checkout"
+              },
+              {
+                "file": "./routes/orders/orders.tsx",
+                "path": "orders"
               }
             ]
           },
@@ -416,10 +488,6 @@
           {
             "file": "./routes/auth/login.tsx",
             "path": "login"
-          },
-          {
-            "file": "./routes/favorites/favorites.tsx",
-            "path": "favorites"
           },
           {
             "file": "./routes/admin/layout.tsx",
@@ -454,6 +522,10 @@
               {
                 "file": "./routes/admin/category/category.$id.tsx",
                 "path": "admin/categories/:id"
+              },
+              {
+                "file": "./routes/admin/order/order.tsx",
+                "path": "admin/orders"
               }
             ]
           },

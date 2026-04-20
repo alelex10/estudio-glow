@@ -1,10 +1,9 @@
 import { Router } from "express";
-
 import { getProductStats } from "../controller/dashboard";
-import { authenticate, requireAdmin } from "../middleware/auth";
+import { authenticate } from "../middleware/auth";
 
-const dashboardRouter = Router();
+const router = Router();
 
-dashboardRouter.get("/stats", authenticate, requireAdmin, getProductStats);
+router.get("/stats", authenticate, getProductStats);
 
-export default dashboardRouter;
+export default router;

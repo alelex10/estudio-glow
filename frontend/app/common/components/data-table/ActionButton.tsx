@@ -1,9 +1,9 @@
 import clsx from "clsx";
-import { Eye, Edit, Trash2 } from "lucide-react";
+import { Eye, Edit, Trash2, CheckCircle, XCircle } from "lucide-react";
 
 interface ActionButtonProps {
   onClick: () => void;
-  variant?: "edit" | "delete" | "view";
+  variant?: "edit" | "delete" | "view" | "approve" | "reject";
   disabled?: boolean;
 }
 
@@ -24,6 +24,14 @@ export function ActionButton({
     delete: {
       className: "text-red-600 hover:text-red-800 hover:bg-red-50",
       icon: <Trash2 className="w-4 h-4" />,
+    },
+    approve: {
+      className: "text-emerald-600 hover:text-emerald-800 hover:bg-emerald-50",
+      icon: <CheckCircle className="w-4 h-4" />,
+    },
+    reject: {
+      className: "text-red-600 hover:text-red-800 hover:bg-red-50",
+      icon: <XCircle className="w-4 h-4" />,
     },
   };
 

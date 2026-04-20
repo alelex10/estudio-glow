@@ -1,7 +1,7 @@
 import { Link, useNavigate, useFetcher } from "react-router";
 import { Heart, ArrowLeft, ShoppingBag } from "lucide-react";
 import clsx from "clsx";
-import { FavoriteButton } from "~/common/components/FavoriteButton";
+import { FavoriteButton } from "~/common/components/button/FavoriteButton";
 import type { FavoriteItem } from "~/common/types/user-types";
 import Footer from "~/common/components/Footer";
 import { requireAuth } from "~/common/actions/auth-helpers";

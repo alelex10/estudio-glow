@@ -7,7 +7,7 @@ import { FormInput } from "~/common/components/Form/FormInput";
 import { FormButton } from "~/common/components/Form/FormButton";
 import { FormError } from "~/common/components/Form/FormError";
 import { loginSchema, type LoginFormData } from "~/common/schemas/auth";
-import { GoogleLoginButton } from "~/common/components/GoogleLoginButton";
+import { GoogleLoginButton } from "~/common/components/button/GoogleLoginButton";
 import { useState } from "react";
 import type { Route } from "./+types/login";
 import { getUserRole, isAuthenticated } from "~/common/services/auth.server";

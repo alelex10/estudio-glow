@@ -14,9 +14,13 @@ export function InventoryValue({ totalValue }: InventoryValueProps) {
           </p>
           <p className="text-3xl font-bold text-gray-900 mt-1">
             $
-            {totalValue?.toLocaleString("es-AR", {
-              minimumFractionDigits: 2,
-            }) || "0.00"}
+            {(() => {
+              const value = totalValue || 0;
+              return value.toLocaleString("en-US", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+              });
+            })() || "0.00"}
           </p>
         </div>
         <div className="p-4 bg-linear-to-br from-primary-400 via-primary-200 to-primary-400 rounded-xl">

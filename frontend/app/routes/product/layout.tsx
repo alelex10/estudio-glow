@@ -1,5 +1,5 @@
 import { Await, Outlet, useLoaderData, useSearchParams } from "react-router";
-import { Button } from "~/common/components/Button";
+import { Button } from "~/common/components/button/Button";
 import { SlidersHorizontal, ChevronDown } from "lucide-react";
 import clsx from "clsx";
 import { Suspense, useState } from "react";
