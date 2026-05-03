@@ -29,7 +29,7 @@ export const Logo = ({ className, variant = "full" }: LogoProps) => {
                 </div>
 
             </div>
-            <h1 className={clsx("bg-clip-text font-gabarito text-9xl font-bold text-transparent text-center mt-6",
+            <h1 className={clsx("bg-clip-text text-9xl font-bold text-transparent text-center mt-6",
                 "bg-linear-to-bl from-primary-500 from-30% via-primary-200 via-50% to-primary-500 to-70% ")}>
                 GLOW
             </h1>

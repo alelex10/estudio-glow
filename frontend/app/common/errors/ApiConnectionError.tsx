@@ -3,7 +3,7 @@ export function ApiConnectionError() {
     <main className="pt-16 p-4 container mx-auto">
       <div className="max-w-2xl mx-auto mt-20 text-center">
         <div className="text-8xl mb-6">✨</div>
-        <h1 className="text-4xl md:text-5xl font-playfair font-bold text-primary-800 mb-6">
+        <h1 className="text-4xl md:text-5xl font-bold text-primary-800 mb-6">
           Glow Studio
         </h1>
         <h2 className="text-2xl md:text-3xl font-semibold text-primary-600 mb-4">

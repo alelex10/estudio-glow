@@ -2,18 +2,21 @@ import { asyncHandler } from "../middleware/async-handler";
 import type { Request, Response } from "express";
 import { db } from "../db";
 import { products } from "../models/product";
-import { lt } from "drizzle-orm";
+import { count, eq, lt, sql } from "drizzle-orm";
 import { categories } from "../models/category";
 import { ResponseSchema } from "../schemas/response";
 
 // GET STATS product
 export const getProductStats = [
   asyncHandler(async (req: Request, res: Response) => {
-    const total = await getTotalProducts();
-    const lowStock = await getLowStockProducts();
-    const totalCategory = await getTotalCategory();
-    const withoutStock = await getWithoutStock();
-    const totalValue = await getTotalValue();
+    const [total, lowStock, totalCategory, withoutStock, totalValue] =
+      await Promise.all([
+        getTotalProducts(),
+        getLowStockProducts(),
+        getTotalCategory(),
+        getWithoutStock(),
+        getTotalValue(),
+      ]);
 
     res.json(
       ResponseSchema.parse({
@@ -31,45 +34,39 @@ export const getProductStats = [
 ];
 
 // GET total products
-const getTotalProducts = async () => {
-  return db
-    .select()
-    .from(products)
-    .then((result) => result.length);
+const getTotalProducts = async (): Promise<number> => {
+  const [result] = await db.select({ count: count() }).from(products);
+  return result?.count ?? 0;
 };
 
 // GET low stock products
-const getLowStockProducts = async () => {
-  return db
-    .select()
+const getLowStockProducts = async (): Promise<number> => {
+  const [result] = await db
+    .select({ count: count() })
     .from(products)
-    .where(lt(products.stock, 10))
-    .then((result) => result.length);
+    .where(lt(products.stock, 10));
+  return result?.count ?? 0;
 };
 
-//GET total category
-const getTotalCategory = async () => {
-  return db
-    .select()
-    .from(categories)
-    .then((result) => result.length);
+// GET total categories
+const getTotalCategory = async (): Promise<number> => {
+  const [result] = await db.select({ count: count() }).from(categories);
+  return result?.count ?? 0;
 };
 
-//GET without stock
-const getWithoutStock = async () => {
-  return db
-    .select()
+// GET without stock
+const getWithoutStock = async (): Promise<number> => {
+  const [result] = await db
+    .select({ count: count() })
     .from(products)
-    .where(lt(products.stock, 0))
-    .then((result) => result.length);
+    .where(eq(products.stock, 0));
+  return result?.count ?? 0;
 };
 
-//GET total value
-const getTotalValue = async () => {
-  return db
-    .select()
-    .from(products)
-    .then((result) =>
-      result.reduce((acc, product) => acc + product.price * product.stock, 0)
-    );
+// GET total value (suma de price * stock)
+const getTotalValue = async (): Promise<number> => {
+  const [result] = await db
+    .select({ total: sql<number>`coalesce(sum(${products.price} * ${products.stock}), 0)` })
+    .from(products);
+  return result?.total ?? 0;
 };

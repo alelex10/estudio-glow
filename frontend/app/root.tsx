@@ -8,7 +8,7 @@ import {
 } from "react-router";
 
 import type { Route } from "./+types/root";
-import "./app.css";
+import appCssHref from "./app.css?url";
 import { ToastContainer } from "./common/components/Toast";
 import { getUser } from "./common/services/auth.server";
 import type { User } from "./common/types/user-types";
@@ -26,6 +26,14 @@ interface LayoutProps {
   children: React.ReactNode;
 }
 
+export function links() {
+  return [
+    { rel: "preconnect", href: "/" },
+    { rel: "dns-prefetch", href: "/" },
+    { rel: "stylesheet", href: appCssHref },
+  ];
+}
+
 export function Layout({ children }: LayoutProps) {
   return (
     <html lang="en">
@@ -35,7 +43,7 @@ export function Layout({ children }: LayoutProps) {
         <Meta />
         <Links />
       </head>
-      <body className="font-gabarito">
+      <body className="font-sans">
         {children}
         <ToastContainer />
         <ScrollRestoration />

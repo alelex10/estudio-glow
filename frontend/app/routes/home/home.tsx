@@ -29,7 +29,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
           id="mas-nuevo"
           className="text-center text-primary-800 text-3xl md:text-5xl py-10"
         >
-          <h2 className="font-playfair tracking-wide mb-10">Lo mas nuevo </h2>
+          <h2 className="tracking-wide mb-10">Lo mas nuevo </h2>
           <Suspense fallback={<div>Cargando productos...</div>}>
             <ProductCarousel products={loaderData.newProducts.data || []} />
           </Suspense>
