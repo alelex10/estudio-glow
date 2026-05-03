@@ -4,6 +4,7 @@ import { FavoriteButton } from "./button/FavoriteButton";
 import { CartButton } from "./button/CartButton";
 import type { UUID } from "crypto";
 import { useCart } from "~/common/context/CartContext";
+import { getCloudinaryUrl } from "~/common/lib/utils";
 
 interface ProductCardProps {
   imageUrl: string;
@@ -40,8 +41,9 @@ export function ProductCard({
         >
           <div className="relative aspect-4/5 overflow-hidden bg-gray-50">
             <img
-              src={imageUrl}
+              src={getCloudinaryUrl(imageUrl, 400)}
               alt={name}
+              loading="lazy"
               className="w-full h-full object-cover object-center hover:scale-105 transition-transform duration-500"
             />
           </div>

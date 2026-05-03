@@ -1,5 +1,6 @@
 import { Trash2, Plus, Minus } from "lucide-react";
 import clsx from "clsx";
+import { getCloudinaryUrl } from "~/common/lib/utils";
 
 interface CartItem {
   productId: string;
@@ -28,8 +29,9 @@ export function CartItemsList({ items, readonly = false, onUpdateQuantity, onRem
           {item.imageUrl && (
             <div className="w-full sm:w-24 h-32 sm:h-24 shrink-0 bg-gray-50 rounded-lg overflow-hidden mx-auto sm:mx-0">
               <img
-                src={item.imageUrl}
+                src={getCloudinaryUrl(item.imageUrl, 200)}
                 alt={item.name}
+                loading="lazy"
                 className="w-full h-full object-cover"
               />
             </div>

@@ -1,14 +1,13 @@
-import type { Request, Response } from "express";
+import type { Response } from "express";
+import type { AuthRequest } from "../middleware/auth";
 import { db } from "../db";
 import { favorites, products } from "../models/relations";
 import { eq, and } from "drizzle-orm";
 import { asyncHandler } from "../middleware/async-handler";
-import { AuthenticationError, ConflictError, NotFoundError, BadRequestError } from "../errors";
+import { ConflictError, NotFoundError, BadRequestError } from "../errors";
 
-export const addFavorite = asyncHandler(async (req: Request, res: Response) => {
-  const authUser = (req as any).user;
-  if (!authUser) throw new AuthenticationError("No autenticado");
-
+export const addFavorite = asyncHandler(async (req: AuthRequest, res: Response) => {
+  const userId = req.user.id;
   const productId = req.params.productId;
   if (!productId) throw new BadRequestError("productId es requerido");
 
@@ -28,7 +27,7 @@ export const addFavorite = asyncHandler(async (req: Request, res: Response) => {
     .from(favorites)
     .where(
       and(
-        eq(favorites.userId, authUser.id),
+        eq(favorites.userId, userId),
         eq(favorites.productId, productId)
       )
     );
@@ -38,17 +37,15 @@ export const addFavorite = asyncHandler(async (req: Request, res: Response) => {
   }
 
   await db.insert(favorites).values({
-    userId: authUser.id,
+    userId,
     productId,
   });
 
   res.status(201).json({ message: "Producto agregado a favoritos" });
 });
 
-export const removeFavorite = asyncHandler(async (req: Request, res: Response) => {
-  const authUser = (req as any).user;
-  if (!authUser) throw new AuthenticationError("No autenticado");
-
+export const removeFavorite = asyncHandler(async (req: AuthRequest, res: Response) => {
+  const userId = req.user.id;
   const productId = req.params.productId;
   if (!productId) throw new BadRequestError("productId es requerido");
 
@@ -56,7 +53,7 @@ export const removeFavorite = asyncHandler(async (req: Request, res: Response) =
     .delete(favorites)
     .where(
       and(
-        eq(favorites.userId, authUser.id),
+        eq(favorites.userId, userId),
         eq(favorites.productId, productId)
       )
     )
@@ -69,9 +66,8 @@ export const removeFavorite = asyncHandler(async (req: Request, res: Response) =
   res.status(200).json({ message: "Producto eliminado de favoritos" });
 });
 
-export const listFavorites = asyncHandler(async (req: Request, res: Response) => {
-  const authUser = (req as any).user;
-  if (!authUser) throw new AuthenticationError("No autenticado");
+export const listFavorites = asyncHandler(async (req: AuthRequest, res: Response) => {
+  const userId = req.user.id;
 
   const result = await db
     .select({
@@ -89,20 +85,19 @@ export const listFavorites = asyncHandler(async (req: Request, res: Response) =>
     })
     .from(favorites)
     .innerJoin(products, eq(favorites.productId, products.id))
-    .where(eq(favorites.userId, authUser.id))
+    .where(eq(favorites.userId, userId))
     .orderBy(favorites.createdAt);
 
   res.status(200).json({ data: result });
 });
 
-export const getFavoriteIds = asyncHandler(async (req: Request, res: Response) => {
-  const authUser = (req as any).user;
-  if (!authUser) throw new AuthenticationError("No autenticado");
+export const getFavoriteIds = asyncHandler(async (req: AuthRequest, res: Response) => {
+  const userId = req.user.id;
 
   const result = await db
     .select({ productId: favorites.productId })
     .from(favorites)
-    .where(eq(favorites.userId, authUser.id));
+    .where(eq(favorites.userId, userId));
 
   const ids = result.map((f) => f.productId);
   res.status(200).json({ data: ids });

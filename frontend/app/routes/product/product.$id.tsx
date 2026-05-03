@@ -15,6 +15,7 @@ import { useLoaderData, useNavigate, Link } from "react-router";
 import clsx from "clsx";
 import { useCart } from "~/common/context/CartContext";
 import { useState } from "react";
+import { getCloudinaryUrl } from "~/common/lib/utils";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -104,8 +105,9 @@ export default function ProductDetail() {
             <div className="mb-8 lg:mb-0 lg:relative lg:top-auto absolute top-0 left-0 right-0">
               <div className="space-y-4">
                 <img
-                  src={product.imageUrl}
+                  src={getCloudinaryUrl(product.imageUrl, 800)}
                   alt={product.name}
+                  loading="lazy"
                   className="w-full h-full object-cover lg:rounded-2xl lg:shadow-lg lg:max-h-[600px]"
                 />
               </div>

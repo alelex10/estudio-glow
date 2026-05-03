@@ -7,6 +7,7 @@ import Footer from "~/common/components/Footer";
 import { requireAuth } from "~/common/actions/auth-helpers";
 import { favoriteService } from "~/common/services/favoriteService";
 import type { Route } from "./+types/favorites";
+import { getCloudinaryUrl } from "~/common/lib/utils";
 
 export function meta() {
   return [
@@ -115,8 +116,9 @@ export default function Favorites({ loaderData }: Route.ComponentProps) {
                   <div className="aspect-square overflow-hidden bg-gray-100">
                     {fav.product.imageUrl ? (
                       <img
-                        src={fav.product.imageUrl}
+                        src={getCloudinaryUrl(fav.product.imageUrl, 400)}
                         alt={fav.product.name}
+                        loading="lazy"
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       />
                     ) : (

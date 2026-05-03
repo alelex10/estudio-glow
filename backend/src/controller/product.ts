@@ -12,7 +12,7 @@ import {
 } from "../schemas/product";
 import { ParamsIdSchema } from "../schemas/params";
 import { ImageUploadService } from "../services/imageUploadService";
-import { PaginationHelper } from "../types/pagination";
+import { PaginationHelper, type PaginatedResponse } from "../types/pagination";
 import { asyncHandler } from "../middleware/async-handler";
 import { NotFoundError } from "../errors";
 import { db } from "../db";
@@ -21,8 +21,7 @@ import { checkCategoryExists } from "./category";
 import type { GetNewProducts } from "../schemas/product";
 import { 
   checkProductExists, 
-  successResponse,
-  type PaginatedResponse
+  successResponse
 } from "../utils/crud-helpers";
 
 type FilterCondition = ReturnType<typeof eq> | ReturnType<typeof and> | ReturnType<typeof ilike> | ReturnType<typeof gt> | ReturnType<typeof lte>;

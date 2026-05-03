@@ -8,6 +8,7 @@ import { authRouter } from "./routes/auth";
 import usersRouter from "./routes/users";
 import favoritesRouter from "./routes/favorites";
 import { validateImageFile } from "./middleware/file-validation";
+import { optimizeImage } from "./middleware/optimize";
 import cors from "cors";
 import {
   logErrors,
@@ -88,7 +89,7 @@ app.get("/", (req, res) => {
 });
 
 // Admin routes (protected by auth middleware inside router)
-app.use("/products", upload.single("image"), productRouter);
+app.use("/products", upload.single("image"), optimizeImage, productRouter);
 app.use("/categories", categoryRouter);
 app.use("/auth", authRouter);
 app.use("/users", usersRouter);

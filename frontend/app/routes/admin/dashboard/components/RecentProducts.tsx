@@ -1,7 +1,8 @@
 import { Link } from "react-router";
 import clsx from "clsx";
 import { Package, Image, ChevronRight } from "lucide-react";
-import type { ProductResponse } from "../../../../common/types/product-types";
+import type { ProductResponse } from "~/common/types/product-types";
+import { getCloudinaryUrl } from "~/common/lib/utils";
 
 interface RecentProductsProps {
   products: ProductResponse[];
@@ -45,8 +46,9 @@ export function RecentProducts({ products }: RecentProductsProps) {
               <div className="w-12 h-12 rounded-lg overflow-hidden bg-gray-100 shrink-0">
                 {product.imageUrl ? (
                   <img
-                    src={product.imageUrl}
+                    src={getCloudinaryUrl(product.imageUrl, 120)}
                     alt={product.name}
+                    loading="lazy"
                     className="w-full h-full object-cover"
                   />
                 ) : (

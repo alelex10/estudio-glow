@@ -1,4 +1,4 @@
-import { eq, and, sql, type SQL } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { db } from "../db";
 import { ResponseSchema } from "../schemas/response";
 import { NotFoundError } from "../errors";
@@ -100,78 +100,4 @@ export function createdResponse<T>(data: T, message: string = "Created successfu
   });
 }
 
-/**
- * Construye condiciones AND para queries
- * @param conditions - Array de condiciones SQL
- * @returns Condición SQL combinada o undefined
- */
-export function buildWhereConditions(conditions: (SQL | undefined)[]): SQL | undefined {
-  const validConditions = conditions.filter((c): c is SQL => c !== undefined);
 
-  if (validConditions.length === 0) {
-    return undefined;
-  }
-
-  if (validConditions.length === 1) {
-    return validConditions[0];
-  }
-
-  return and(...validConditions);
-}
-
-/**
- * Parámetros de paginación estándar
- */
-export interface PaginationParams {
-  page: number;
-  limit: number;
-  sortBy?: string;
-  sortOrder?: "asc" | "desc";
-}
-
-/**
- * Metadatos de paginación
- */
-export interface PaginationMetadata {
-  page: number;
-  limit: number;
-  totalItems: number;
-  totalPages: number;
-  hasNextPage: boolean;
-  hasPreviousPage: boolean;
-}
-
-/**
- * Respuesta paginada genérica
- */
-export interface PaginatedResponse<T> {
-  data: T[];
-  pagination: PaginationMetadata;
-}
-
-/**
- * Calcula los metadatos de paginación
- */
-export function calculatePaginationMetadata(
-  page: number,
-  limit: number,
-  totalItems: number
-): PaginationMetadata {
-  const totalPages = Math.ceil(totalItems / limit);
-
-  return {
-    page,
-    limit,
-    totalItems,
-    totalPages,
-    hasNextPage: page < totalPages,
-    hasPreviousPage: page > 1,
-  };
-}
-
-/**
- * Calcula el offset para SQL
- */
-export function calculateOffset(page: number, limit: number): number {
-  return (page - 1) * limit;
-}

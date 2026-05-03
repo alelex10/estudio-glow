@@ -1,6 +1,7 @@
 import { X } from "lucide-react";
 import { StatusBadge } from "./StatusBadge";
 import { PaymentBadge } from "./PaymentBadge";
+import { getCloudinaryUrl } from "~/common/lib/utils";
 
 interface OrderItem {
   id: string;
@@ -134,8 +135,9 @@ export function OrderDetailModal({ order, onClose, isLoading }: OrderDetailModal
                   >
                     {item.product.imageUrl ? (
                       <img
-                        src={item.product.imageUrl}
+                        src={getCloudinaryUrl(item.product.imageUrl, 120)}
                         alt={item.product.name}
+                        loading="lazy"
                         className="w-16 h-16 sm:w-20 sm:h-20 object-cover rounded-xl shrink-0"
                       />
                     ) : (

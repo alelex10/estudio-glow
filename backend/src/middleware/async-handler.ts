@@ -10,6 +10,15 @@ type AsyncRequestHandler = (
 ) => Promise<any>;
 
 /**
+ * Tipo genérico para funciones de controlador async que soporta Request y AuthRequest
+ */
+type GenericAsyncRequestHandler<T extends Request = Request> = (
+  req: T,
+  res: Response,
+  next: NextFunction
+) => Promise<any>;
+
+/**
  * Wrapper para funciones async que captura errores automáticamente
  *
  * Elimina la necesidad de bloques try-catch en cada controlador.
@@ -23,8 +32,8 @@ type AsyncRequestHandler = (
  *   res.json(product);
  * });
  */
-export function asyncHandler(fn: AsyncRequestHandler) {
+export function asyncHandler<T extends Request = Request>(fn: GenericAsyncRequestHandler<T>) {
   return (req: Request, res: Response, next: NextFunction) => {
-    Promise.resolve(fn(req, res, next)).catch(next);
+    Promise.resolve(fn(req as T, res, next)).catch(next);
   };
 }

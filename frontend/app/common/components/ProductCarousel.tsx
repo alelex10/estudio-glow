@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ProductCard } from "./Card";
 import { ArrowLeftIcon, ArrowRightIcon } from "lucide-react";
 import clsx from "clsx";
 import { useBreakpoint } from "../hooks/useBreakpoint";
-import { useEffect } from "react";
+import { getCloudinaryUrl } from "../lib/utils";
 import type { Product } from "../types/product-types";
 
 interface ProductCarouselProps {
@@ -71,7 +71,7 @@ export function ProductCarousel({ products }: ProductCarouselProps) {
                         >
                             <ProductCard
                                 productId={product.id}
-                                imageUrl={product.imageUrl}
+                                imageUrl={getCloudinaryUrl(product.imageUrl, 400)}
                                 name={product.name}
                                 price={product.price}
                             />

@@ -3,6 +3,7 @@ import { Await, Link, redirect, useNavigate, useFetcher, useSearchParams } from 
 import clsx from "clsx";
 import { Image, Plus, SlidersHorizontal } from "lucide-react";
 import { productService } from "~/common/services/productService";
+import { getCloudinaryUrl } from "~/common/lib/utils";
 import { categoryService } from "~/common/services/categoryService";
 import { DataTable, ActionButton } from "~/common/components/data-table";
 import { ConfirmModal } from "~/common/components/admin/ConfirmModal";
@@ -101,8 +102,9 @@ export default function AdminProducts({ loaderData }: Route.ComponentProps) {
         <div className="w-12 h-12 rounded-lg overflow-hidden bg-gray-100">
           {product.imageUrl ? (
             <img
-              src={product.imageUrl}
+              src={getCloudinaryUrl(product.imageUrl, 120)}
               alt={product.name}
+              loading="lazy"
               className="w-full h-full object-cover"
             />
           ) : (

@@ -2,7 +2,7 @@ import { db } from "../db";
 import { orders, orderItems, type OrderWithItems } from "../models/order";
 import { carts, cartItems } from "../models/cart";
 import { products } from "../models/product";
-import { eq, desc, asc } from "drizzle-orm";
+import { count, eq, desc, asc, inArray } from "drizzle-orm";
 import { DatabaseError } from "../errors";
 
 export class OrderService {
@@ -198,12 +198,12 @@ export class OrderService {
       .limit(limit)
       .offset(offset);
 
-    const totalResult = await db
-      .select({ count: orders.id })
+    const [totalResult] = await db
+      .select({ total: count() })
       .from(orders)
       .where(eq(orders.userId, userId));
 
-    const total = totalResult.length;
+    const total = totalResult?.total ?? 0;
 
     return {
       data,
@@ -243,47 +243,59 @@ export class OrderService {
 
     let data;
 
-    if (includeItems) {
-      data = await query
-        .orderBy(orderFn(sortByColumn))
-        .limit(limit)
-        .offset(offset);
+    data = await query
+      .orderBy(orderFn(sortByColumn))
+      .limit(limit)
+      .offset(offset);
 
-      const ordersWithItems = await Promise.all(
-        data.map(async (order) => {
-          const items = await db
-            .select({
-              id: orderItems.id,
-              productId: orderItems.productId,
-              quantity: orderItems.quantity,
-              priceAtPurchase: orderItems.priceAtPurchase,
-              product: {
-                id: products.id,
-                name: products.name,
-                imageUrl: products.imageUrl,
-              },
-            })
-            .from(orderItems)
-            .innerJoin(products, eq(orderItems.productId, products.id))
-            .where(eq(orderItems.orderId, order.id));
+    if (includeItems && data.length > 0) {
+      const orderIds = data.map((o) => o.id);
 
-          return {
-            ...order,
-            items,
-          };
+      // Single batch query for ALL items of ALL orders
+      const allItems = await db
+        .select({
+          id: orderItems.id,
+          orderId: orderItems.orderId,
+          productId: orderItems.productId,
+          quantity: orderItems.quantity,
+          priceAtPurchase: orderItems.priceAtPurchase,
+          product: {
+            id: products.id,
+            name: products.name,
+            imageUrl: products.imageUrl,
+          },
         })
-      );
+        .from(orderItems)
+        .innerJoin(products, eq(orderItems.productId, products.id))
+        .where(inArray(orderItems.orderId, orderIds));
 
-      data = ordersWithItems;
-    } else {
-      data = await query
-        .orderBy(orderFn(sortByColumn))
-        .limit(limit)
-        .offset(offset);
+      // Group items by orderId in JS (O(n) instead of N queries)
+      const itemsByOrderId = new Map<string, typeof allItems>();
+      for (const item of allItems) {
+        const group = itemsByOrderId.get(item.orderId);
+        if (group) {
+          group.push(item);
+        } else {
+          itemsByOrderId.set(item.orderId, [item]);
+        }
+      }
+
+      data = data.map((order) => ({
+        ...order,
+        items: itemsByOrderId.get(order.id) ?? [],
+      }));
     }
 
-    const totalResult = await db.select({ count: orders.id }).from(orders);
-    const total = totalResult.length;
+    // Total count (respects the same filters as the data query)
+    let totalQuery = db.select({ total: count() }).from(orders);
+    if (status) {
+      totalQuery = totalQuery.where(eq(orders.status, status as any)) as typeof totalQuery;
+    }
+    if (paymentMethod) {
+      totalQuery = totalQuery.where(eq(orders.paymentMethod, paymentMethod as any)) as typeof totalQuery;
+    }
+    const [totalResult] = await totalQuery;
+    const total = totalResult?.total ?? 0;
 
     return {
       data,

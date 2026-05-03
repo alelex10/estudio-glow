@@ -162,13 +162,7 @@ export const logout = asyncHandler(async (req: Request, res: Response) => {
   res.status(200).json({ message: "Logout exitoso" });
 });
 
-export const verifyToken = asyncHandler(async (req: Request, res: Response) => {
-  const user = (req as AuthRequest).user;
-
-  if (!user) {
-    throw new AuthenticationError("Token inválido o expirado");
-  }
-
+export const verifyToken = asyncHandler(async (req: AuthRequest, res: Response) => {
   const userResult = await db
     .select({
       id: users.id,
@@ -177,7 +171,7 @@ export const verifyToken = asyncHandler(async (req: Request, res: Response) => {
       role: users.role,
     })
     .from(users)
-    .where(eq(users.id, user.id));
+    .where(eq(users.id, req.user.id));
 
   if (userResult.length === 0) {
     throw new AuthenticationError("Usuario no encontrado");

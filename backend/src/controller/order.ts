@@ -1,86 +1,31 @@
 import type { Request, Response } from "express";
-import { db } from "../db";
-import { orders } from "../models/order";
-import { eq, desc, and, count, asc } from "drizzle-orm";
+import type { AuthRequest } from "../middleware/auth";
 import { OrderService } from "../services/OrderService";
-import { validateQuery, validateParams } from "../middleware/validation";
+import { validateParams } from "../middleware/validation";
 import { PaginationOrderQuerySchema } from "../schemas/order";
 import { ParamsIdSchema } from "../schemas/params";
 import {
-  calculatePaginationMetadata,
-  calculateOffset,
-  type PaginatedResponse,
   checkOrderExists,
   successResponse
 } from "../utils/crud-helpers";
 import { asyncHandler } from "../middleware/async-handler";
 
-type FilterCondition = ReturnType<typeof eq> | ReturnType<typeof and>;
+export const getOrders = asyncHandler(async (req: Request, res: Response) => {
+  const validatedQuery = PaginationOrderQuerySchema.parse(req.query);
+  const { page, limit, sortBy, sortOrder, status, paymentMethod, includeItems } = validatedQuery;
 
-async function buildOrderFilters(
-  status?: string,
-  paymentMethod?: string
-): Promise<FilterCondition[]> {
-  const conditions: FilterCondition[] = [];
+  const result = await OrderService.getOrders(
+    page,
+    limit,
+    sortBy,
+    sortOrder,
+    status,
+    paymentMethod,
+    includeItems
+  );
 
-  if (status) {
-    conditions.push(eq(orders.status, status as "PENDING" | "PAID" | "PENDING_VERIFICATION" | "CANCELLED" | "EXPIRED"));
-  }
-
-  if (paymentMethod) {
-    conditions.push(eq(orders.paymentMethod, paymentMethod as "MERCADO_PAGO" | "TRANSFER"));
-  }
-
-  return conditions;
-}
-
-async function countOrders(conditions: FilterCondition[]): Promise<number> {
-  const totalResult =
-    conditions.length > 0
-      ? await db.select({ total: count() }).from(orders).where(and(...conditions))
-      : await db.select({ total: count() }).from(orders);
-
-  return totalResult[0]?.total || 0;
-}
-
-async function executePaginatedOrderQuery(
-  conditions: FilterCondition[],
-  sortBy: "createdAt" | "totalAmount",
-  sortOrder: "asc" | "desc",
-  limit: number,
-  offset: number
-) {
-  let query = db.select().from(orders);
-
-  if (conditions.length > 0) {
-    query = query.where(and(...conditions)) as typeof query;
-  }
-
-  const orderFn = sortOrder === "desc" ? desc : asc;
-
-  return await query.orderBy(orderFn(orders[sortBy])).limit(limit).offset(offset);
-}
-
-export const getOrders = async (req: Request, res: Response) => {
-  try {
-    const validatedQuery = PaginationOrderQuerySchema.parse(req.query);
-    const { page, limit, sortBy, sortOrder, status, paymentMethod, includeItems } = validatedQuery;
-
-    const result = await OrderService.getOrders(
-      page,
-      limit,
-      sortBy,
-      sortOrder,
-      status,
-      paymentMethod,
-      includeItems
-    );
-
-    res.json(result);
-  } catch (error) {
-    res.status(500).json({ error: "Failed to fetch orders" });
-  }
-};
+  res.json(result);
+});
 
 export const getOrderById = [
   validateParams(ParamsIdSchema),
@@ -91,31 +36,27 @@ export const getOrderById = [
   }),
 ];
 
-export const getUserOrders = async (req: Request, res: Response) => {
-  try {
-    const userId = (req as any).user.id;
-    const validatedQuery = PaginationOrderQuerySchema.parse(req.query);
-    const { page, limit, sortBy, sortOrder } = validatedQuery;
+export const getUserOrders = asyncHandler(async (req: AuthRequest, res: Response) => {
+  const userId = req.user.id;
+  const validatedQuery = PaginationOrderQuerySchema.parse(req.query);
+  const { page, limit, sortBy, sortOrder } = validatedQuery;
 
-    const result = await OrderService.getUserOrders(
-      userId,
-      page,
-      limit,
-      sortBy,
-      sortOrder
-    );
+  const result = await OrderService.getUserOrders(
+    userId,
+    page,
+    limit,
+    sortBy,
+    sortOrder
+  );
 
-    res.json(result);
-  } catch (error) {
-    res.status(500).json({ error: "Failed to fetch user orders" });
-  }
-};
+  res.json(result);
+});
 
 export const getUserOrderById = [
   validateParams(ParamsIdSchema),
-  asyncHandler(async (req: Request, res: Response) => {
+  asyncHandler(async (req: AuthRequest, res: Response) => {
     const { id } = req.params as { id: string };
-    const userId = (req as any).user.id;
+    const userId = req.user.id;
     
     const order = await checkOrderExists(id);
     
