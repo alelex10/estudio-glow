@@ -6,7 +6,6 @@ import { EmptyCartState } from "~/common/components/cart/EmptyCartState";
 import { CartItemsList } from "~/common/components/cart/CartItemsList";
 import { OrderSummarySidebar } from "~/common/components/cart/OrderSummarySidebar";
 import type { Route } from "./+types/cart";
-import { useEffect } from "react";
 import { ROUTES } from "~/common/constants/routes";
 
 export function meta({ }: Route.MetaArgs) {
@@ -17,13 +16,8 @@ export function meta({ }: Route.MetaArgs) {
 }
 
 export default function Cart() {
-  const { items, removeFromCart, updateQuantity, refreshStock, totalPrice, totalItems } = useCart();
+  const { items, removeFromCart, updateQuantity, totalPrice, totalItems } = useCart();
   const navigate = useNavigate();
-
-  useEffect(() => {
-    refreshStock();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   return (
     <div className="container mx-auto px-4 pt-20 pb-6 sm:pb-8 min-h-screen max-w-7xl">
