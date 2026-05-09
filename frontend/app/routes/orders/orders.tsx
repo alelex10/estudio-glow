@@ -31,14 +31,14 @@ export async function loader({ request }: any) {
     limit,
     sortBy,
     sortOrder,
-    token
+    token,
   );
 
-  return { ordersPaginated, token, initialStatus: status };
+  return { ordersPaginated, initialStatus: status };
 }
 
 export default function UserOrders() {
-  const { ordersPaginated, token, initialStatus } = useLoaderData<typeof loader>();
+  const { ordersPaginated, initialStatus } = useLoaderData<typeof loader>();
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
   const [orderWithItems, setOrderWithItems] = useState<any>(null);
   const [loadingItems, setLoadingItems] = useState(false);
@@ -80,7 +80,7 @@ export default function UserOrders() {
     setSelectedOrder(order);
     setLoadingItems(true);
     try {
-      const orderDetail = await orderService.getOrderDetail(order.id, token);
+      const orderDetail = await orderService.getOrderDetail(order.id);
       setOrderWithItems(orderDetail);
     } catch (error) {
       console.error("Error loading order details:", error);

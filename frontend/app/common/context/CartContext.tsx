@@ -31,11 +31,22 @@ interface CartContextType {
   totalPrice: number;
 }
 
+interface CartProviderProps {
+  children: React.ReactNode;
+  isAuthenticated?: boolean;
+}
+
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
-export function CartProvider({ children }: { children: React.ReactNode }) {
+export function CartProvider({ children, isAuthenticated = false }: CartProviderProps) {
   const [items, setItems] = useState<CartItem[]>([]);
   const [isInitialized, setIsInitialized] = useState(false);
+  const isAuthRef = useRef(isAuthenticated);
+
+  // Keep ref in sync with prop (avoids stale closures in callbacks)
+  useEffect(() => {
+    isAuthRef.current = isAuthenticated;
+  }, [isAuthenticated]);
 
   // Load from local storage on mount
   useEffect(() => {
@@ -101,15 +112,19 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const removeFromCart = async (productId: UUID | string) => {
     setItems((prev) => prev.filter((i) => i.productId !== productId));
+
+    if (!isAuthRef.current) {
+      console.log("Guest user: skipping backend sync for cart removal");
+      return;
+    }
+
     try {
       await apiClient({
         endpoint: API_ENDPOINTS.CART.REMOVE(productId.toString()),
         options: { method: "DELETE" },
       });
     } catch (e) {
-      console.log(
-        "Failed to remove cart items from backend, or user is guest.",
-      );
+      console.log("Failed to remove cart items from backend");
     }
   };
 

@@ -1,4 +1,4 @@
-import { NavLink, useLocation, useSubmit } from "react-router";
+import { Link, NavLink, useLocation, useSubmit } from "react-router";
 import clsx from "clsx";
 import DrawerHeader from "../../DrawerHeader";
 import { Box, Home, LogOut, Tag, User } from "lucide-react";
@@ -27,14 +27,14 @@ const navItems = [
     icon: <Tag />,
   },
   {
-    name: "Cerrar Sesión",
-    path: ROUTES.admin.BASE, // not a real route — handled by name check below
-    icon: <LogOut />,
-  },
-  {
     name: "Pedidos",
     path: ROUTES.admin.ORDERS,
     icon: <Box />,
+  },
+  {
+    name: "Cerrar Sesión",
+    path: ROUTES.admin.BASE, // not a real route — handled by name check below
+    icon: <LogOut />,
   },
 ];
 
@@ -76,14 +76,16 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
         )}
       >
         <div className="flex flex-col h-full">
-          <DrawerHeader
-            title="Estudio Glow"
-            subtitle="Panel Admin"
-            onClose={onClose}
-            borderColor="border-gray-700"
-            subtitleColor="text-gray-400"
-            closeButtonColor="lg:hidden text-gray-400 hover:text-white"
-          />
+          <Link to={ROUTES.admin.BASE}>
+            <DrawerHeader
+              title="Estudio Glow"
+              subtitle="Panel Admin"
+              onClose={onClose}
+              borderColor="border-gray-700"
+              subtitleColor="text-gray-400"
+              closeButtonColor="lg:hidden text-gray-400 hover:text-white"
+            />
+          </Link>
 
           {/* Navegación */}
           <nav className="flex-1 p-4 space-y-1">
@@ -97,11 +99,11 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
               if (isLogout) {
                 return (
                   <button
-                    key={item.path}
+                    key={item.name}
                     onClick={handleLogout}
                     className="w-full cursor-pointer"
                   >
-                    <SidebarItem isActive={isActive}>
+                    <SidebarItem isActive={false}>
                       {item.icon}
                       <span>{item.name}</span>
                     </SidebarItem>
@@ -109,7 +111,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                 );
               }
               return (
-                <NavLink key={item.path} onClick={onClose} to={item.path}>
+                <NavLink key={item.name} onClick={onClose} to={item.path}>
                   <SidebarItem isActive={isActive}>
                     {item.icon}
                     <span>{item.name}</span>

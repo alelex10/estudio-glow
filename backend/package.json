@@ -17,7 +17,8 @@
     "dev": "bun --watch src/index.ts",
     "generate": "drizzle-kit generate",
     "migrate": "bun run src/migrate.ts",
-    "seed": "bun run src/seeds/index.ts"
+    "seed": "bun run src/seeds/index.ts",
+    "seed:users": "bun run src/seeds/seed-users.ts"
   },
   "peerDependencies": {
     "typescript": "^5.9.3"

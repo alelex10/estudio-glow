@@ -55,7 +55,6 @@ export async function loader({ request }: Route.LoaderArgs) {
       sortOrder,
       token,
     ),
-    token,
     initialPage: page,
     initialLimit: limit,
     initialStatus: status,
@@ -92,7 +91,6 @@ export default function AdminOrders({loaderData}:Route.ComponentProps) {
     setActionLoading(id + action);
     try {
       await apiClient<any>({
-        token: loaderData.token,
         endpoint: `/orders/${id}/${action}`,
         options: { method: "POST" },
       });
@@ -108,10 +106,7 @@ export default function AdminOrders({loaderData}:Route.ComponentProps) {
     setSelectedOrder(order);
     setLoadingItems(true);
     try {
-      const orderDetail = await orderService.getAdminOrderDetail(
-        order.id,
-        loaderData.token,
-      );
+      const orderDetail = await orderService.getAdminOrderDetail(order.id);
       setOrderWithItems(orderDetail);
     } catch (error) {
       console.error("Error loading order details:", error);

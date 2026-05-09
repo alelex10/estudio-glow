@@ -21,8 +21,8 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export async function loader({ request }: Route.ActionArgs) {
-  const token = await requireAuth(request);
-  return { token };
+  await requireAuth(request);
+  return {};
 }
 
 interface ProductFormData {

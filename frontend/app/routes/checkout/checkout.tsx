@@ -24,11 +24,10 @@ export async function loader({ request }: Route.LoaderArgs) {
   if (!token) {
     throw redirect(`${ROUTES.LOGIN}?redirect=${ROUTES.CHECKOUT}`);
   }
-  return { token };
+  return {};
 }
 
 export default function Checkout() {
-  const { token } = useLoaderData<typeof loader>();
   const [method, setMethod] = useState<"MERCADO_PAGO" | "TRANSFER">("MERCADO_PAGO");
   const [receipt, setReceipt] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
@@ -48,7 +47,6 @@ export default function Checkout() {
       }
 
       await apiClient<any>({
-        token,
         endpoint: API_ENDPOINTS.CART.SYNC,
         options: {
           method: "POST",
@@ -61,7 +59,6 @@ export default function Checkout() {
       // Step 2: Proceed with checkout
       if (method === "MERCADO_PAGO") {
         const data = await apiClient<any>({
-          token,
           endpoint: API_ENDPOINTS.CHECKOUT.MERCADO_PAGO,
           options: { method: "POST" }
         });
@@ -75,7 +72,6 @@ export default function Checkout() {
         formData.append("receipt", receipt);
 
         await apiClient<any>({
-          token,
           endpoint: API_ENDPOINTS.CHECKOUT.TRANSFER,
           options: {
             method: "POST",

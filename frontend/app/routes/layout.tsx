@@ -14,9 +14,9 @@ export async function loader({ request }: Route.LoaderArgs): Promise<LayoutLoade
   return { user };
 }
 
-export default function Layout() {
+export default function Layout({ loaderData }: Route.ComponentProps) {
     return (
-        <CartProvider>
+        <CartProvider isAuthenticated={!!loaderData?.user}>
             <div className="bg-primary-100" >
                 <Navbar />
                 <Outlet />
