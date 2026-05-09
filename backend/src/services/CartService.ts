@@ -1,27 +1,30 @@
-import type { UUID } from "crypto";
 import { db } from "../db";
 import { carts, cartItems } from "../models/cart";
 import { eq, and } from "drizzle-orm";
-import { DatabaseError } from "../errors";
 
 export class CartService {
   static async getCart(userId: string) {
-    let cart = await db.select().from(carts).where(eq(carts.userId, userId));
+    const existing = await db.select().from(carts).where(eq(carts.userId, userId));
+    let cart = existing[0];
 
-    if (!cart.length) {
-      const [newCart] = await db.insert(carts).values({ userId }).returning();
-      if (!newCart) throw new DatabaseError("Failed to create cart");
-      cart = [newCart];
-      return { ...newCart, items: [] };
+    if (!cart) {
+      const [inserted] = await db
+        .insert(carts)
+        .values({ userId })
+        .onConflictDoNothing({ target: carts.userId })
+        .returning();
+
+      // Otro request concurrente ganó la race → leer el carrito existente
+      cart = inserted ?? (await db.select().from(carts).where(eq(carts.userId, userId)))[0];
     }
 
-    if (!cart[0]) throw new DatabaseError("Failed to get cart");
+    if (!cart) throw new Error("Failed to get or create cart for user");
 
     const items = await db
       .select()
       .from(cartItems)
-      .where(eq(cartItems.cartId, cart[0].id));
-    return { ...cart[0], items };
+      .where(eq(cartItems.cartId, cart.id));
+    return { ...cart, items };
   }
 
   static async syncCart(
@@ -42,13 +45,18 @@ export class CartService {
     return this.getCart(userId);
   }
 
-  static async removeCartItem(userId: UUID, productId: UUID) {
+  static async removeCartItem(userId: string, productId: string) {
     const cart = await this.getCart(userId);
     await db
       .delete(cartItems)
       .where(
         and(eq(cartItems.cartId, cart.id), eq(cartItems.productId, productId)),
       );
-    return this.getCart(userId);
+
+    const items = await db
+      .select()
+      .from(cartItems)
+      .where(eq(cartItems.cartId, cart.id));
+    return { ...cart, items };
   }
 }
