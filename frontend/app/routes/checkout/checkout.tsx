@@ -63,6 +63,7 @@ export default function Checkout() {
           options: { method: "POST" }
         });
         if (data.preferenceUrl) {
+          clearCart();
           window.location.href = data.preferenceUrl;
         }
       } else {
