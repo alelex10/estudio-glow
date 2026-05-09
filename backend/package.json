@@ -18,7 +18,10 @@
     "generate": "drizzle-kit generate",
     "migrate": "bun run src/migrate.ts",
     "seed": "bun run src/seeds/index.ts",
-    "seed:users": "bun run src/seeds/seed-users.ts"
+    "seed:users": "bun run src/seeds/seed-users.ts",
+    "backup": "bash scripts/backup.sh",
+    "backup:plain": "bash scripts/backup.sh plain",
+    "restore": "bash scripts/restore.sh"
   },
   "peerDependencies": {
     "typescript": "^5.9.3"

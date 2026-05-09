@@ -14,6 +14,8 @@ const EnvSchema = z.object({
 
   FRONTEND_URL: z.string().optional(),
   FRONTEND_URL_PREVIEW: z.string().optional(),
+
+  SEED_DEFAULT_PASSWORD: z.string().default("change-me-in-dev"),
 });
 
 export const env = EnvSchema.parse(process.env);

@@ -1,4 +1,5 @@
 import { users } from "../../models/relations";
+import { env } from "../../config/env";
 import bcrypt from "bcryptjs";
 
 export type UserSeed = Omit<typeof users.$inferInsert, "id" | "password_hash"> & {
@@ -6,7 +7,7 @@ export type UserSeed = Omit<typeof users.$inferInsert, "id" | "password_hash"> &
 };
 
 function getUsersData(): UserSeed[] {
-  const password = process.env.SEED_DEFAULT_PASSWORD || "change-me-in-dev";
+  const password = env.SEED_DEFAULT_PASSWORD;
 
   if (password === "change-me-in-dev") {
     console.warn("⚠️  Usando password default para seeds. Seteá SEED_DEFAULT_PASSWORD para entornos no-dev.");

@@ -1,15 +1,24 @@
 # backend
 
-To install dependencies:
+## Setup
 
 ```bash
 bun install
+bun run dev
 ```
 
-To run:
+## Scripts disponibles
 
-```bash
-bun run index.ts
-```
+| Comando | Qué hace |
+|---|---|
+| `bun run dev` | Dev con watch |
+| `bun run start` | Producción |
+| `bun run generate` | Drizzle Kit: genera migración |
+| `bun run migrate` | Ejecuta migraciones |
+| `bun run seed` | Pobla DB con datos iniciales |
+| `bun run backup` | Backup de la base de datos vía Docker |
+| `bun run restore` | Restaurar un backup |
 
-This project was created using `bun init` in bun v1.3.3. [Bun](https://bun.com) is a fast all-in-one JavaScript runtime.
+## Documentación
+
+- [Backup & Restore](docs/database-backup.md) — cómo respaldar y restaurar la base de datos

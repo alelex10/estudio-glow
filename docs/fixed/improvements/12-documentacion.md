@@ -4,7 +4,7 @@ Auditoría de READMEs, OpenAPI, ADRs, onboarding y CONTRIBUTING.
 
 ## Estado actual
 
-- **README raíz** (`README.md`, 38 líneas): describe "arquitectura de caché de dos niveles" y linkea a `docs/architecture/arquitectura-cache.md`. **Ese archivo NO existe** (ver `docs/` solo contiene `improvements/`). Promete features que no están implementadas (ver doc 09).
+- **README raíz** (`README.md`, 38 líneas): menciona `npm install` pero el proyecto usa Bun.
 - **Backend README** (`backend/README.md`, 15 líneas): boilerplate de `bun init`. Dice `bun run index.ts` pero el entry real es `bun src/index.ts`. **Engañoso y vacío**.
 - **Frontend README** (`frontend/README.md`, 87 líneas): boilerplate de `create-react-router`. Habla de Docker generic, no menciona Vercel ni cómo está deployado, ni env vars necesarias.
 - **OpenAPI**: `backend/src/docs/openapi.ts:5-8` registra solo `auth`, `products`, `categories`, `dashboard`. **No documenta**: `cart`, `checkout`, `orders`, `favorites`, `users`, `webhooks`, `public`. Existen rutas reales en `backend/src/routes/` para todas esas. La doc cubre ~40% de la superficie.
@@ -15,35 +15,25 @@ Auditoría de READMEs, OpenAPI, ADRs, onboarding y CONTRIBUTING.
 
 ## Problemas detectados
 
-### 1. README raíz miente — ALTO
-
-**Evidencia**:
-- `README.md:9` linkea archivo inexistente `./docs/architecture/arquitectura-cache.md`
-- `README.md:14` afirma "Arquitectura de caché de dos niveles" — no implementado
-- `README.md:20` invoca a Shopify/Vercel/Netflix como inspiración — aspiracional, no es lo que el código hace
-- `README.md:33` dice `npm install` pero el proyecto usa Bun (lockfile es `bun.lock`)
-
-**Impacto**: cualquier dev nuevo (o auditor, o cliente técnico) se forma una imagen falsa del estado del proyecto. Pérdida de credibilidad. Si ese archivo se buscó al hacer una review, da una impresión muy mala.
-
-### 2. Backend README inútil — ALTO
+### 1. Backend README inútil — ALTO
 
 **Evidencia**: `backend/README.md` es el template de `bun init`. Dice `bun run index.ts` (mal), no menciona env vars, Postgres, migrations, Cloudinary, MP, Google OAuth, ni cómo arrancar.
 
 **Impacto**: nuevo dev no puede levantar el backend sin leer todo el código.
 
-### 3. Frontend README es boilerplate genérico — ALTO
+### 2. Frontend README es boilerplate genérico — ALTO
 
 **Evidencia**: `frontend/README.md` viene de `create-react-router`. No menciona Vercel (a pesar de `react-router.config.ts:9` usar `vercelPreset`), ni que el backend está en Render, ni `API_BASE_URL`/`SESSION_SECRET`.
 
 **Impacto**: idem.
 
-### 4. OpenAPI cubre ~40% de las rutas — ALTO
+### 3. OpenAPI cubre ~40% de las rutas — ALTO
 
 **Evidencia**: `backend/src/routes/` tiene 11 routers; `backend/src/docs/openapi.ts:5-8` solo importa 4. Rutas no documentadas: `cart`, `checkout`, `orders`, `favorites`, `users`, `webhooks`, `public`. Frontend (y futuros consumidores) no tiene contrato claro.
 
 **Impacto**: integraciones se hacen leyendo controladores. Cambios en endpoints rompen consumidores sin warning. El swagger UI en `/api-docs` da una falsa sensación de cobertura.
 
-### 5. Sin ADRs — MEDIO
+### 4. Sin ADRs — MEDIO
 
 **Evidencia**: ausencia de `docs/adr/`. Decisiones críticas sin contexto:
 - ¿Por qué JWT en cookies en vez de sessions server-side?
@@ -55,13 +45,13 @@ Auditoría de READMEs, OpenAPI, ADRs, onboarding y CONTRIBUTING.
 
 **Impacto**: cuando llegue el momento de cambiar uno, nadie va a saber qué tradeoffs se evaluaron. Re-debate eterno.
 
-### 6. Sin onboarding paso a paso — MEDIO
+### 5. Sin onboarding paso a paso — MEDIO
 
 **Evidencia**: ningún doc del estilo "cómo correr local en 10 minutos". El dev tiene que ir picoteando entre el README raíz, el de backend, el de frontend, y leer `backend/src/index.ts`, `backend/src/db.ts`, `backend/src/migrate.ts`, etc.
 
 **Impacto**: tiempo de onboarding alto, errores tontos al levantar el entorno.
 
-### 7. Sin CONTRIBUTING ni CODEOWNERS — BAJO
+### 6. Sin CONTRIBUTING ni CODEOWNERS — BAJO
 
 **Evidencia**: ambos ausentes.
 
@@ -71,37 +61,7 @@ Auditoría de READMEs, OpenAPI, ADRs, onboarding y CONTRIBUTING.
 
 ### P0 — esta semana
 
-**(a) Reescribir README raíz con la verdad**:
-
-```markdown
-# Estudio Glow
-
-E-commerce con backend Express 5 (Bun) en Render y frontend React Router 7 SSR en Vercel.
-Postgres + Drizzle, Cloudinary para imágenes, MercadoPago para pagos, Google OAuth.
-
-## Quick start
-
-Ver [docs/onboarding.md](./docs/onboarding.md).
-
-## Stack
-
-- **Backend**: Bun + Express 5 + Drizzle ORM + Postgres
-- **Frontend**: React Router 7 (SSR) + Tailwind 4 + Vite
-- **Infra**: Render (backend), Vercel (frontend), Cloudinary, MercadoPago
-
-## Estructura
-
-- `backend/` — API REST
-- `frontend/` — app SSR
-- `docs/` — documentación viva
-  - `improvements/` — auditorías (seguridad, performance, devops, etc.)
-  - `adr/` — Architecture Decision Records
-  - `onboarding.md` — cómo levantar el proyecto local
-```
-
-Borrar las menciones a "caché de dos niveles" y a Shopify/Vercel/Netflix. O implementarlas (ver doc 09 P1) y entonces sí escribir el doc real.
-
-**(b) Backend README real** (`backend/README.md`):
+**(a) Backend README real** (`backend/README.md`):
 
 ````markdown
 # Backend — Estudio Glow
@@ -142,7 +102,7 @@ Ver `.env.example`. Críticas: `DATABASE_URL`, `JWT_SECRET`, `CLOUDINARY_*`, `MP
 - Auth: JWT en cookie HttpOnly + middleware en `src/middleware/auth.ts`
 ````
 
-**(c) Frontend README real** (`frontend/README.md`):
+**(b) Frontend README real** (`frontend/README.md`):
 
 ````markdown
 # Frontend — Estudio Glow
@@ -172,7 +132,7 @@ Asegurate de tener el backend corriendo en `http://localhost:3000`.
 Push a `main` dispara deploy en Vercel automáticamente. Preview deployments en cada PR.
 ````
 
-**(d) Completar OpenAPI**: agregar a `backend/src/docs/openapi.ts:5-8`:
+**(c) Completar OpenAPI**: agregar a `backend/src/docs/openapi.ts:5-8`:
 
 ```ts
 import "./auth";
@@ -192,7 +152,7 @@ Y crear los archivos correspondientes con `registry.registerPath(...)` para cada
 
 ### P1 — próximas dos semanas
 
-**(e) `docs/onboarding.md`** — paso a paso end-to-end:
+**(d) `docs/onboarding.md`** — paso a paso end-to-end:
 
 ```markdown
 # Onboarding
@@ -211,9 +171,9 @@ Y crear los archivos correspondientes con `registry.registerPath(...)` para cada
 6. (Opcional) MP webhooks locales: ngrok + setear `WEBHOOK_URL`
 ```
 
-**(f) ADRs** — `docs/adr/0001-record-architecture-decisions.md` (meta-ADR), luego uno por decisión grande. Formato Michael Nygard: Status, Context, Decision, Consequences. Bajo costo, alto valor.
+**(e) ADRs** — `docs/adr/0001-record-architecture-decisions.md` (meta-ADR), luego uno por decisión grande. Formato Michael Nygard: Status, Context, Decision, Consequences. Bajo costo, alto valor.
 
-**(g) `CONTRIBUTING.md`**:
+**(f) `CONTRIBUTING.md`**:
 
 ```markdown
 # Contributing

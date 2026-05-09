@@ -1,4 +1,4 @@
-import { Form, Link, redirect, useSubmit } from "react-router";
+import { Form, Link, redirect, useSearchParams, useSubmit } from "react-router";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import clsx from "clsx";
@@ -8,7 +8,7 @@ import { FormButton } from "~/common/components/Form/FormButton";
 import { FormError } from "~/common/components/Form/FormError";
 import { loginSchema, type LoginFormData } from "~/common/schemas/auth";
 import { GoogleLoginButton } from "~/common/components/button/GoogleLoginButton";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { Route } from "./+types/login";
 import { getUserRole, isAuthenticated } from "~/common/services/auth.server";
 import { ROUTES } from "~/common/constants/routes";
@@ -40,10 +40,39 @@ export async function loader({ request }: Route.LoaderArgs) {
 export default function CustomerLogin({ actionData }: Route.ComponentProps) {
   const serverError =
     (actionData as { error?: string; suggestion?: string } | undefined)?.error ?? undefined;
-  const suggestion = (actionData as { suggestion?: string } | undefined)?.suggestion;
+  const actionSuggestion = (actionData as { suggestion?: string } | undefined)?.suggestion;
   const [googleError, setGoogleError] = useState<string | undefined>(undefined);
+  const [googleSuggestion, setGoogleSuggestion] = useState<string | undefined>(undefined);
   const [isGoogleSubmitting, setIsGoogleSubmitting] = useState(false);
   const submit = useSubmit();
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // Leer errores de Google que vienen por redirect en query params
+  useEffect(() => {
+    const error = searchParams.get("error");
+    if (error) {
+      setGoogleError(decodeURIComponent(error));
+      const sug = searchParams.get("suggestion");
+      if (sug) setGoogleSuggestion(sug);
+      setIsGoogleSubmitting(false);
+      // Limpiar query params
+      const clean = new URLSearchParams(searchParams);
+      clean.delete("error");
+      clean.delete("suggestion");
+      clean.delete("debugId");
+      setSearchParams(clean, { replace: true });
+    }
+  }, []); // Solo al montar
+
+  // Resetea estado de carga cuando actionData indica que terminó la action
+  useEffect(() => {
+    if (actionData && Object.keys(actionData).length > 0) {
+      setIsGoogleSubmitting(false);
+      if ((actionData as { error?: string }).error) {
+        setGoogleError((actionData as { error?: string }).error);
+      }
+    }
+  }, [actionData]);
 
   const {
     register,
@@ -145,7 +174,7 @@ export default function CustomerLogin({ actionData }: Route.ComponentProps) {
           />
 
           <FormError message={serverError || googleError} />
-          {suggestion === "register" && (
+          {(actionSuggestion === "register" || googleSuggestion === "register") && (
             <p className="text-sm text-center mt-2">
               <Link
                 to={ROUTES.REGISTER}

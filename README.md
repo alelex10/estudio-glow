@@ -4,14 +4,11 @@ Aplicación web moderna con arquitectura SSR escalable y patrones enterprise-lev
 
 ## 📚 Documentación
 
-Consulta la documentación completa del proyecto en [`docs/`](./docs/):
-
-- **[Arquitectura de Caché](./docs/architecture/arquitectura-cache.md)** - Guía completa de caché SSR para datos públicos y privados
+Consulta la documentación completa del proyecto en [`docs/`](./docs/).
 
 ## 🚀 Características
 
 - SSR con React Router
-- Arquitectura de caché de dos niveles (global + por usuario)
 - TypeScript estricto
 - Diseño enterprise-level
 
@@ -20,8 +17,6 @@ Consulta la documentación completa del proyecto en [`docs/`](./docs/):
 Este proyecto sigue patrones utilizados por empresas como Shopify, Vercel y Netflix:
 
 - Separación clara entre datos públicos y privados
-- Cache global compartido vía CDN/Edge
-- SSR personalizado por usuario
 - Escalabilidad horizontal y seguridad por diseño
 
 ## 📋 Desarrollo

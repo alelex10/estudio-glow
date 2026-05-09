@@ -1,4 +1,5 @@
 import type { ActionFunctionArgs } from "react-router";
+import { redirect } from "react-router";
 import { createAuthSession } from "~/common/services/auth.server";
 import { serverGoogleLogin } from "~/common/services/authApi.server";
 import { ROUTES } from "~/common/constants/routes";
@@ -167,11 +168,16 @@ export async function action({ request }: ActionFunctionArgs) {
       redirectPath,
     );
   } catch (error) {
-    // Map error to typed response
-    return mapBackendError(
+    // Redirigir a /login con el error en query params
+    const data = mapBackendError(
       error as Error & { code?: string; statusCode?: number },
       debugId,
       env,
     );
+    const params = new URLSearchParams();
+    params.set("error", data.error || "Error desconocido");
+    if (data.suggestion) params.set("suggestion", data.suggestion);
+    if (data.debugId) params.set("debugId", data.debugId);
+    return redirect(`${ROUTES.LOGIN}?${params.toString()}`);
   }
 }
