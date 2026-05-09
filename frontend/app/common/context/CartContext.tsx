@@ -92,8 +92,31 @@ export function CartProvider({ children, isAuthenticated = false }: CartProvider
   useEffect(() => {
     if (isInitialized) {
       localStorage.setItem("glow_cart", JSON.stringify(items));
-      // Optional: If user is authed, call sync API here.
     }
+  }, [items, isInitialized]);
+
+  // Sync to backend for authenticated users (debounced)
+  useEffect(() => {
+    if (!isInitialized || !isAuthRef.current) return;
+
+    const timeout = setTimeout(() => {
+      apiClient({
+        endpoint: API_ENDPOINTS.CART.SYNC,
+        options: {
+          method: "POST",
+          body: JSON.stringify({
+            items: items.map((i) => ({
+              productId: i.productId,
+              quantity: i.quantity,
+            })),
+          }),
+        },
+      }).catch((e) => {
+        console.error("Failed to sync cart to backend", e);
+      });
+    }, 500);
+
+    return () => clearTimeout(timeout);
   }, [items, isInitialized]);
 
   const addToCart = (newItem: CartItem) => {
@@ -110,33 +133,19 @@ export function CartProvider({ children, isAuthenticated = false }: CartProvider
     });
   };
 
-  const removeFromCart = async (productId: UUID | string) => {
+  const removeFromCart = (productId: UUID | string) => {
     setItems((prev) => prev.filter((i) => i.productId !== productId));
-
-    if (!isAuthRef.current) {
-      console.log("Guest user: skipping backend sync for cart removal");
-      return;
-    }
-
-    try {
-      await apiClient({
-        endpoint: API_ENDPOINTS.CART.REMOVE(productId.toString()),
-        options: { method: "DELETE" },
-      });
-    } catch (e) {
-      console.log("Failed to remove cart items from backend");
-    }
   };
 
   const updateQuantity = (productId: UUID | string, quantity: number) => {
+    if (quantity <= 0) {
+      removeFromCart(productId);
+      return;
+    }
+
     setItems((prev) => {
       const item = prev.find((i) => i.productId === productId);
       if (!item) return prev;
-
-      if (quantity <= 0) {
-        removeFromCart(productId);
-        return prev;
-      }
 
       if (item.stock !== undefined && quantity > item.stock) {
         return prev;
