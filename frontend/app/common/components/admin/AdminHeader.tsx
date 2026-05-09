@@ -2,6 +2,7 @@ import clsx from "clsx";
 import { Menu, LogOut } from "lucide-react";
 import { useSubmit } from "react-router";
 import type { User } from "~/common/types/user-types";
+import { ROUTES } from "~/common/constants/routes";
 
 interface AdminHeaderProps {
   title: string;
@@ -23,7 +24,7 @@ export function AdminHeader({
   const handleLogout = async () => {
     try {
       submit(null, {
-        action: "/actions/auth/logout",
+        action: ROUTES.actions.AUTH_LOGOUT,
         method: "post",
       });
     } catch (error) {

@@ -7,6 +7,7 @@ import { CartItemsList } from "~/common/components/cart/CartItemsList";
 import { OrderSummarySidebar } from "~/common/components/cart/OrderSummarySidebar";
 import type { Route } from "./+types/cart";
 import { useEffect } from "react";
+import { ROUTES } from "~/common/constants/routes";
 
 export function meta({ }: Route.MetaArgs) {
   return [
@@ -32,7 +33,7 @@ export default function Cart() {
       </div>
 
       {items.length === 0 ? (
-        <EmptyCartState onNavigate={() => navigate('/products')} />
+        <EmptyCartState onNavigate={() => navigate(ROUTES.PRODUCTS)} />
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
           <div className="lg:col-span-2 space-y-4">
@@ -53,14 +54,14 @@ export default function Cart() {
                   <Button
                     variant="gold"
                     size="lg"
-                    onClick={() => navigate('/checkout')}
+                    onClick={() => navigate(ROUTES.CHECKOUT)}
                     className="w-full mb-3 py-3 sm:py-2"
                   >
                     Proceder al Pago
                     <ArrowRight className="w-5 h-5" />
                   </Button>
 
-                  <Link to="/products">
+                  <Link to={ROUTES.PRODUCTS}>
                     <Button variant="outline" size="md" className="w-full">
                       Seguir comprando
                     </Button>

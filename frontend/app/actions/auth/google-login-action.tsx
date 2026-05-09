@@ -1,7 +1,7 @@
 import type { ActionFunctionArgs } from "react-router";
 import { createAuthSession } from "~/common/services/auth.server";
 import { serverGoogleLogin } from "~/common/services/authApi.server";
-import { ADMIN } from "~/common/constants/rute-client";
+import { ROUTES } from "~/common/constants/routes";
 import type { GoogleLoginActionData } from "~/common/types/response";
 import { API_BASE_URL } from "~/common/config/api-end-points";
 
@@ -156,8 +156,8 @@ export async function action({ request }: ActionFunctionArgs) {
 
     // Create session and redirect by role
     const redirectPath = {
-      admin: ADMIN.BASE_ROUTE,
-      customer: "/",
+      admin: ROUTES.admin.BASE,
+      customer: ROUTES.HOME,
     }[response.user.role];
 
     return createAuthSession(

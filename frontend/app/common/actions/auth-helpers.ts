@@ -1,21 +1,22 @@
 import { redirect } from "react-router";
 import { getToken } from "../services/auth.server";
+import { ROUTES } from "~/common/constants/routes";
 
 /**
  * Wrapper que extrae y valida el token de autenticación.
- * Si no hay token, redirige a /login.
+ * Si no hay token, redirige a login.
  * 
  * @param request - Request de React Router
  * @returns Token JWT válido
- * @throws Redirect a /login si no hay token
+ * @throws Redirect a login si no hay token
  */
 export async function requireAuth(request: Request): Promise<string> {
   const token = await getToken(request);
-  
+   
   if (!token) {
-    throw redirect("/login");
+    throw redirect(ROUTES.LOGIN);
   }
-  
+   
   return token;
 }
 

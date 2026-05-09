@@ -8,6 +8,7 @@ import { requireAuth } from "~/common/actions/auth-helpers";
 import { favoriteService } from "~/common/services/favoriteService";
 import type { Route } from "./+types/favorites";
 import { getCloudinaryUrl } from "~/common/lib/utils";
+import { ROUTES } from "~/common/constants/routes";
 
 export function meta() {
   return [
@@ -31,7 +32,7 @@ export default function Favorites({ loaderData }: Route.ComponentProps) {
   const fetcher = useFetcher();
 
   const handleFavoriteToggle = (productId: string) => {
-    const action = `/actions/favorite/remove/${productId}`;
+    const action = ROUTES.actions.FAVORITE_REMOVE(productId);
     const method = "DELETE";
     fetcher.submit(
       { productId },
@@ -95,7 +96,7 @@ export default function Favorites({ loaderData }: Route.ComponentProps) {
                 return (
                 <Link
                   key={fav.id}
-                  to={`/product/${fav.product.id}`}
+                  to={ROUTES.PRODUCT(fav.product.id)}
                   className={clsx(
                     "group relative bg-white rounded-2xl overflow-hidden",
                     "border border-gray-100 shadow-sm hover:shadow-lg",
@@ -108,7 +109,6 @@ export default function Favorites({ loaderData }: Route.ComponentProps) {
                       productId={fav.product.id}
                       size="sm"
                       isFav={optimisticIsFav}
-                      onToggle={handleFavoriteToggle}
                     />
                   </div>
 
@@ -155,7 +155,7 @@ export default function Favorites({ loaderData }: Route.ComponentProps) {
                 gusten
               </p>
               <Link
-                to="/products"
+                to={ROUTES.PRODUCTS}
                 className={clsx(
                   "inline-flex items-center gap-2 px-6 py-3",
                   "bg-primary-500 hover:bg-primary-600 text-white",

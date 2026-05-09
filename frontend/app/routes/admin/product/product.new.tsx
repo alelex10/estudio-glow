@@ -11,6 +11,7 @@ import { requireAuth } from "~/common/actions/auth-helpers";
 import { parseFormData, getFileFromFormData } from "~/common/actions/form-helpers";
 import { handleActionError } from "~/common/actions/error-helpers";
 import { toast } from "~/common/components/Toast";
+import { ROUTES } from "~/common/constants/routes";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -84,7 +85,7 @@ export default function AdminProductNew() {
   useEffect(() => {
     if (actionData?.success) {
       toast("success", "Producto creado correctamente");
-      navigate("/admin/products");
+      navigate(ROUTES.admin.PRODUCTS);
     }
     if (actionData && isActionError(actionData)) {
       actionData.errors.forEach((error) => toast("error", error));
@@ -114,7 +115,7 @@ export default function AdminProductNew() {
   };
 
   const handleCancel = () => {
-    navigate("/admin/products");
+    navigate(ROUTES.admin.PRODUCTS);
   };
 
   return (

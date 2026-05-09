@@ -1,12 +1,13 @@
 import { Link } from "react-router";
 import clsx from "clsx";
 import { Plus, List } from "lucide-react";
+import { ROUTES } from "~/common/constants/routes";
 
 export function QuickActions() {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
       <Link
-        to="/admin/products/new"
+        to={ROUTES.admin.PRODUCTS_NEW}
         className={clsx(
           "flex items-center gap-4 p-6 rounded-xl",
           "bg-linear-to-br from-primary-500 to-primary-600",
@@ -27,7 +28,7 @@ export function QuickActions() {
       </Link>
 
       <Link
-        to="/admin/products"
+        to={ROUTES.admin.PRODUCTS}
         className={clsx(
           "flex items-center gap-4 p-6 rounded-xl",
           "bg-white border border-gray-200",

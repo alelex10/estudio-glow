@@ -6,6 +6,7 @@ import { API_ENDPOINTS } from "~/common/config/api-end-points";
 import { requireAuth } from "~/common/actions/auth-helpers";
 import { getSession, destroySession } from "~/common/services/session-storage";
 import { apiClient } from "~/common/config/api-client";
+import { ROUTES } from "~/common/constants/routes";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -27,14 +28,14 @@ export async function loader({ request, context }: Route.LoaderArgs) {
     });
 
     if (!data || !data.user) {
-      return redirect("/login");
+      return redirect(ROUTES.LOGIN);
     }
 
     const session = await getSession(request.headers.get("Cookie"));
     return { user: session.get("user") };
   } catch (error) {
     const session = await getSession(request.headers.get("Cookie"));
-    return redirect("/login", {
+    return redirect(ROUTES.LOGIN, {
       headers: {
         "Set-Cookie": await destroySession(session),
       },

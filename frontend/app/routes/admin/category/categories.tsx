@@ -12,6 +12,7 @@ import { CategoriesSkeleton } from "./components/CategoriesSkeleton";
 import type { Category } from "~/common/types/category-types";
 import type { Route } from "./+types/categories";
 import { requireAuth } from "~/common/actions/auth-helpers";
+import { ROUTES } from "~/common/constants/routes";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -48,7 +49,7 @@ export default function AdminCategories({ loaderData }: Route.ComponentProps) {
       {},
       {
         method: "post",
-        action: `/actions/category/delete/${deleteModal.category?.id}`,
+        action: ROUTES.actions.CATEGORY_DELETE(deleteModal.category?.id || ""),
       },
     );
 
@@ -127,7 +128,7 @@ export default function AdminCategories({ loaderData }: Route.ComponentProps) {
                 </div>
 
                 <Link
-                  to="/admin/categories/new"
+                  to={ROUTES.admin.CATEGORIES_NEW}
                   className={clsx(
                     "inline-flex items-center justify-center gap-2 px-4 py-2.5",
                     "bg-gradient-to-r from-primary-500 to-primary-600 text-white",
@@ -154,12 +155,12 @@ export default function AdminCategories({ loaderData }: Route.ComponentProps) {
                 columns={columns}
                 keyExtractor={(category) => category.id}
                 emptyMessage="No se encontraron categorías"
-                onRowClick={(category) => navigate(`/admin/categories/${category.id}`)}
+                onRowClick={(category) => navigate(ROUTES.admin.CATEGORY(category.id))}
                 actions={(category) => (
                   <>
                     <ActionButton
                       variant="edit"
-                      onClick={() => navigate(`/admin/categories/${category.id}`)}
+                      onClick={() => navigate(ROUTES.admin.CATEGORY(category.id))}
                     />
                     <ActionButton
                       variant="delete"

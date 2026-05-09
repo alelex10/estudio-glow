@@ -11,6 +11,7 @@ import type {
 import { requireAuth } from "~/common/actions/auth-helpers";
 import { parseFormData } from "~/common/actions/form-helpers";
 import { handleActionError } from "~/common/actions/error-helpers";
+import { ROUTES } from "~/common/constants/routes";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -72,7 +73,7 @@ export default function NewCategory() {
   useEffect(() => {
     if (actionData?.success) {
       toast("success", "Categoría creada correctamente");
-      navigate("/admin/categories");
+      navigate(ROUTES.admin.CATEGORIES);
     }
     if (actionData && isActionError(actionData)) {
       actionData.errors.forEach((error) => toast("error", error));

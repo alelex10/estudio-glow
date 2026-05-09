@@ -1,11 +1,6 @@
 import { Link } from "react-router";
 import clsx from "clsx";
-
-const NAV_LINKS = [
-  { href: "/", label: "Home" },
-  { href: "/products", label: "Productos" },
-  { href: "/orders", label: "Mis Ordenes" },
-];
+import { NAV_LINKS } from "~/common/constants/routes";
 
 interface NavLinksProps {
   isHome: boolean;

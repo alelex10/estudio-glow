@@ -5,11 +5,12 @@ import { Sidebar } from "./sidebar/Sidebar";
 import { AdminHeader } from "./AdminHeader";
 import { ToastContainer } from "../Toast";
 import type { User } from "~/common/types/user-types";
+import { ROUTES } from "~/common/constants/routes";
 
 const pageTitles: Record<string, { title: string; subtitle?: string }> = {
-  "/admin": { title: "Dashboard", subtitle: "Resumen general" },
-  "/admin/products": { title: "Productos", subtitle: "Gestiona tu catálogo" },
-  "/admin/products/new": {
+  [ROUTES.admin.BASE]: { title: "Dashboard", subtitle: "Resumen general" },
+  [ROUTES.admin.PRODUCTS]: { title: "Productos", subtitle: "Gestiona tu catálogo" },
+  [ROUTES.admin.PRODUCTS_NEW]: {
     title: "Nuevo Producto",
     subtitle: "Agregar al catálogo",
   },

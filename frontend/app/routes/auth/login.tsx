@@ -11,7 +11,7 @@ import { GoogleLoginButton } from "~/common/components/button/GoogleLoginButton"
 import { useState } from "react";
 import type { Route } from "./+types/login";
 import { getUserRole, isAuthenticated } from "~/common/services/auth.server";
-import { ADMIN } from "~/common/constants/rute-client";
+import { ROUTES } from "~/common/constants/routes";
 
 export function meta() {
   return [
@@ -29,8 +29,8 @@ export async function loader({ request }: Route.LoaderArgs) {
   if (isAuth) {
     const userRole = (await getUserRole(request)) as "admin" | "customer";
     return {
-      admin: redirect(ADMIN.BASE_ROUTE),
-      customer: redirect("/"),
+      admin: redirect(ROUTES.admin.BASE),
+      customer: redirect(ROUTES.HOME),
     }[userRole];
   }
 
@@ -96,7 +96,7 @@ export default function CustomerLogin({ actionData }: Route.ComponentProps) {
               setIsGoogleSubmitting(true);
               const formData = new FormData();
               formData.append("idToken", idToken);
-              submit(formData, { method: "post", action: "/actions/auth/google-login-action" });
+              submit(formData, { method: "post", action: ROUTES.actions.AUTH_GOOGLE });
             }}
             onError={(err) => {
               setIsGoogleSubmitting(false);
@@ -124,7 +124,7 @@ export default function CustomerLogin({ actionData }: Route.ComponentProps) {
             e?.target.submit();
           })}
           method="post"
-          action="/actions/auth/login-action"
+          action={ROUTES.actions.AUTH_LOGIN}
         >
           <FormInput
             label="Email"
@@ -148,7 +148,7 @@ export default function CustomerLogin({ actionData }: Route.ComponentProps) {
           {suggestion === "register" && (
             <p className="text-sm text-center mt-2">
               <Link
-                to="/register"
+                to={ROUTES.REGISTER}
                 className="text-primary-600 hover:text-primary-700 font-medium transition-colors"
               >
                 Ir a registro →
@@ -164,14 +164,14 @@ export default function CustomerLogin({ actionData }: Route.ComponentProps) {
           <p className="text-sm text-gray-500">
             ¿No tenés cuenta?{" "}
             <Link
-              to="/register"
+              to={ROUTES.REGISTER}
               className="text-primary-600 hover:text-primary-700 font-medium transition-colors"
             >
               Registrate
             </Link>
           </p>
           <p className="text-sm text-gray-400">
-            <Link to="/" className="hover:text-primary-500 transition-colors">
+            <Link to={ROUTES.HOME} className="hover:text-primary-500 transition-colors">
               ← Volver a la tienda
             </Link>
           </p>

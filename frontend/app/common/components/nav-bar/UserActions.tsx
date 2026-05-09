@@ -4,6 +4,7 @@ import CustomerLinks from "./CustomerLinks";
 import AdminLinks from "./AdminLinks";
 import AuthButtons from "./AuthButtons";
 import type { User } from "../../types/user-types";
+import { ROUTES } from "~/common/constants/routes";
 
 interface UserActionsProps {
   user: User | null;
@@ -22,7 +23,7 @@ export default function UserActions({ user }: UserActionsProps) {
       <span className="font-medium">{user.name}</span>
       {isCustomer && <CustomerLinks />}
       {isAdmin && <AdminLinks />}
-      <Form className="flex" method="post" action="/actions/auth/logout">
+      <Form className="flex" method="post" action={ROUTES.actions.AUTH_LOGOUT}>
         <button type="submit" className="hover:text-primary-100 transition-colors">
           <LogOut className="w-5 h-5" />
         </button>

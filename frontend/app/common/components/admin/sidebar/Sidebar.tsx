@@ -3,6 +3,7 @@ import clsx from "clsx";
 import DrawerHeader from "../../DrawerHeader";
 import { Box, Home, LogOut, Tag, User } from "lucide-react";
 import { SidebarItem } from "./SidebarItem";
+import { ROUTES } from "~/common/constants/routes";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -12,27 +13,27 @@ interface SidebarProps {
 const navItems = [
   {
     name: "Dashboard",
-    path: "/admin",
+    path: ROUTES.admin.BASE,
     icon: <Home />,
   },
   {
     name: "Productos",
-    path: "/admin/products",
+    path: ROUTES.admin.PRODUCTS,
     icon: <Box />,
   },
   {
     name: "Categorías",
-    path: "/admin/categories",
+    path: ROUTES.admin.CATEGORIES,
     icon: <Tag />,
   },
   {
     name: "Cerrar Sesión",
-    path: "/admin/logout",
+    path: ROUTES.admin.BASE, // not a real route — handled by name check below
     icon: <LogOut />,
   },
   {
     name: "Pedidos",
-    path: "/admin/orders",
+    path: ROUTES.admin.ORDERS,
     icon: <Box />,
   },
 ];
@@ -45,7 +46,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
     onClose();
     try {
       submit(null, {
-        action: "/actions/auth/logout",
+        action: ROUTES.actions.AUTH_LOGOUT,
         method: "post",
         navigate: false,
       });
@@ -88,8 +89,8 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
           <nav className="flex-1 p-4 space-y-1">
             {navItems.map((item) => {
               const isActive =
-                item.path === "/admin"
-                  ? location.pathname === "/admin"
+                item.path === ROUTES.admin.BASE
+                  ? location.pathname === ROUTES.admin.BASE
                   : location.pathname.startsWith(item.path);
 
               const isLogout = item.name === "Cerrar Sesión";

@@ -1,7 +1,7 @@
 import type { ActionFunctionArgs } from "react-router";
 import { createAuthSession } from "~/common/services/auth.server";
 import { serverLogin } from "~/common/services/authApi.server";
-import { ADMIN } from "~/common/constants/rute-client";
+import { ROUTES } from "~/common/constants/routes";
 import { parseFormData } from "~/common/actions/form-helpers";
 import { handleAuthActionError } from "~/common/actions/error-helpers";
 
@@ -23,8 +23,8 @@ export async function action({ request }: ActionFunctionArgs) {
 
     // Redirigir según el rol del usuario
     const redirectPath = {
-      admin: ADMIN.BASE_ROUTE,
-      customer: "/",
+      admin: ROUTES.admin.BASE,
+      customer: ROUTES.HOME,
     }[response.user.role];
 
     return createAuthSession(

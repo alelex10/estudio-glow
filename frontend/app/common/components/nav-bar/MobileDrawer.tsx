@@ -5,12 +5,7 @@ import DrawerHeader from "../DrawerHeader";
 import { Heart, ShoppingBag, LayoutDashboard, LogOut, User as UserIcon } from "lucide-react";
 import { Form } from "react-router";
 import type { User } from "../../types/user-types";
-
-const NAV_LINKS = [
-  { href: "/", label: "Home" },
-  { href: "/products", label: "Productos" },
-  { href: "/orders", label: "Mis Ordenes" },
-];
+import { ROUTES, NAV_LINKS } from "~/common/constants/routes";
 
 interface MobileDrawerProps {
   isOpen: boolean;
@@ -67,7 +62,7 @@ export default function MobileDrawer({ isOpen, onClose, user }: MobileDrawerProp
                   <>
                     <li>
                       <Link
-                        to="/favorites"
+                        to={ROUTES.FAVORITES}
                         className="flex items-center gap-3 text-white text-lg font-medium hover:text-primary-200 transition-colors py-3 px-4 rounded-lg hover:bg-white/10"
                         onClick={onClose}
                       >
@@ -77,7 +72,7 @@ export default function MobileDrawer({ isOpen, onClose, user }: MobileDrawerProp
                     </li>
                     <li>
                       <Link
-                        to="/cart"
+                        to={ROUTES.CART}
                         className="flex items-center gap-3 text-white text-lg font-medium hover:text-primary-200 transition-colors py-3 px-4 rounded-lg hover:bg-white/10 opacity-50 cursor-not-allowed"
                         onClick={onClose}
                         title="Próximamente"
@@ -91,19 +86,19 @@ export default function MobileDrawer({ isOpen, onClose, user }: MobileDrawerProp
                 
                 {isAdmin && (
                   <li>
-                    <Link
-                      to="/admin"
-                      className="flex items-center gap-3 text-white text-lg font-medium hover:text-primary-200 transition-colors py-3 px-4 rounded-lg hover:bg-white/10"
-                      onClick={onClose}
-                    >
-                      <LayoutDashboard className="w-5 h-5" />
-                      Dashboard
-                    </Link>
+                      <Link
+                        to={ROUTES.admin.BASE}
+                        className="flex items-center gap-3 text-white text-lg font-medium hover:text-primary-200 transition-colors py-3 px-4 rounded-lg hover:bg-white/10"
+                        onClick={onClose}
+                      >
+                        <LayoutDashboard className="w-5 h-5" />
+                        Dashboard
+                      </Link>
                   </li>
                 )}
                 
                 <li>
-                  <Form method="post" action="/actions/auth/logout">
+                  <Form method="post" action={ROUTES.actions.AUTH_LOGOUT}>
                     <button
                       type="submit"
                       className="flex items-center gap-3 text-white text-lg font-medium hover:text-primary-200 transition-colors w-full py-3 px-4 rounded-lg hover:bg-white/10"
@@ -120,14 +115,14 @@ export default function MobileDrawer({ isOpen, onClose, user }: MobileDrawerProp
           {!user && (
             <div className="space-y-3">
               <Link
-                to="/auth/register"
+                to={ROUTES.REGISTER}
                 className="block text-center text-white font-medium border-2 border-primary-200 py-3 px-4 rounded-lg hover:bg-primary-200 hover:text-primary-900 transition-colors"
                 onClick={onClose}
               >
                 Registrarse
               </Link>
               <Link
-                to="/login"
+                to={ROUTES.LOGIN}
                 className="block text-center text-primary-900 font-medium bg-primary-200 py-3 px-4 rounded-lg hover:bg-primary-300 transition-colors"
                 onClick={onClose}
               >

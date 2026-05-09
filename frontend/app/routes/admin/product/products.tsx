@@ -13,6 +13,7 @@ import { FilterSideBar } from "~/common/components/product-filter/FilterSideBar"
 import type { ProductResponse, Category } from "~/common/types/product-types";
 import type { Route } from "./+types/products";
 import { requireAuth } from "~/common/actions/auth-helpers";
+import { ROUTES } from "~/common/constants/routes";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -87,7 +88,7 @@ export default function AdminProducts({ loaderData }: Route.ComponentProps) {
       {},
       {
         method: "post",
-        action: `/actions/product/delete/${deleteModal.product?.id}`,
+        action: ROUTES.actions.PRODUCT_DELETE(deleteModal.product?.id || ""),
       },
     );
 
@@ -191,7 +192,7 @@ export default function AdminProducts({ loaderData }: Route.ComponentProps) {
                 </div>
 
                 <Link
-                  to="/admin/products/new"
+                  to={ROUTES.admin.PRODUCTS_NEW}
                   className={clsx(
                     "inline-flex items-center justify-center gap-2 px-4 py-2.5",
                     "bg-linear-to-r from-primary-500 to-primary-600 text-white",
@@ -212,7 +213,7 @@ export default function AdminProducts({ loaderData }: Route.ComponentProps) {
                 keyExtractor={(product) => product.id}
                 emptyMessage="No se encontraron productos"
                 onRowClick={(product) =>
-                  navigate(`/admin/products/${product.id}`)
+                  navigate(ROUTES.admin.PRODUCT(product.id))
                 }
                 pagination={productsPaginated?.pagination}
                 onPageChange={handlePageChange}
@@ -221,7 +222,7 @@ export default function AdminProducts({ loaderData }: Route.ComponentProps) {
                   <>
                     <ActionButton
                       variant="edit"
-                      onClick={() => navigate(`/admin/products/${product.id}`)}
+                      onClick={() => navigate(ROUTES.admin.PRODUCT(product.id))}
                     />
                     <ActionButton
                       variant="delete"

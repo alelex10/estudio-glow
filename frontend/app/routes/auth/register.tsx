@@ -11,7 +11,7 @@ import { GoogleLoginButton } from "~/common/components/button/GoogleLoginButton"
 import { useState } from "react";
 import type { Route } from "./+types/register";
 import { getUserRole, isAuthenticated, createAuthSession } from "~/common/services/auth.server";
-import { ADMIN } from "~/common/constants/rute-client";
+import { ROUTES } from "~/common/constants/routes";
 import { API_BASE_URL } from "~/common/config/api-end-points";
 
 export function meta() {
@@ -31,8 +31,8 @@ export async function loader({ request }: Route.LoaderArgs) {
   if (isAuth) {
     const userRole = (await getUserRole(request)) as "admin" | "customer";
     return {
-      admin: redirect(ADMIN.BASE_ROUTE),
-      customer: redirect("/"),
+      admin: redirect(ROUTES.admin.BASE),
+      customer: redirect(ROUTES.HOME),
     }[userRole];
   }
 }
@@ -63,7 +63,7 @@ export async function action({ request }: Route.ActionArgs) {
 
   try {
     const { token, user } = await serverGoogleRegister(idToken);
-    return createAuthSession(request, token, user, user.role === "admin" ? ADMIN.BASE_ROUTE : "/");
+    return createAuthSession(request, token, user, user.role === "admin" ? ROUTES.admin.BASE : ROUTES.HOME);
   } catch (err: any) {
     return { error: err.message || "Error al registrarse con Google" };
   }
@@ -152,7 +152,7 @@ export default function Register() {
           onSubmit={handleSubmit((_, e) => {
             e?.target.submit();
           })}
-          action="/actions/auth/register-action"
+          action={ROUTES.actions.AUTH_REGISTER}
         >
           <FormInput
             label="Nombre"
@@ -200,14 +200,14 @@ export default function Register() {
           <p className="text-sm text-gray-500">
             ¿Ya tenés cuenta?{" "}
             <Link
-              to="/login"
+              to={ROUTES.LOGIN}
               className="text-primary-600 hover:text-primary-700 font-medium transition-colors"
             >
               Iniciá sesión
             </Link>
           </p>
           <p className="text-sm text-gray-400">
-            <Link to="/" className="hover:text-primary-500 transition-colors">
+            <Link to={ROUTES.HOME} className="hover:text-primary-500 transition-colors">
               ← Volver a la tienda
             </Link>
           </p>

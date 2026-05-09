@@ -16,6 +16,7 @@ import clsx from "clsx";
 import { useCart } from "~/common/context/CartContext";
 import { useState } from "react";
 import { getCloudinaryUrl } from "~/common/lib/utils";
+import { ROUTES } from "~/common/constants/routes";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -67,7 +68,7 @@ export default function ProductDetail() {
 
   const handleBuyNow = () => {
     handleAddToCart();
-    navigate("/checkout");
+    navigate(ROUTES.CHECKOUT);
   };
 
   const isOutOfStock = product.stock === 0;
@@ -87,7 +88,7 @@ export default function ProductDetail() {
 
           {/* Cart Icon */}
           <Link
-            to="/cart"
+            to={ROUTES.CART}
             className="absolute top-4 right-4 z-10 w-10 h-10 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center text-primary-700 hover:text-primary-900 hover:bg-white transition-all duration-200 shadow-lg hover:shadow-xl"
           >
             <div className="relative">

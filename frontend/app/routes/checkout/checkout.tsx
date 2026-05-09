@@ -10,6 +10,7 @@ import { CreditCard, Building2, Upload, ArrowRight } from "lucide-react";
 import { EmptyCartState } from "~/common/components/cart/EmptyCartState";
 import { CartItemsList } from "~/common/components/cart/CartItemsList";
 import { OrderSummarySidebar } from "~/common/components/cart/OrderSummarySidebar";
+import { ROUTES } from "~/common/constants/routes";
 
 export function meta({ }: Route.MetaArgs) {
   return [
@@ -21,7 +22,7 @@ export function meta({ }: Route.MetaArgs) {
 export async function loader({ request }: Route.LoaderArgs) {
   const token = await getToken(request);
   if (!token) {
-    throw redirect("/login?redirect=/checkout");
+    throw redirect(`${ROUTES.LOGIN}?redirect=${ROUTES.CHECKOUT}`);
   }
   return { token };
 }
@@ -85,7 +86,7 @@ export default function Checkout() {
         // Success
         clearCart();
         alert("Orden creada exitosamente. Un administrador validará el pago.");
-        navigate("/");
+        navigate(ROUTES.HOME);
       }
     } catch (err: any) {
       setError(err.message || "Ocurrió un error al procesar el pago");
@@ -97,7 +98,7 @@ export default function Checkout() {
   if (items.length === 0) {
     return (
       <div className="container mx-auto px-4 pt-20 pb-6 sm:pb-8 min-h-screen max-w-7xl">
-        <EmptyCartState onNavigate={() => navigate('/products')} />
+        <EmptyCartState onNavigate={() => navigate(ROUTES.PRODUCTS)} />
       </div>
     );
   }

@@ -9,6 +9,7 @@ import type {
   UpdateCategoryData,
 } from "~/common/types/category-types";
 import type { Route } from "./+types/category.$id";
+import { ROUTES } from "~/common/constants/routes";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -30,7 +31,7 @@ export default function EditCategory() {
     const loadCategory = async () => {
       if (!categoryId) {
         toast("error", "ID de categoría no válido");
-        navigate("/admin/categories");
+        navigate(ROUTES.admin.CATEGORIES);
         return;
       }
 
@@ -40,7 +41,7 @@ export default function EditCategory() {
       } catch (error) {
         toast("error", "Error al cargar categoría");
         console.error(error);
-        navigate("/admin/categories");
+        navigate(ROUTES.admin.CATEGORIES);
       } finally {
         setIsLoading(false);
       }
@@ -56,7 +57,7 @@ export default function EditCategory() {
     try {
       await categoryService.updateCategory(categoryId, data);
       toast("success", "Categoría actualizada correctamente");
-      navigate("/admin/categories");
+      navigate(ROUTES.admin.CATEGORIES);
     } catch (error) {
       const errorMessage =
         error instanceof Error
@@ -70,7 +71,7 @@ export default function EditCategory() {
   };
 
   const handleCancel = () => {
-    navigate("/admin/categories");
+    navigate(ROUTES.admin.CATEGORIES);
   };
 
   if (isLoading) {
@@ -99,8 +100,7 @@ export default function EditCategory() {
           mode="edit"
           initialData={category}
           onSubmit={handleSubmit}
-          onCancel={handleCancel}
-          isLoading={isSubmitting}
+          isSubmitting={isSubmitting}
         />
       </div>
     </div>

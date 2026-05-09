@@ -1,6 +1,5 @@
 import type { Config } from "@react-router/dev/config";
 import { vercelPreset } from "@vercel/react-router/vite";
-import { AUTH } from "./app/common/constants/rute-client";
 
 export default {
   // Config options...

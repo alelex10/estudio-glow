@@ -1,5 +1,6 @@
 import { Link } from "react-router";
 import clsx from "clsx";
+import { ROUTES } from "~/common/constants/routes";
 
 export default function Footer({className}: {className?: string}) {
     
@@ -33,42 +34,26 @@ export default function Footer({className}: {className?: string}) {
                     <ul className="flex flex-wrap justify-center items-center gap-4 md:gap-8 text-sm md:text-base font-medium">
                         <li>
                             <Link
-                                to="/men"
+                                to={ROUTES.HOME}
                                 className="hover:text-white transition-colors"
                             >
-                                Hombres
+                                Home
                             </Link>
                         </li>
                         <li>
                             <Link
-                                to="/women"
+                                to={ROUTES.PRODUCTS}
                                 className="hover:text-white transition-colors"
                             >
-                                Sobre Nosotros
+                                Productos
                             </Link>
                         </li>
                         <li>
                             <Link
-                                to="/kids"
+                                to={ROUTES.ORDERS}
                                 className="hover:text-white transition-colors"
                             >
-                                Niños
-                            </Link>
-                        </li>
-                        <li>
-                            <Link
-                                to="/collection"
-                                className="hover:text-white transition-colors"
-                            >
-                                Colección
-                            </Link>
-                        </li>
-                        <li>
-                            <Link
-                                to="/trends"
-                                className="hover:text-white transition-colors"
-                            >
-                                Tendencias
+                                Mis Ordenes
                             </Link>
                         </li>
                     </ul>

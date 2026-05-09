@@ -3,6 +3,7 @@ import clsx from "clsx";
 import { Package, Image, ChevronRight } from "lucide-react";
 import type { ProductResponse } from "~/common/types/product-types";
 import { getCloudinaryUrl } from "~/common/lib/utils";
+import { ROUTES } from "~/common/constants/routes";
 
 interface RecentProductsProps {
   products: ProductResponse[];
@@ -16,7 +17,7 @@ export function RecentProducts({ products }: RecentProductsProps) {
           Productos Recientes
         </h2>
         <Link
-          to="/admin/products"
+          to={ROUTES.admin.PRODUCTS}
           className="text-sm text-primary-600 hover:text-primary-700 font-medium"
         >
           Ver todos →
@@ -28,7 +29,7 @@ export function RecentProducts({ products }: RecentProductsProps) {
           <Package className="w-12 h-12 mx-auto mb-4 text-gray-300" />
           <p>No hay productos aún</p>
           <Link
-            to="/admin/products/new"
+            to={ROUTES.admin.PRODUCTS_NEW}
             className="inline-block mt-4 text-primary-600 hover:text-primary-700 font-medium"
           >
             Crear primer producto
@@ -39,7 +40,7 @@ export function RecentProducts({ products }: RecentProductsProps) {
           {products.map((product) => (
             <Link
               key={product.id}
-              to={`/admin/products/${product.id}`}
+              to={ROUTES.admin.PRODUCT(product.id)}
               className="flex items-center gap-4 p-4 hover:bg-gray-50 transition-colors"
             >
               {/* Imagen */}

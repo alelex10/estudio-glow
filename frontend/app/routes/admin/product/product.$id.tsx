@@ -12,6 +12,7 @@ import type {
   UpdateProductData,
 } from "~/common/types/product-types";
 import type { Route } from "./+types/product.$id";
+import { ROUTES } from "~/common/constants/routes";
 
 export function meta({ params }: Route.MetaArgs) {
   return [
@@ -105,7 +106,7 @@ export default function AdminProductEdit({ loaderData, actionData }: Route.Compo
   // Redirigir si la actualización fue exitosa
   useEffect(() => {
     if (fetcher.state === "idle" && fetcher.data?.success) {
-      navigate("/admin/products");
+      navigate(ROUTES.admin.PRODUCTS);
     }
   }, [fetcher.state, fetcher.data?.success, navigate]);
 
@@ -124,7 +125,7 @@ export default function AdminProductEdit({ loaderData, actionData }: Route.Compo
           mode="edit"
           initialData={loaderData.product.data}
           onSubmit={handleSubmit}
-          onCancel={() => navigate("/admin/products")}
+          onCancel={() => navigate(ROUTES.admin.PRODUCTS)}
           isLoading={fetcher.state !== "idle"}
         />
         

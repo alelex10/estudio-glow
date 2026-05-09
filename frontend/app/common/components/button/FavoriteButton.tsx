@@ -3,6 +3,7 @@ import clsx from "clsx";
 import type { UUID } from "crypto";
 import { useFetcher } from "react-router";
 import { useState } from "react";
+import { ROUTES } from "~/common/constants/routes";
 
 interface FavoriteButtonProps {
   productId: UUID;
@@ -32,8 +33,8 @@ export function FavoriteButton({
     if (isSubmitting) return;
 
     const action = optimisticIsFav
-      ? `/actions/favorite/remove/${productId}`
-      : `/actions/favorite/add/${productId}`;
+      ? ROUTES.actions.FAVORITE_REMOVE(productId)
+      : ROUTES.actions.FAVORITE_ADD(productId);
 
     const method = optimisticIsFav ? "DELETE" : "POST";
     fetcher.submit(

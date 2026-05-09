@@ -1,6 +1,7 @@
 import { redirect } from "react-router";
 import { getSession, commitSession, destroySession } from "./session-storage";
 import type { User } from "../types/user-types";
+import { ROUTES } from "~/common/constants/routes";
 
 /**
  * Extrae el token JWT de la sesión cookie del request.
@@ -13,14 +14,14 @@ export async function getToken(request: Request): Promise<string | null> {
 
 /**
  * Valida que el usuario esté autenticado.
- * Si no hay token, redirige a /auth/login.
+ * Si no hay token, redirige a login.
  * Retorna el token JWT limpio.
  */
 export async function requireAuth(request: Request): Promise<string> {
   const token = await getToken(request);
 
   if (!token) {
-    throw redirect("/login");
+    throw redirect(ROUTES.LOGIN);
   }
 
   return token;
@@ -48,7 +49,7 @@ export async function createAuthSession(
   request: Request,
   token: string,
   user: User,
-  redirectPath: string = "/admin"
+  redirectPath: string = ROUTES.admin.BASE
 ) {
   const session = await getSession(request.headers.get("Cookie"));
   session.set("token", token);
@@ -68,7 +69,7 @@ export async function createAuthSession(
 export async function destroyAuthSession(request: Request) {
   const session = await getSession(request.headers.get("Cookie"));
 
-  return redirect("/login", {
+  return redirect(ROUTES.LOGIN, {
     headers: {
       "Set-Cookie": await destroySession(session),
     },
