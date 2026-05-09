@@ -9,19 +9,16 @@ import { validateBody } from "../middleware/validation";
 import { GoogleAuthSchema } from "../schemas/google";
 import { asyncHandler } from "../middleware/async-handler";
 import { AuthenticationError, DatabaseError, ConflictError } from "../errors";
-import dotenv from "dotenv";
+import { env } from "../config/env";
 
-dotenv.config();
-
-const JWT_SECRET = process.env.JWT_SECRET || "your_jwt_secret_key";
 const TOKEN_MAX_AGE = 7 * 24 * 3600000; // 7 días en milisegundos
-const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || "";
-const googleClient = new OAuth2Client(GOOGLE_CLIENT_ID);
+const googleClient = new OAuth2Client(env.GOOGLE_CLIENT_ID);
+const isProduction = env.NODE_ENV === "production";
 
 async function verifyGoogleToken(idToken: string) {
   const ticket = await googleClient.verifyIdToken({
     idToken,
-    audience: GOOGLE_CLIENT_ID,
+    audience: env.GOOGLE_CLIENT_ID,
   });
   const payload = ticket.getPayload();
 
@@ -97,15 +94,15 @@ export const googleAuth = [
     // Generar JWT interno
     const token = jwt.sign(
       { id: user.id, email: user.email, role: user.role },
-      JWT_SECRET,
+      env.JWT_SECRET,
       { expiresIn: "7d" }
     );
 
     res.cookie("token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: isProduction,
       maxAge: TOKEN_MAX_AGE,
-      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+      sameSite: isProduction ? "none" : "lax",
     });
 
     res.status(200).json({
@@ -162,15 +159,15 @@ export const googleRegister = [
         // Generar JWT y retornar login exitoso
         const token = jwt.sign(
           { id: existingUser.id, email: existingUser.email, role: existingUser.role },
-          JWT_SECRET,
+          env.JWT_SECRET,
           { expiresIn: "7d" }
         );
 
         res.cookie("token", token, {
           httpOnly: true,
-          secure: process.env.NODE_ENV === "production",
+          secure: isProduction,
           maxAge: TOKEN_MAX_AGE,
-          sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+          sameSite: isProduction ? "none" : "lax",
         });
 
         return res.status(200).json({
@@ -211,15 +208,15 @@ export const googleRegister = [
     // Generar JWT
     const token = jwt.sign(
       { id: user.id, email: user.email, role: user.role },
-      JWT_SECRET,
+      env.JWT_SECRET,
       { expiresIn: "7d" }
     );
 
     res.cookie("token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: isProduction,
       maxAge: TOKEN_MAX_AGE,
-      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+      sameSite: isProduction ? "none" : "lax",
     });
 
     res.status(201).json({
@@ -245,7 +242,7 @@ export const googleLogin = [
     
     console.log(JSON.stringify({
       route: "/auth/google/login",
-      environment: process.env.NODE_ENV,
+      environment: env.NODE_ENV,
       event: "REQUEST_START",
       requestId,
       ip: req.ip,
@@ -256,7 +253,7 @@ export const googleLogin = [
       
       console.log(JSON.stringify({
         route: "/auth/google/login",
-        environment: process.env.NODE_ENV,
+        environment: env.NODE_ENV,
         event: "TOKEN_VERIFIED",
         requestId,
         hasEmail: !!email,
@@ -274,7 +271,7 @@ export const googleLogin = [
       if (!user) {
         console.log(JSON.stringify({
           route: "/auth/google/login",
-          environment: process.env.NODE_ENV,
+          environment: env.NODE_ENV,
           event: "USER_NOT_FOUND_BY_GOOGLE_ID",
           requestId,
           googleIdLength: googleId?.length,
@@ -292,7 +289,7 @@ export const googleLogin = [
         if (user) {
           console.log(JSON.stringify({
             route: "/auth/google/login",
-            environment: process.env.NODE_ENV,
+            environment: env.NODE_ENV,
             event: "ACCOUNT_LINK",
             requestId,
             userId: user.id,
@@ -309,7 +306,7 @@ export const googleLogin = [
         } else {
           console.log(JSON.stringify({
             route: "/auth/google/login",
-            environment: process.env.NODE_ENV,
+            environment: env.NODE_ENV,
             event: "USER_NOT_FOUND",
             requestId,
             category: "NOT_REGISTERED",
@@ -325,7 +322,7 @@ export const googleLogin = [
       if (!user) {
         console.log(JSON.stringify({
           route: "/auth/google/login",
-          environment: process.env.NODE_ENV,
+          environment: env.NODE_ENV,
           event: "USER_NULL",
           requestId,
           category: "UNKNOWN",
@@ -338,20 +335,20 @@ export const googleLogin = [
       // Generar JWT
       const token = jwt.sign(
         { id: user.id, email: user.email, role: user.role },
-        JWT_SECRET,
+        env.JWT_SECRET,
         { expiresIn: "7d" }
       );
 
       res.cookie("token", token, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
+        secure: isProduction,
         maxAge: TOKEN_MAX_AGE,
-        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+        sameSite: isProduction ? "none" : "lax",
       });
 
       console.log(JSON.stringify({
         route: "/auth/google/login",
-        environment: process.env.NODE_ENV,
+        environment: env.NODE_ENV,
         event: "SUCCESS",
         requestId,
         userId: user.id,
@@ -375,7 +372,7 @@ export const googleLogin = [
       
       console.log(JSON.stringify({
         route: "/auth/google/login",
-        environment: process.env.NODE_ENV,
+        environment: env.NODE_ENV,
         event: "ERROR",
         requestId,
         category: errorCategory,

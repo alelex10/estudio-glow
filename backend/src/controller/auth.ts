@@ -3,7 +3,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { db } from "../db";
 import { users } from "../models/relations";
-import dotenv from "dotenv";
+import { env } from "../config/env";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { validateBody } from "../middleware/validation";
@@ -16,10 +16,9 @@ import { asyncHandler } from "../middleware/async-handler";
 import { ConflictError, AuthenticationError, DatabaseError } from "../errors";
 import type { AuthRequest } from "../middleware/auth";
 
-dotenv.config();
-
-const JWT_SECRET = process.env.JWT_SECRET || "your_jwt_secret_key";
 const TOKEN_MAX_AGE = 15 * 60 * 1000; // 15 minutos en milisegundos
+
+const isProduction = env.NODE_ENV === "production";
 
 /**
  * @internal
@@ -28,9 +27,9 @@ const TOKEN_MAX_AGE = 15 * 60 * 1000; // 15 minutos en milisegundos
 function setAuthCookie(res: Response, token: string): void {
   res.cookie("token", token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure: isProduction,
     maxAge: TOKEN_MAX_AGE,
-    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+    sameSite: isProduction ? "none" : "lax",
   });
 }
 
@@ -89,7 +88,7 @@ export const register = [
       role: userRole,
     });
 
-    const token = jwt.sign({ id, email, role: userRole }, JWT_SECRET, { expiresIn: "7d" });
+    const token = jwt.sign({ id, email, role: userRole }, env.JWT_SECRET, { expiresIn: "7d" });
 
     setAuthCookie(res, token);
 
@@ -139,7 +138,7 @@ export const login = [
 
     const token = jwt.sign(
       { id: user.id, email: user.email, role: user.role },
-      process.env.JWT_SECRET!,
+      env.JWT_SECRET,
       { expiresIn: "7d" }
     );
 

@@ -1,11 +1,7 @@
 import type { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
-import dotenv from "dotenv";
+import { env } from "../config/env";
 import { AuthenticationError, AuthorizationError } from "../errors";
-
-dotenv.config();
-
-const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
 
 interface JwtPayload {
   id: string;
@@ -40,7 +36,7 @@ export function authenticate(req: Request, _res: Response, next: NextFunction) {
   }
 
   try {
-    const payload = jwt.verify(token, JWT_SECRET) as JwtPayload;
+    const payload = jwt.verify(token, env.JWT_SECRET, { algorithms: ["HS256"] }) as JwtPayload;
     (req as AuthRequest).user = { id: payload.id, email: payload.email, role: payload.role };
     next();
   } catch {

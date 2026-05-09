@@ -21,19 +21,20 @@ import checkoutRouter from "./routes/checkout";
 import dashboardRouter from "./routes/dashboard";
 import webhooksRouter from "./routes/webhooks";
 import { startCronJobs } from "./services/CronService";
+import { env } from "./config/env";
 
 const app = express();
 const PORT = 3000;
 
 // Check if in development mode
-const isDevelopment = process.env.NODE_ENV === "development";
+const isDevelopment = env.NODE_ENV === "development";
 
 // CORS configuration
 const allowedOrigins = [
   "http://localhost:3000",
   "http://localhost:5173",
   "http://localhost:5174",
-  process.env.FRONTEND_URL,
+  env.FRONTEND_URL,
 ].filter((origin): origin is string => Boolean(origin));
 
 app.use(
@@ -59,7 +60,7 @@ app.use(
       }
 
       // Check for custom preview URL pattern
-      const previewPattern = process.env.FRONTEND_URL_PREVIEW;
+      const previewPattern = env.FRONTEND_URL_PREVIEW;
       if (previewPattern) {
         // Convert wildcard pattern to regex
         const regexPattern = previewPattern
@@ -108,7 +109,7 @@ app.use(clientErrorHandler);
 app.use(errorHandler);
 
 app.listen(PORT, () => {
-  const isProduction = process.env.NODE_ENV === "production";
+  const isProduction = env.NODE_ENV === "production";
 
   if (isProduction) {
     console.log(
