@@ -11,7 +11,7 @@ interface ProductCardProps {
   name: string;
   price: number;
   productId: UUID;
-  isFav?: boolean;
+  stock: number;
 }
 
 export function ProductCard({
@@ -19,13 +19,13 @@ export function ProductCard({
   name,
   price,
   productId,
-  isFav = false,
+  stock,
 }: ProductCardProps) {
   const { addToCart } = useCart();
-  
+
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
-    addToCart({ productId, name, price, imageUrl, quantity: 1 });
+    addToCart({ productId, name, price, imageUrl, quantity: 1, stock });
   };
 
   return (
@@ -55,10 +55,12 @@ export function ProductCard({
             <div className="flex items-end justify-between gap-2">
               <p className="text-sm text-gray-600 mb-2">${price.toFixed(2)}</p>
               <div className="flex gap-2">
-                <FavoriteButton size="md" productId={productId} isFav={isFav} />
-                <CartButton 
+                <FavoriteButton size="md" productId={productId} />
+                <CartButton
                   size="md"
                   onClick={handleAddToCart}
+                  disabled={stock <= 0}
+                  ariaLabel={stock <= 0 ? "Sin stock" : "Añadir al carrito"}
                 />
               </div>
             </div>

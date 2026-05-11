@@ -17,6 +17,7 @@ import { useCart } from "~/common/context/CartContext";
 import { useState } from "react";
 import { getCloudinaryUrl } from "~/common/lib/utils";
 import { ROUTES } from "~/common/constants/routes";
+import { FavoriteButton } from "~/common/components/button/FavoriteButton";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -56,6 +57,7 @@ export default function ProductDetail() {
   };
 
   const handleAddToCart = () => {
+    if (isOutOfStock) return;
     addToCart({
       productId: product.id,
       name: product.name,
@@ -67,6 +69,7 @@ export default function ProductDetail() {
   };
 
   const handleBuyNow = () => {
+    if (isOutOfStock) return;
     handleAddToCart();
     navigate(ROUTES.CHECKOUT);
   };
@@ -85,6 +88,13 @@ export default function ProductDetail() {
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
+
+          {/* Favorite Button */}
+          <FavoriteButton
+            productId={product.id}
+            size="md"
+            className="absolute top-4 right-16 z-10"
+          />
 
           {/* Cart Icon */}
           <Link

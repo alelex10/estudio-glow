@@ -16,3 +16,13 @@
 - `frontend/app/routes/orders/orders.tsx`
 - `frontend/app/routes/admin/product/product.new.tsx`
 - `frontend/app/routes/admin/category/category.new.tsx`
+
+---
+
+### ✅ [ALTO] Doble-submit en checkout con guard ref
+
+**Issue original**: Issue #5 (05-diseno-api.md) — el POST a `/checkout/mercadopago` y `/checkout/transfer` podía ejecutarse múltiples veces si el usuario hacía doble click o si el frontend reintentaba por network timeout, creando órdenes duplicadas.
+
+**Solución**: Agregado guard con `useRef` + `useState` loading. El ref previene que el handler se ejecute dos veces en el mismo event loop tick (algo que `useState` no puede garantizar). El botón se deshabilita durante el procesamiento.
+
+**Archivos**: `frontend/app/routes/checkout/checkout.tsx`.

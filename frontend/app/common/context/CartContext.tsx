@@ -4,11 +4,8 @@ import React, {
   useState,
   useEffect,
   useCallback,
-  useRef,
 } from "react";
 import type { UUID } from "crypto";
-import { apiClient } from "../config/api-client";
-import { API_ENDPOINTS } from "../config/api-end-points";
 import { productService } from "../services/productService";
 
 export interface CartItem {
@@ -41,12 +38,6 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 export function CartProvider({ children, isAuthenticated = false }: CartProviderProps) {
   const [items, setItems] = useState<CartItem[]>([]);
   const [isInitialized, setIsInitialized] = useState(false);
-  const isAuthRef = useRef(isAuthenticated);
-
-  // Keep ref in sync with prop (avoids stale closures in callbacks)
-  useEffect(() => {
-    isAuthRef.current = isAuthenticated;
-  }, [isAuthenticated]);
 
   // Load from local storage on mount
   useEffect(() => {
@@ -95,39 +86,24 @@ export function CartProvider({ children, isAuthenticated = false }: CartProvider
     }
   }, [items, isInitialized]);
 
-  // Sync to backend for authenticated users (debounced)
-  useEffect(() => {
-    if (!isInitialized || !isAuthRef.current) return;
-
-    const timeout = setTimeout(() => {
-      apiClient({
-        endpoint: API_ENDPOINTS.CART.SYNC,
-        options: {
-          method: "POST",
-          body: JSON.stringify({
-            items: items.map((i) => ({
-              productId: i.productId,
-              quantity: i.quantity,
-            })),
-          }),
-        },
-      }).catch((e) => {
-        console.error("Failed to sync cart to backend", e);
-      });
-    }, 500);
-
-    return () => clearTimeout(timeout);
-  }, [items, isInitialized]);
-
   const addToCart = (newItem: CartItem) => {
+    if (newItem.stock !== undefined && newItem.stock <= 0) return;
+
     setItems((prev) => {
       const existingIndex = prev.findIndex(
         (i) => i.productId === newItem.productId,
       );
       if (existingIndex >= 0) {
-        const next = [...prev];
-        next[existingIndex].quantity += newItem.quantity || 1;
-        return next;
+        return prev.map((i) => {
+          if (i.productId !== newItem.productId) return i;
+          const addedQty = newItem.quantity || 1;
+          const desiredQty = i.quantity + addedQty;
+          const cappedQty =
+            i.stock !== undefined && desiredQty > i.stock
+              ? i.stock
+              : desiredQty;
+          return { ...i, quantity: cappedQty };
+        });
       }
       return [...prev, { ...newItem, quantity: newItem.quantity || 1 }];
     });

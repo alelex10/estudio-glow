@@ -16,7 +16,7 @@ import { asyncHandler } from "../middleware/async-handler";
 import { ConflictError, AuthenticationError, DatabaseError } from "../errors";
 import type { AuthRequest } from "../middleware/auth";
 
-const TOKEN_MAX_AGE = 15 * 60 * 1000; // 15 minutos en milisegundos
+const TOKEN_MAX_AGE = 7 * 24 * 3600000; // 7 días en milisegundos
 
 const isProduction = env.NODE_ENV === "production";
 

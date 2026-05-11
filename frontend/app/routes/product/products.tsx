@@ -1,9 +1,6 @@
 import { ProductCard } from "~/common/components/Card";
 import { productService } from "~/common/services/productService";
 import type { Route } from "./+types/products";
-import { getToken, isAuthenticated } from "~/common/services/auth.server";
-import type { UUID } from "crypto";
-import { favoriteService } from "~/common/services/favoriteService";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -35,19 +32,11 @@ export async function loader({ request }: Route.LoaderArgs) {
     sortOrder,
   );
 
-  const isAuth = await isAuthenticated(request);
-  let favorites: UUID[] = [];
-  if (isAuth) {
-    const token = await getToken(request);
-    const response = await favoriteService.getIds(token!);
-    favorites = response.data;
-  }
-
-  return { products, favorites };
+  return { products };
 }
 
 export default function Products({ loaderData }: Route.ComponentProps) {
-  const { products, favorites } = loaderData;
+  const { products } = loaderData;
 
   return (
     <>
@@ -64,7 +53,7 @@ export default function Products({ loaderData }: Route.ComponentProps) {
               imageUrl={product.imageUrl}
               name={product.name}
               price={product.price}
-              isFav={favorites.includes(product.id)}
+              stock={product.stock}
             />
           </div>
         ))}

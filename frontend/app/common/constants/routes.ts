@@ -36,8 +36,6 @@ export const ROUTES = {
     AUTH_REGISTER: "/actions/auth/register-action",
     AUTH_LOGOUT: "/actions/auth/logout",
     AUTH_GOOGLE: "/actions/auth/google-login-action",
-    FAVORITE_ADD: (productId: string | number) => `/actions/favorite/add/${String(productId)}` as const,
-    FAVORITE_REMOVE: (productId: string | number) => `/actions/favorite/remove/${String(productId)}` as const,
     PRODUCT_DELETE: (id: string | number) => `/actions/product/delete/${String(id)}` as const,
     CATEGORY_DELETE: (id: string | number) => `/actions/category/delete/${String(id)}` as const,
   } as const,

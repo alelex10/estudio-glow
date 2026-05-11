@@ -17,13 +17,13 @@ interface FavoriteIdsResponse {
  * Maneja operaciones CRUD de favoritos con el backend
  */
 class FavoriteService {
-  list = (token: string) =>
+  list = (token?: string) =>
     apiClient<FavoritesResponse>({
       endpoint: API_ENDPOINTS.FAVORITES.LIST,
       token,
     });
 
-  add = (productId: string, token: string) =>
+  add = (productId: string, token?: string) =>
     apiClient<MessageResponse>({
       endpoint: API_ENDPOINTS.FAVORITES.ADD(productId),
       options: {
@@ -32,7 +32,7 @@ class FavoriteService {
       token,
     });
 
-  remove = (productId: string, token: string) =>
+  remove = (productId: string, token?: string) =>
     apiClient<MessageResponse>({
       endpoint: API_ENDPOINTS.FAVORITES.REMOVE(productId),
       options: {
@@ -41,7 +41,7 @@ class FavoriteService {
       token,
     });
 
-  getIds = (token: string) =>
+  getIds = (token?: string) =>
     apiClient<FavoriteIdsResponse>({
       endpoint: API_ENDPOINTS.FAVORITES.IDS,
       token,

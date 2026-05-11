@@ -1,4 +1,4 @@
-import { Link, useNavigate, useFetcher } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { Heart, ArrowLeft, ShoppingBag } from "lucide-react";
 import clsx from "clsx";
 import { FavoriteButton } from "~/common/components/button/FavoriteButton";
@@ -22,40 +22,17 @@ export function meta() {
 
 export async function loader({ request }: Route.LoaderArgs) {
   const token = await requireAuth(request);
-  const response = await favoriteService.list(token);
-  return response.data;
+  try {
+    const response = await favoriteService.list(token);
+    return response.data;
+  } catch {
+    return [];
+  }
 }
 
 export default function Favorites({ loaderData }: Route.ComponentProps) {
   const navigate = useNavigate();
   const favorites = loaderData || [];
-  const fetcher = useFetcher();
-
-  const handleFavoriteToggle = (productId: string) => {
-    const action = ROUTES.actions.FAVORITE_REMOVE(productId);
-    const method = "DELETE";
-    fetcher.submit(
-      { productId },
-      {
-        method,
-        action,
-      }
-    );
-  };
-
-  const isSubmitting = fetcher.state === "submitting";
-
-  // LOADING
-  // if (loading) {
-  //   return (
-  //     <div className="min-h-screen bg-primary-50 flex items-center justify-center">
-  //       <div className="animate-pulse flex flex-col items-center gap-4">
-  //         <Heart className="w-12 h-12 text-primary-300" />
-  //         <p className="text-gray-400">Cargando favoritos...</p>
-  //       </div>
-  //     </div>
-  //   );
-  // }
 
   return (
     <>
@@ -89,11 +66,7 @@ export default function Favorites({ loaderData }: Route.ComponentProps) {
           {/* Grid de productos */}
           {favorites && favorites.length > 0 ? (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-              {favorites.map((fav) => {
-                // Estado optimista: si se está eliminando, mostrar como no favorito
-                const isRemoving = isSubmitting && fetcher.formData?.get("productId") === fav.product.id;
-                const optimisticIsFav = !isRemoving;
-                return (
+              {favorites.map((fav) => (
                 <Link
                   key={fav.id}
                   to={ROUTES.PRODUCT(fav.product.id)}
@@ -108,7 +81,6 @@ export default function Favorites({ loaderData }: Route.ComponentProps) {
                     <FavoriteButton
                       productId={fav.product.id}
                       size="sm"
-                      isFav={optimisticIsFav}
                     />
                   </div>
 
@@ -138,8 +110,7 @@ export default function Favorites({ loaderData }: Route.ComponentProps) {
                     </p>
                   </div>
                 </Link>
-                );
-              })}
+              ))}
             </div>
           ) : (
             /* Empty state */

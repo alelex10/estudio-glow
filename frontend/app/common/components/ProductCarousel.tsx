@@ -74,6 +74,7 @@ export function ProductCarousel({ products }: ProductCarouselProps) {
                                 imageUrl={getCloudinaryUrl(product.imageUrl, 400)}
                                 name={product.name}
                                 price={product.price}
+                                stock={product.stock}
                             />
                         </div>
                     ))}

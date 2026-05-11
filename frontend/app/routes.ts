@@ -66,17 +66,6 @@ export default [
         "./actions/product/product-delete.$id.tsx"
       ),
     ]),
-    // Favorite actions
-    ...prefix("favorite", [
-      route(
-        path(ROUTES.actions.FAVORITE_ADD(":productId"), "actions/favorite"),
-        "./actions/favorite/add.$id.tsx"
-      ),
-      route(
-        path(ROUTES.actions.FAVORITE_REMOVE(":productId"), "actions/favorite"),
-        "./actions/favorite/remove.$id.tsx"
-      ),
-    ]),
     // Auth actions
     ...prefix("auth", [
       route(

@@ -6,6 +6,7 @@ import { Heart, ShoppingBag, LayoutDashboard, LogOut, User as UserIcon } from "l
 import { Form } from "react-router";
 import type { User } from "../../types/user-types";
 import { ROUTES, NAV_LINKS } from "~/common/constants/routes";
+import { useFavorites } from "~/common/context/FavoritesContext";
 
 interface MobileDrawerProps {
   isOpen: boolean;
@@ -16,6 +17,7 @@ interface MobileDrawerProps {
 export default function MobileDrawer({ isOpen, onClose, user }: MobileDrawerProps) {
   const isCustomer = user?.role === "customer";
   const isAdmin = user?.role === "admin";
+  const { favoriteCount } = useFavorites();
 
   return (
     <Drawer isOpen={isOpen} onClose={onClose} showCloseButton={false}>
@@ -66,7 +68,14 @@ export default function MobileDrawer({ isOpen, onClose, user }: MobileDrawerProp
                         className="flex items-center gap-3 text-white text-lg font-medium hover:text-primary-200 transition-colors py-3 px-4 rounded-lg hover:bg-white/10"
                         onClick={onClose}
                       >
-                        <Heart className="w-5 h-5" />
+                        <div className="relative">
+                          <Heart className="w-5 h-5" />
+                          {favoriteCount > 0 && (
+                            <span className="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
+                              {favoriteCount}
+                            </span>
+                          )}
+                        </div>
                         Favoritos
                       </Link>
                     </li>

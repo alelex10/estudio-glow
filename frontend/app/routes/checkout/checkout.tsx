@@ -1,8 +1,7 @@
-import { useState } from "react";
-import { useNavigate, useLoaderData, redirect } from "react-router";
+import { useState, useEffect, useRef } from "react";
+import { Form, useActionData, useNavigation, useNavigate, redirect } from "react-router";
 import type { Route } from "./+types/checkout";
-import { apiClient } from "../../common/config/api-client";
-import { API_ENDPOINTS } from "../../common/config/api-end-points";
+import { API_BASE_URL } from "../../common/config/api-end-points";
 import { useCart } from "../../common/context/CartContext";
 import { getToken } from "../../common/services/auth.server";
 import { Button } from "~/common/components/button/Button";
@@ -11,6 +10,7 @@ import { EmptyCartState } from "~/common/components/cart/EmptyCartState";
 import { CartItemsList } from "~/common/components/cart/CartItemsList";
 import { OrderSummarySidebar } from "~/common/components/cart/OrderSummarySidebar";
 import { ROUTES } from "~/common/constants/routes";
+import { toast } from "~/common/components/Toast";
 
 export function meta({ }: Route.MetaArgs) {
   return [
@@ -27,70 +27,113 @@ export async function loader({ request }: Route.LoaderArgs) {
   return {};
 }
 
-export default function Checkout() {
-  const [method, setMethod] = useState<"MERCADO_PAGO" | "TRANSFER">("MERCADO_PAGO");
-  const [receipt, setReceipt] = useState<File | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const navigate = useNavigate();
-  const { items, clearCart, totalPrice, totalItems } = useCart();
+export async function action({ request }: Route.ActionArgs) {
+  const token = await getToken(request);
+  if (!token) {
+    return { error: "Debes iniciar sesión para continuar" };
+  }
 
-  const handleCheckout = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError("");
+  const formData = await request.formData();
+  const paymentMethod = formData.get("paymentMethod") as string;
+  const cartItemsRaw = formData.get("cartItems") as string;
 
-    try {
-      // Step 1: Sync local cart items to backend DB
-      if (items.length === 0) {
-        throw new Error("Tu carrito está vacío");
-      }
+  if (!cartItemsRaw) {
+    return { error: "Tu carrito está vacío" };
+  }
 
-      await apiClient<any>({
-        endpoint: API_ENDPOINTS.CART.SYNC,
-        options: {
-          method: "POST",
-          body: JSON.stringify({
-            items: items.map((i) => ({ productId: i.productId, quantity: i.quantity })),
-          }),
-        },
+  const items = JSON.parse(cartItemsRaw);
+  if (items.length === 0) {
+    return { error: "Tu carrito está vacío" };
+  }
+
+  const apiFetch = (endpoint: string, options: RequestInit = {}) => {
+    return fetch(`${API_BASE_URL}${endpoint}`, {
+      ...options,
+      headers: {
+        Authorization: `Bearer ${token}`,
+        ...(options.body instanceof FormData
+          ? {}
+          : { "Content-Type": "application/json" }),
+        ...(options.headers as Record<string, string>),
+      },
+    });
+  };
+
+  try {
+    // Create order directly with items (no intermediate sync needed)
+    if (paymentMethod === "MERCADO_PAGO") {
+      const checkoutRes = await apiFetch("/checkout/mercadopago", {
+        method: "POST",
+        body: JSON.stringify({ items }),
       });
 
-      // Step 2: Proceed with checkout
-      if (method === "MERCADO_PAGO") {
-        const data = await apiClient<any>({
-          endpoint: API_ENDPOINTS.CHECKOUT.MERCADO_PAGO,
-          options: { method: "POST" }
-        });
-        if (data.preferenceUrl) {
-          clearCart();
-          window.location.href = data.preferenceUrl;
-        }
-      } else {
-        if (!receipt) throw new Error("Debe subir un comprobante para continuar");
-        
-        const formData = new FormData();
-        formData.append("receipt", receipt);
-
-        await apiClient<any>({
-          endpoint: API_ENDPOINTS.CHECKOUT.TRANSFER,
-          options: {
-            method: "POST",
-            body: formData
-          }
-        });
-        
-        // Success
-        clearCart();
-        alert("Orden creada exitosamente. Un administrador validará el pago.");
-        navigate(ROUTES.HOME);
+      if (!checkoutRes.ok) {
+        const err = await checkoutRes.json().catch(() => ({ error: { message: "Error al procesar el pago" } }));
+        const message = err.error?.message || err.message || "Error al procesar el pago";
+        return { error: message };
       }
-    } catch (err: any) {
-      setError(err.message || "Ocurrió un error al procesar el pago");
-    } finally {
-      setLoading(false);
+
+      const checkoutData = await checkoutRes.json();
+      return { preferenceUrl: checkoutData.preferenceUrl };
     }
-  };
+
+    // TRANSFER: forward receipt file + items
+    const receipt = formData.get("receipt") as File | null;
+    if (!receipt) {
+      return { error: "Debe subir un comprobante para continuar" };
+    }
+
+    const receiptFormData = new FormData();
+    receiptFormData.set("receipt", receipt);
+    receiptFormData.set("items", JSON.stringify(items));
+
+    const transferRes = await fetch(`${API_BASE_URL}/checkout/transfer`, {
+      method: "POST",
+      body: receiptFormData,
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!transferRes.ok) {
+      const err = await transferRes.json().catch(() => ({ error: { message: "Error al procesar el pago" } }));
+      const message = err.error?.message || err.message || "Error al procesar el pago";
+      return { error: message };
+    }
+
+    return { success: true };
+  } catch (err: any) {
+    return { error: err.message || "Ocurrió un error inesperado" };
+  }
+}
+
+export default function Checkout() {
+  const [method, setMethod] = useState<"MERCADO_PAGO" | "TRANSFER">("TRANSFER");
+  const [receipt, setReceipt] = useState<File | null>(null);
+  const actionData = useActionData<typeof action>();
+  const navigation = useNavigation();
+  const isSubmitting = navigation.state === "submitting";
+  const navigate = useNavigate();
+  const { items, clearCart, totalPrice, totalItems } = useCart();
+  const processedActionData = useRef<typeof actionData>(undefined);
+
+  // Handle action result: clear cart + redirect/notify / show errors
+  useEffect(() => {
+    if (!actionData) return;
+    if (processedActionData.current === actionData) return;
+    processedActionData.current = actionData;
+
+    if ("preferenceUrl" in actionData && actionData.preferenceUrl) {
+      clearCart();
+      window.location.href = actionData.preferenceUrl;
+    } else if ("success" in actionData && actionData.success) {
+      clearCart();
+      toast("success", "Orden creada exitosamente. Un administrador validará el pago.");
+      navigate(ROUTES.HOME);
+    } else if ("error" in actionData && actionData.error) {
+      toast("error", String(actionData.error));
+    }
+  }, [actionData, clearCart, navigate]);
 
   if (items.length === 0) {
     return (
@@ -107,8 +150,6 @@ export default function Checkout() {
         <p className="text-gray-600 text-sm sm:text-base">Completa tu pedido de {totalItems} {totalItems === 1 ? 'producto' : 'productos'}</p>
       </div>
 
-      {error && <div className="bg-danger-50 text-danger-600 p-3 rounded-lg mb-4 border-2 border-danger-200">{error}</div>}
-
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
         <div className="lg:col-span-2 space-y-6">
           {/* Order Summary */}
@@ -120,30 +161,36 @@ export default function Checkout() {
           </div>
 
           {/* Payment Method */}
-          <form onSubmit={handleCheckout} className="bg-white p-4 sm:p-6 rounded-lg border-5 border-primary-400 shadow-lg">
+          <Form method="post" encType="multipart/form-data" className="bg-white p-4 sm:p-6 rounded-lg border-5 border-primary-400 shadow-lg">
+            <input
+              type="hidden"
+              name="cartItems"
+              value={JSON.stringify(items.map(i => ({ productId: i.productId, quantity: i.quantity })))}
+            />
             <h2 className="text-xl sm:text-2xl font-bold text-primary-900 mb-4 sm:mb-6 pb-4 border-b-2 border-primary-200">
               Método de Pago
             </h2>
             
             <div className="space-y-3 sm:space-y-4 mb-6">
               <label 
-                className={`flex items-center gap-3 sm:gap-4 p-4 rounded-lg cursor-pointer transition-all border-2 ${
+                className={`flex items-center gap-3 sm:gap-4 p-4 rounded-lg transition-all border-2 opacity-60 cursor-not-allowed ${
                   method === "MERCADO_PAGO" 
                     ? "border-primary-500 bg-primary-50" 
-                    : "border-primary-200 hover:border-primary-300 hover:bg-primary-50"
+                    : "border-primary-200"
                 }`}
               >
                 <input 
                   type="radio" 
-                  name="method" 
+                  name="paymentMethod" 
+                  value="MERCADO_PAGO"
                   checked={method === "MERCADO_PAGO"} 
-                  onChange={() => setMethod("MERCADO_PAGO")}
+                  disabled
                   className="w-5 h-5 sm:w-4 sm:h-4 text-primary-600"
                 />
-                <CreditCard className="w-6 h-6 sm:w-5 sm:h-5 text-primary-600" />
+                <CreditCard className="w-6 h-6 sm:w-5 sm:h-5 text-primary-400" />
                 <div className="flex-1">
-                  <span className="font-semibold text-primary-900 text-base sm:text-lg">Mercado Pago</span>
-                  <p className="text-gray-600 text-xs sm:text-sm">Pago automático y seguro</p>
+                  <span className="font-semibold text-gray-400 text-base sm:text-lg">Mercado Pago</span>
+                  <p className="text-gray-400 text-xs sm:text-sm">No disponible por el momento</p>
                 </div>
               </label>
 
@@ -156,7 +203,8 @@ export default function Checkout() {
               >
                 <input 
                   type="radio" 
-                  name="method" 
+                  name="paymentMethod" 
+                  value="TRANSFER"
                   checked={method === "TRANSFER"} 
                   onChange={() => setMethod("TRANSFER")}
                   className="w-5 h-5 sm:w-4 sm:h-4 text-primary-600"
@@ -187,6 +235,7 @@ export default function Checkout() {
                   <div className="relative">
                     <input 
                       type="file" 
+                      name="receipt"
                       accept="image/*" 
                       onChange={e => setReceipt(e.target.files?.[0] || null)}
                       className="w-full bg-white border-2 border-primary-300 p-3 rounded-lg file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:bg-primary-100 file:text-primary-900 file:font-semibold hover:file:bg-primary-200"
@@ -206,13 +255,13 @@ export default function Checkout() {
               variant="gold"
               size="lg"
               type="submit"
-              disabled={loading || (method === "TRANSFER" && !receipt)}
+              disabled={isSubmitting || (method === "TRANSFER" && !receipt)}
               className="w-full"
             >
-              {loading ? "Procesando..." : "Confirmar y Pagar"}
+              {isSubmitting ? "Procesando..." : "Confirmar y Pagar"}
               <ArrowRight className="w-5 h-5" />
             </Button>
-          </form>
+          </Form>
         </div>
 
         {/* Order Summary Sidebar */}
