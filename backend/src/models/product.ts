@@ -1,4 +1,4 @@
-import { pgTable, varchar, timestamp, integer } from "drizzle-orm/pg-core";
+import { pgTable, varchar, timestamp, integer, index } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 import { categories } from "./category";
 
@@ -14,7 +14,9 @@ export const products = pgTable("product", {
   imageUrl: varchar("image_url", { length: 255 }),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
-});
+}, (table) => [
+  index("idx_product_category_id").on(table.categoryId),
+]);
 
 export type Product = typeof products.$inferSelect;
 export type NewProduct = typeof products.$inferInsert;

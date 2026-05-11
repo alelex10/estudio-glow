@@ -1,4 +1,4 @@
-import { pgTable, varchar, timestamp, integer, text } from "drizzle-orm/pg-core";
+import { pgTable, varchar, timestamp, integer, text, index } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 import { users } from "./user";
 import { products } from "./product";
@@ -14,7 +14,11 @@ export const orders = pgTable("order", {
   expiresAt: timestamp("expires_at"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
-});
+}, (table) => [
+  index("idx_order_user_id").on(table.userId),
+  index("idx_order_status").on(table.status),
+  index("idx_order_expires_at").on(table.expiresAt),
+]);
 
 export const orderItems = pgTable("order_item", {
   id: varchar("id", { length: 36 }).primaryKey().default(sql`gen_random_uuid()`),
@@ -23,7 +27,9 @@ export const orderItems = pgTable("order_item", {
   quantity: integer("quantity").notNull(),
   priceAtPurchase: integer("price_at_purchase").notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
-});
+}, (table) => [
+  index("idx_order_item_order_id").on(table.orderId),
+]);
 
 export type Order = typeof orders.$inferSelect;
 export type NewOrder = typeof orders.$inferInsert;

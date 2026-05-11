@@ -17,7 +17,13 @@ const upload = validateImageFile(5);
 
 router.post("/mercadopago", asyncHandler(async (req: AuthRequest, res: Response) => {
   const userId = req.user.id;
-  const order = await OrderService.createOrder(userId, "MERCADO_PAGO");
+  const { items } = req.body;
+
+  if (!Array.isArray(items) || items.length === 0) {
+    throw new BadRequestError("El carrito está vacío");
+  }
+
+  const order = await OrderService.createOrder(userId, "MERCADO_PAGO", items);
 
   const preference = await MercadoPagoService.createPreference(
     order.id,
@@ -35,8 +41,13 @@ router.post("/transfer", upload.single("receipt"), asyncHandler(async (req: Auth
     throw new BadRequestError("La imagen del comprobante es requerida para transferencias");
   }
 
+  const items = req.body.items ? JSON.parse(req.body.items) : [];
+  if (!Array.isArray(items) || items.length === 0) {
+    throw new BadRequestError("El carrito está vacío");
+  }
+
   const result = await ImageUploadService.uploadImage(req.file.buffer, "receipts");
-  const order = await OrderService.createOrder(userId, "TRANSFER", result.secure_url);
+  const order = await OrderService.createOrder(userId, "TRANSFER", items, result.secure_url);
 
   res.json({ orderId: order.id, status: "PENDING_VERIFICATION", receiptUrl: result.secure_url });
 }));

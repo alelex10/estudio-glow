@@ -29,6 +29,13 @@
       "when": 1776554761468,
       "tag": "0003_jittery_hairball",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1778496136570,
+      "tag": "0004_giant_rocket_raccoon",
+      "breakpoints": true
     }
   ]
 }

@@ -1,11 +1,14 @@
-import { pgTable, varchar, timestamp, integer } from "drizzle-orm/pg-core";
+import { pgTable, varchar, timestamp, integer, index } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 import { users } from "./user";
 import { products } from "./product";
 
 export const carts = pgTable("cart", {
   id: varchar("id", { length: 36 }).primaryKey().default(sql`gen_random_uuid()`),
-  userId: varchar("user_id", { length: 36 }).references(() => users.id),
+  userId: varchar("user_id", { length: 36 })
+    .notNull()
+    .unique()
+    .references(() => users.id, { onDelete: "cascade" }),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
@@ -17,7 +20,9 @@ export const cartItems = pgTable("cart_item", {
   quantity: integer("quantity").notNull().default(1),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
-});
+}, (table) => [
+  index("idx_cart_item_cart_id").on(table.cartId),
+]);
 
 export type Cart = typeof carts.$inferSelect;
 export type NewCart = typeof carts.$inferInsert;

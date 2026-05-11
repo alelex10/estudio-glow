@@ -1,28 +1,20 @@
 import { db } from "../db";
 import { orders, orderItems, type OrderWithItems } from "../models/order";
-import { carts, cartItems } from "../models/cart";
 import { products } from "../models/product";
 import { count, eq, desc, asc, inArray } from "drizzle-orm";
-import { DatabaseError } from "../errors";
+import { BadRequestError, ConflictError, NotFoundError, DatabaseError } from "../errors";
 
 export class OrderService {
   static async createOrder(
     userId: string,
     paymentMethod: "MERCADO_PAGO" | "TRANSFER",
+    items: { productId: string; quantity: number }[],
     receiptUrl?: string,
   ) {
     return await db.transaction(async (tx) => {
-      const cart = await tx
-        .select()
-        .from(carts)
-        .where(eq(carts.userId, userId));
-
-      if (!cart[0]) throw new DatabaseError("Cart not found");
-
-      const items = await tx
-        .select()
-        .from(cartItems)
-        .where(eq(cartItems.cartId, cart[0].id));
+      if (!items || items.length === 0) {
+        throw new BadRequestError("El carrito está vacío");
+      }
 
       let totalAmount = 0;
 
@@ -33,11 +25,11 @@ export class OrderService {
           .where(eq(products.id, item.productId));
 
         if (!product[0])
-          throw new Error(`Product not found for item ${item.productId}`);
+          throw new NotFoundError(`Producto no encontrado: ${item.productId}`);
 
         if (product[0].stock < item.quantity) {
-          throw new Error(
-            `Insufficient stock for product ${product[0]?.name || item.productId}`,
+          throw new ConflictError(
+            `Stock insuficiente para "${product[0]?.name || item.productId}". Disponible: ${product[0].stock}, solicitado: ${item.quantity}`,
           );
         }
 
@@ -71,7 +63,7 @@ export class OrderService {
         .returning();
 
       if (!newOrder) {
-        throw new Error("Failed to create order");
+        throw new DatabaseError("No se pudo crear la orden");
       }
 
       for (const item of items) {
@@ -81,7 +73,7 @@ export class OrderService {
           .where(eq(products.id, item.productId));
 
         if (!product[0]) {
-          throw new Error(`Product not found for item ${item.productId}`);
+          throw new NotFoundError(`Producto no encontrado: ${item.productId}`);
         }
 
         await tx.insert(orderItems).values({
@@ -92,7 +84,6 @@ export class OrderService {
         });
       }
 
-      await tx.delete(cartItems).where(eq(cartItems.cartId, cart[0].id));
       return newOrder;
     });
   }
@@ -111,7 +102,7 @@ export class OrderService {
         .from(orders)
         .where(eq(orders.id, orderId));
 
-      if (!order[0]) throw new Error("Order not found");
+      if (!order[0]) throw new NotFoundError("Orden no encontrada");
 
       if (
         order[0].status === "CANCELLED" ||
@@ -153,7 +144,7 @@ export class OrderService {
       .limit(1);
 
     if (!order[0]) {
-      throw new Error("Order not found");
+      throw new NotFoundError("Orden no encontrada");
     }
 
     const items = await db

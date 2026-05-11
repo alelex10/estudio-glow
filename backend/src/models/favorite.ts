@@ -1,4 +1,4 @@
-import { pgTable, varchar, timestamp, unique } from "drizzle-orm/pg-core";
+import { pgTable, varchar, timestamp, unique, index } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 import { users } from "./user";
 import { products } from "./product";
@@ -14,6 +14,7 @@ export const favorites = pgTable("favorite", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 }, (table) => [
   unique("unique_user_product").on(table.userId, table.productId),
+  index("idx_favorite_user_id").on(table.userId),
 ]);
 
 export type Favorite = typeof favorites.$inferSelect;

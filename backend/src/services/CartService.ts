@@ -1,6 +1,7 @@
 import { db } from "../db";
 import { carts, cartItems } from "../models/cart";
-import { eq, and } from "drizzle-orm";
+import { products } from "../models/product";
+import { eq, and, inArray } from "drizzle-orm";
 
 export class CartService {
   static async getCart(userId: string) {
@@ -32,14 +33,30 @@ export class CartService {
     localItems: { productId: string; quantity: number }[],
   ) {
     const cart = await this.getCart(userId);
-    // Clear existing items and replace with local state (source of truth)
+
+    // Fetch stock for all products in the cart to validate quantities
+    const productIds = localItems.map((i) => i.productId);
+    const stocks = await db
+      .select({ id: products.id, stock: products.stock })
+      .from(products)
+      .where(inArray(products.id, productIds));
+
+    const stockMap = new Map(stocks.map((s) => [s.id, s.stock]));
+
+    // Clear existing items and replace with validated local state
     await db.delete(cartItems).where(eq(cartItems.cartId, cart.id));
 
     for (const item of localItems) {
+      const maxStock = stockMap.get(item.productId);
+      const validQuantity =
+        maxStock !== undefined && item.quantity > maxStock
+          ? maxStock
+          : item.quantity;
+
       await db.insert(cartItems).values({
         cartId: cart.id,
         productId: item.productId,
-        quantity: item.quantity,
+        quantity: validQuantity,
       });
     }
     return this.getCart(userId);
