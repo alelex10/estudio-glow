@@ -1,4 +1,4 @@
-import { Link } from "react-router";
+import { Link, useLocation } from "react-router";
 import clsx from "clsx";
 import Drawer from "../Drawer";
 import DrawerHeader from "../DrawerHeader";
@@ -14,10 +14,16 @@ interface MobileDrawerProps {
   user: User | null;
 }
 
+function isActiveLink(href: string, pathname: string): boolean {
+  if (href === ROUTES.HOME) return pathname === ROUTES.HOME;
+  return pathname.startsWith(href);
+}
+
 export default function MobileDrawer({ isOpen, onClose, user }: MobileDrawerProps) {
   const isCustomer = user?.role === "customer";
   const isAdmin = user?.role === "admin";
   const { favoriteCount } = useFavorites();
+  const { pathname } = useLocation();
 
   return (
     <Drawer isOpen={isOpen} onClose={onClose} showCloseButton={false}>
@@ -36,17 +42,25 @@ export default function MobileDrawer({ isOpen, onClose, user }: MobileDrawerProp
             Navegación
           </h3>
           <ul className="space-y-2 mb-8">
-            {NAV_LINKS.map((link) => (
-              <li key={link.href}>
-                <Link
-                  to={link.href}
-                  className="text-white text-lg font-medium hover:text-primary-200 transition-colors block py-3 px-4 rounded-lg hover:bg-white/10"
-                  onClick={onClose}
-                >
-                  {link.label}
-                </Link>
-              </li>
-            ))}
+            {NAV_LINKS.map((link) => {
+              const active = isActiveLink(link.href, pathname);
+              return (
+                <li key={link.href}>
+                  <Link
+                    to={link.href}
+                    className={clsx(
+                      "block py-3 px-4 rounded-lg text-lg font-medium transition-all duration-200",
+                      active
+                        ? "bg-white/20 text-white font-semibold"
+                        : "text-white hover:text-primary-200 hover:bg-white/10",
+                    )}
+                    onClick={onClose}
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              );
+            })}
           </ul>
 
           {user && (
@@ -65,7 +79,12 @@ export default function MobileDrawer({ isOpen, onClose, user }: MobileDrawerProp
                     <li>
                       <Link
                         to={ROUTES.FAVORITES}
-                        className="flex items-center gap-3 text-white text-lg font-medium hover:text-primary-200 transition-colors py-3 px-4 rounded-lg hover:bg-white/10"
+                        className={clsx(
+                          "flex items-center gap-3 text-lg font-medium transition-all duration-200 py-3 px-4 rounded-lg",
+                          isActiveLink(ROUTES.FAVORITES, pathname)
+                            ? "bg-white/20 text-white font-semibold"
+                            : "text-white hover:text-primary-200 hover:bg-white/10",
+                        )}
                         onClick={onClose}
                       >
                         <div className="relative">
@@ -82,7 +101,12 @@ export default function MobileDrawer({ isOpen, onClose, user }: MobileDrawerProp
                     <li>
                       <Link
                         to={ROUTES.CART}
-                        className="flex items-center gap-3 text-white text-lg font-medium hover:text-primary-200 transition-colors py-3 px-4 rounded-lg hover:bg-white/10 opacity-50 cursor-not-allowed"
+                        className={clsx(
+                          "flex items-center gap-3 text-lg font-medium transition-all duration-200 py-3 px-4 rounded-lg opacity-50 cursor-not-allowed",
+                          isActiveLink(ROUTES.CART, pathname)
+                            ? "bg-white/20 text-white font-semibold"
+                            : "text-white hover:text-primary-200 hover:bg-white/10",
+                        )}
                         onClick={onClose}
                         title="Próximamente"
                       >
@@ -97,7 +121,12 @@ export default function MobileDrawer({ isOpen, onClose, user }: MobileDrawerProp
                   <li>
                       <Link
                         to={ROUTES.admin.BASE}
-                        className="flex items-center gap-3 text-white text-lg font-medium hover:text-primary-200 transition-colors py-3 px-4 rounded-lg hover:bg-white/10"
+                        className={clsx(
+                          "flex items-center gap-3 text-lg font-medium transition-all duration-200 py-3 px-4 rounded-lg",
+                          isActiveLink(ROUTES.admin.BASE, pathname)
+                            ? "bg-white/20 text-white font-semibold"
+                            : "text-white hover:text-primary-200 hover:bg-white/10",
+                        )}
                         onClick={onClose}
                       >
                         <LayoutDashboard className="w-5 h-5" />
