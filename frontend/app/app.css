@@ -1,5 +1,16 @@
 @import "tailwindcss";
 
+@keyframes whatsapp-enter {
+  from {
+    opacity: 0;
+    transform: scale(0.5) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
 /* El Messiri — self-hosted variable font (weight range 400-700) */
 @font-face {
   font-family: 'El Messiri';
@@ -36,6 +47,8 @@
 
 @theme {
   --font-el-messiri: "El Messiri", sans-serif;
+
+  --animate-whatsapp-enter: whatsapp-enter 0.3s ease-out;
 
   --color-primary-100: #fdeec2;
   --color-primary-200: #fad257;

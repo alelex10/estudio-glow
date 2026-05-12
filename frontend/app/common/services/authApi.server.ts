@@ -23,7 +23,7 @@ export async function serverLogin(
     const errorData = await response.json().catch(() => ({
       message: `Error: ${response.status}`,
     }));
-    throw new Error(errorData.message || `Error: ${response.status}`);
+    throw new Error(errorData.error?.message || errorData.errorMessage || errorData.message || `Error: ${response.status}`);
   }
 
   return response.json();
@@ -51,7 +51,7 @@ export async function serverRegister(
     const errorData = await response.json().catch(() => ({
       message: `Error: ${response.status}`,
     }));
-    throw new Error(errorData.message || `Error: ${response.status}`);
+    throw new Error(errorData.error?.message || errorData.errorMessage || errorData.message || `Error: ${response.status}`);
   }
 
   return response.json();

@@ -115,7 +115,7 @@ export const login = [
       .where(eq(users.email, email));
 
     if (userResult.length === 0) {
-      throw new AuthenticationError("Credenciales inválidas");
+      throw new AuthenticationError("No existe una cuenta con este email. Registrate para continuar.");
     }
 
     const user = userResult[0];

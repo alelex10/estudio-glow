@@ -69,20 +69,12 @@ export default [
     // Auth actions
     ...prefix("auth", [
       route(
-        path(ROUTES.actions.AUTH_LOGIN, "actions/auth"),
-        "./actions/auth/login-action.tsx"
-      ),
-      route(
         path(ROUTES.actions.AUTH_REGISTER, "actions/auth"),
         "./actions/auth/register-action.tsx"
       ),
       route(
         path(ROUTES.actions.AUTH_LOGOUT, "actions/auth"),
         "./actions/auth/logout.tsx"
-      ),
-      route(
-        path(ROUTES.actions.AUTH_GOOGLE, "actions/auth"),
-        "./actions/auth/google-login-action.tsx"
       ),
     ]),
   ]),

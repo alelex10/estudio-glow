@@ -10,6 +10,7 @@ import {
 import type { Route } from "./+types/root";
 import appCssHref from "./app.css?url";
 import { ToastContainer } from "./common/components/Toast";
+import { WhatsAppButton } from "./common/components/WhatsAppButton";
 import { getUser } from "./common/services/auth.server";
 import type { User } from "./common/types/user-types";
 
@@ -46,6 +47,7 @@ export function Layout({ children }: LayoutProps) {
       <body className="font-sans">
         {children}
         <ToastContainer />
+        <WhatsAppButton />
         <ScrollRestoration />
         <Scripts />
       </body>

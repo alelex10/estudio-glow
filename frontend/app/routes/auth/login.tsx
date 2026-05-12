@@ -1,4 +1,5 @@
-import { Form, Link, redirect, useSearchParams, useSubmit } from "react-router";
+import { Form, Link, redirect, useSubmit } from "react-router";
+import type { ActionFunctionArgs } from "react-router";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import clsx from "clsx";
@@ -10,8 +11,11 @@ import { loginSchema, type LoginFormData } from "~/common/schemas/auth";
 import { GoogleLoginButton } from "~/common/components/button/GoogleLoginButton";
 import { useState, useEffect } from "react";
 import type { Route } from "./+types/login";
-import { getUserRole, isAuthenticated } from "~/common/services/auth.server";
+import { getUserRole, isAuthenticated, createAuthSession } from "~/common/services/auth.server";
 import { ROUTES } from "~/common/constants/routes";
+import { serverLogin, serverGoogleLogin } from "~/common/services/authApi.server";
+import { parseFormData } from "~/common/actions/form-helpers";
+import { handleAuthActionError } from "~/common/actions/error-helpers";
 
 export function meta() {
   return [
@@ -37,41 +41,52 @@ export async function loader({ request }: Route.LoaderArgs) {
   return null;
 }
 
-export default function CustomerLogin({ actionData }: Route.ComponentProps) {
-  const serverError =
-    (actionData as { error?: string; suggestion?: string } | undefined)?.error ?? undefined;
-  const actionSuggestion = (actionData as { suggestion?: string } | undefined)?.suggestion;
-  const [googleError, setGoogleError] = useState<string | undefined>(undefined);
-  const [googleSuggestion, setGoogleSuggestion] = useState<string | undefined>(undefined);
-  const [isGoogleSubmitting, setIsGoogleSubmitting] = useState(false);
-  const submit = useSubmit();
-  const [searchParams, setSearchParams] = useSearchParams();
+export async function action({ request }: ActionFunctionArgs) {
+  const formData = await request.formData();
+  const idToken = formData.get("idToken");
 
-  // Leer errores de Google que vienen por redirect en query params
-  useEffect(() => {
-    const error = searchParams.get("error");
-    if (error) {
-      setGoogleError(decodeURIComponent(error));
-      const sug = searchParams.get("suggestion");
-      if (sug) setGoogleSuggestion(sug);
-      setIsGoogleSubmitting(false);
-      // Limpiar query params
-      const clean = new URLSearchParams(searchParams);
-      clean.delete("error");
-      clean.delete("suggestion");
-      clean.delete("debugId");
-      setSearchParams(clean, { replace: true });
-    }
-  }, []); // Solo al montar
-
-  // Resetea estado de carga cuando actionData indica que terminó la action
-  useEffect(() => {
-    if (actionData && Object.keys(actionData).length > 0) {
-      setIsGoogleSubmitting(false);
-      if ((actionData as { error?: string }).error) {
-        setGoogleError((actionData as { error?: string }).error);
+  if (idToken && typeof idToken === "string") {
+    try {
+      const response = await serverGoogleLogin(idToken);
+      const redirectPath = { admin: ROUTES.admin.BASE, customer: ROUTES.HOME }[response.user.role];
+      return createAuthSession(request, response.token, response.user, redirectPath);
+    } catch (error) {
+      const err = error as Error & { code?: string };
+      
+      switch (err.code) {
+        case "NOT_REGISTERED":
+          return { error: "Usuario no registrado con Google. Por favor, registrate primero.", suggestion: "register" };
+        case "CONSENT_DENIED":
+          return { error: "Consentimiento denegado. Por favor, intentá nuevamente." };
+        case "UPSTREAM_UNAVAILABLE":
+          return { error: "Servicio de Google temporalmente indisponible. Por favor, intentá más tarde." };
+        default:
+          return { error: "Error al iniciar sesión con Google. Por favor, intentá más tarde." };
       }
     }
+  }
+
+  try {
+    const data = parseFormData<{ email: string; password: string }>(formData, {
+      email: (v) => String(v),
+      password: (v) => String(v),
+    });
+    const response = await serverLogin(data.email, data.password);
+    const redirectPath = { admin: ROUTES.admin.BASE, customer: ROUTES.HOME }[response.user.role];
+    return createAuthSession(request, response.token, response.user, redirectPath);
+  } catch (error) {
+    return handleAuthActionError(error);
+  }
+}
+
+export default function CustomerLogin({ actionData }: Route.ComponentProps) {
+  const error = (actionData as { error?: string; suggestion?: string } | undefined)?.error;
+  const suggestion = (actionData as { suggestion?: string } | undefined)?.suggestion;
+  const [isGoogleSubmitting, setIsGoogleSubmitting] = useState(false);
+  const submit = useSubmit();
+
+  useEffect(() => {
+    if (actionData) setIsGoogleSubmitting(false);
   }, [actionData]);
 
   const {
@@ -121,15 +136,13 @@ export default function CustomerLogin({ actionData }: Route.ComponentProps) {
         >
           <GoogleLoginButton
             onSuccess={(idToken) => {
-              setGoogleError(undefined);
               setIsGoogleSubmitting(true);
               const formData = new FormData();
               formData.append("idToken", idToken);
-              submit(formData, { method: "post", action: ROUTES.actions.AUTH_GOOGLE });
+              submit(formData, { method: "post" });
             }}
-            onError={(err) => {
+            onError={(_err) => {
               setIsGoogleSubmitting(false);
-              setGoogleError(err);
             }}
           />
         </div>
@@ -146,14 +159,13 @@ export default function CustomerLogin({ actionData }: Route.ComponentProps) {
           </div>
         </div>
 
-        {/* Formulario - Server-side submission */}
+        {/* Formulario */}
         <Form
           className="space-y-4"
           onSubmit={handleSubmit((_, e) => {
             e?.target.submit();
           })}
           method="post"
-          action={ROUTES.actions.AUTH_LOGIN}
         >
           <FormInput
             label="Email"
@@ -173,8 +185,8 @@ export default function CustomerLogin({ actionData }: Route.ComponentProps) {
             errors={errors}
           />
 
-          <FormError message={serverError || googleError} />
-          {(actionSuggestion === "register" || googleSuggestion === "register") && (
+          <FormError message={error} />
+          {suggestion === "register" && (
             <p className="text-sm text-center mt-2">
               <Link
                 to={ROUTES.REGISTER}

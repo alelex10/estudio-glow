@@ -32,10 +32,8 @@ export const ROUTES = {
   } as const,
 
   actions: {
-    AUTH_LOGIN: "/actions/auth/login-action",
     AUTH_REGISTER: "/actions/auth/register-action",
     AUTH_LOGOUT: "/actions/auth/logout",
-    AUTH_GOOGLE: "/actions/auth/google-login-action",
     PRODUCT_DELETE: (id: string | number) => `/actions/product/delete/${String(id)}` as const,
     CATEGORY_DELETE: (id: string | number) => `/actions/category/delete/${String(id)}` as const,
   } as const,
