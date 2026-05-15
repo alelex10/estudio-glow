@@ -18,6 +18,8 @@ Auditoría de Dockerfiles, gestión de secretos, CI/CD, migraciones, hooks, back
 
 ### 1. `.env.example` ausente — ALTO
 
+> ✅ **RESUELTO 2026-05-15** — Ver [docs/fixed/resolved/11-devops-deploy.md](../resolved/11-devops-deploy.md) para el detalle del fix. Falta CI y deduplicar lockfiles.
+
 **Evidencia**: `find . -name ".env.example"` → vacío.
 
 Variables observadas que un nuevo dev necesita:

@@ -33,14 +33,23 @@ Estos son bloqueantes de producción. Cada uno tiene capacidad de comprometer di
 Cualquiera con la URL del webhook puede dispararlo y marcar órdenes como pagas. Sin verificación de `x-signature` ni deduplicación por `event id`, un atacante puede convertir compras impagas en pagas, o reproducir eventos para inflar métricas. **Es la vulnerabilidad más explotable del backend.**
 
 ### 2. JWT_SECRET con fallback hardcoded `"your-secret-key"`
+
+> ✅ **RESUELTO 2026-05-15** — Ver [docs/fixed/resolved/01-seguridad.md](../resolved/01-seguridad.md) para el detalle del fix.
+
 **Archivos:** `backend/src/middleware/auth.ts:8`, `controller/auth.ts:21`, `controller/google.ts:16` · **Doc:** [01-seguridad.md](./01-seguridad.md), [11-devops-deploy.md](./11-devops-deploy.md)
 Si la env var no está seteada en producción (cosa que ya pasó en otros proyectos), **cualquiera puede firmar tokens válidos como admin**. Defaults secretos en código son una de las CWEs más recurrentes (CWE-798).
 
 ### 3. Tokens JWT filtrados al cliente vía SSR loaders
+
+> 🟡 **PARCIAL 2026-05-15** — Los 5 loaders originales ya no devuelven `token`, pero `routes/layout.tsx` aún expone `{ user, token, favoriteIds }` y el backend sigue enviando el `token` en el JSON body al hacer login. Ver [resolved/06-arquitectura-frontend.md](../resolved/06-arquitectura-frontend.md).
+
 **Archivos:** `frontend/app/routes/checkout/checkout.tsx:26`, `admin/order/order.tsx:58`, `orders/orders.tsx:37`, `admin/product/product.new.tsx:24`, `admin/category/category.new.tsx:24` · **Doc:** [06-arquitectura-frontend.md](./06-arquitectura-frontend.md)
 5 loaders devuelven `{ token }` en el payload SSR. **Esto anula completamente el `httpOnly` de la cookie**: cualquier XSS o extensión maliciosa lee el token desde `window.__remixContext` o el HTML serializado.
 
 ### 4. Passwords admin commiteadas en seeds (texto plano)
+
+> ✅ **RESUELTO 2026-05-15** — Ver [docs/fixed/resolved/01-seguridad.md](../resolved/01-seguridad.md) para el detalle del fix.
+
 **Archivo:** `backend/src/seeds/data/user.ts:8-23` · **Doc:** [01-seguridad.md](./01-seguridad.md)
 Credenciales reales con rol `admin`:
 - `yasitacardenas3637@gmail.com / estudioglow@423`
@@ -48,10 +57,16 @@ Credenciales reales con rol `admin`:
 **Asumir comprometidas. Rotar inmediatamente y purgar el historial git** si esos usuarios existen en producción.
 
 ### 5. Dockerfile de "producción" corre `bun run dev` (watch mode)
+
+> ✅ **RESUELTO 2026-05-15** — Ver [docs/fixed/resolved/11-devops-deploy.md](../resolved/11-devops-deploy.md) para el detalle del fix.
+
 **Archivo:** `backend/Dockerfile:20` · **Doc:** [11-devops-deploy.md](./11-devops-deploy.md)
 El contenedor "productivo" arranca con watcher activo: reinicios espurios, alto consumo de CPU, comportamiento no determinístico. Combinado con `NODE_ENV` mal seteado, deshabilita además optimizaciones de Express.
 
 ### 6. CORS abierto a todo origen en development con `credentials: true`
+
+> ✅ **RESUELTO 2026-05-15** — Ver [docs/fixed/resolved/01-seguridad.md](../resolved/01-seguridad.md) para el detalle del fix.
+
 **Archivo:** `backend/src/index.ts:42-46` · **Doc:** [01-seguridad.md](./01-seguridad.md)
 `if (isDevelopment) return callback(null, true)`. Si `NODE_ENV=development` se cuela en deploy (común), **CSRF total cross-origin con cookies habilitadas**.
 
@@ -60,6 +75,9 @@ El contenedor "productivo" arranca con watcher activo: reinicios espurios, alto 
 Ni unit, ni integración, ni e2e. **El flujo de pago (checkout, MP, webhooks) no tiene un solo test** — riesgo financiero directo. Cualquier refactor es una ruleta rusa.
 
 ### 8. README miente: "arquitectura de caché de dos niveles" no existe
+
+> ✅ **RESUELTO 2026-05-15** — Ver [docs/fixed/resolved/12-documentacion.md](../resolved/12-documentacion.md) para el detalle del fix.
+
 **Doc:** [09-performance-cache.md](./09-performance-cache.md), [12-documentacion.md](./12-documentacion.md)
 El README enlaza a `docs/architecture/arquitectura-cache.md` que **no existe**. Ninguna ruta exporta `headers()` con Cache-Control. La feature no está implementada.
 
@@ -69,21 +87,21 @@ El README enlaza a `docs/architecture/arquitectura-cache.md` que **no existe**. 
 
 | # | Problema | Doc |
 |---|----------|-----|
-| 9 | `/dashboard/stats` sin `requireAdmin` — cualquier customer logueado lee stock e inventario | [02-auth-authorization.md](./02-auth-authorization.md) |
-| 10 | Account takeover vía linking automático Google ↔ Local sin confirmación | [02-auth-authorization.md](./02-auth-authorization.md) |
-| 11 | Sin helmet, sin rate-limit, sin CSRF protection | [01-seguridad.md](./01-seguridad.md) |
-| 12 | `cart.user_id` no es `unique` ni `notNull` → carritos duplicados por race | [04-base-de-datos.md](./04-base-de-datos.md) |
-| 13 | Cero índices en FKs y columnas filtradas (`order.user_id`, `expires_at`, etc.) | [04-base-de-datos.md](./04-base-de-datos.md) |
-| 14 | Convención de dinero indefinida: SQL `integer`, Zod ejemplo `1500.99` (decimales) | [04-base-de-datos.md](./04-base-de-datos.md) |
-| 15 | Cron in-process — duplicará trabajo si Render escala a 2 instancias | [09-performance-cache.md](./09-performance-cache.md) |
-| 16 | Sin `Idempotency-Key` en checkout — doble click crea órdenes duplicadas | [05-diseno-api.md](./05-diseno-api.md) |
-| 17 | OpenAPI cubre ~40% de rutas (faltan cart, orders, checkout, webhooks, users, favorites) | [05-diseno-api.md](./05-diseno-api.md), [12-documentacion.md](./12-documentacion.md) |
-| 18 | Sin capa de Repositorio — controllers hablan directo a Drizzle, lógica de negocio en handlers | [03-arquitectura-backend.md](./03-arquitectura-backend.md) |
-| 19 | Tipos frontend desincronizados con Zod backend (`description`, `imageUrl`, `category` divergen en `nullable`) | [08-type-safety-shared.md](./08-type-safety-shared.md) |
-| 20 | Producción ciega: 37 `console.log`, sin Sentry, sin métricas, sin `/health` | [10-observabilidad.md](./10-observabilidad.md) |
-| 21 | Sin `.env.example`, sin CI (`.github/workflows/`), lockfiles duplicados | [11-devops-deploy.md](./11-devops-deploy.md) |
-| 22 | Postgres pool sin configurar (`max`, `idle_timeout`, `statement_timeout`) | [09-performance-cache.md](./09-performance-cache.md) |
-| 23 | Drawer/Popover/Toast propios sin focus-trap, sin `aria-modal`, sin escape (a11y rota) | [06-arquitectura-frontend.md](./06-arquitectura-frontend.md) |
+| ✅ 9 | `/dashboard/stats` sin `requireAdmin` — cualquier customer logueado lee stock e inventario | [02-auth-authorization.md](./02-auth-authorization.md) |
+| ❌ 10 | Account takeover vía linking automático Google ↔ Local sin confirmación | [02-auth-authorization.md](./02-auth-authorization.md) |
+| ❌ 11 | Sin helmet, sin rate-limit, sin CSRF protection | [01-seguridad.md](./01-seguridad.md) |
+| ✅ 12 | `cart.user_id` no es `unique` ni `notNull` → carritos duplicados por race | [04-base-de-datos.md](./04-base-de-datos.md) |
+| ✅ 13 | Cero índices en FKs y columnas filtradas (`order.user_id`, `expires_at`, etc.) | [04-base-de-datos.md](./04-base-de-datos.md) |
+| ❌ 14 | Convención de dinero indefinida: SQL `integer`, Zod ejemplo `1500.99` (decimales) | [04-base-de-datos.md](./04-base-de-datos.md) |
+| ❌ 15 | Cron in-process — duplicará trabajo si Render escala a 2 instancias | [09-performance-cache.md](./09-performance-cache.md) |
+| 🟡 16 | Sin `Idempotency-Key` en checkout — doble click crea órdenes duplicadas (solo frontend guard) | [05-diseno-api.md](./05-diseno-api.md) |
+| ❌ 17 | OpenAPI cubre ~40% de rutas (faltan cart, orders, checkout, webhooks, users, favorites) | [05-diseno-api.md](./05-diseno-api.md), [12-documentacion.md](./12-documentacion.md) |
+| ❌ 18 | Sin capa de Repositorio — controllers hablan directo a Drizzle, lógica de negocio en handlers | [03-arquitectura-backend.md](./03-arquitectura-backend.md) |
+| ❌ 19 | Tipos frontend desincronizados con Zod backend (`description`, `imageUrl`, `category` divergen en `nullable`) | [08-type-safety-shared.md](./08-type-safety-shared.md) |
+| ❌ 20 | Producción ciega: 37 `console.log`, sin Sentry, sin métricas, sin `/health` | [10-observabilidad.md](./10-observabilidad.md) |
+| 🟡 21 | Sin `.env.example`, sin CI (`.github/workflows/`), lockfiles duplicados (.env.example ✅, CI/lockfiles ❌) | [11-devops-deploy.md](./11-devops-deploy.md) |
+| ❌ 22 | Postgres pool sin configurar (`max`, `idle_timeout`, `statement_timeout`) | [09-performance-cache.md](./09-performance-cache.md) |
+| ❌ 23 | Drawer/Popover/Toast propios sin focus-trap, sin `aria-modal`, sin escape (a11y rota) | [06-arquitectura-frontend.md](./06-arquitectura-frontend.md) |
 
 ---
 

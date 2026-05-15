@@ -31,6 +31,8 @@ Cosas bien hechas:
 
 ### 1. ALTO — Cero índices en columnas usadas en WHERE/JOIN
 
+> ✅ **RESUELTO 2026-05-15** — Ver [docs/fixed/resolved/04-base-de-datos.md](../resolved/04-base-de-datos.md) para el detalle del fix.
+
 Evidencia (`grep "CREATE INDEX" drizzle/`): **no hay un solo índice creado**, sólo los implícitos por PRIMARY KEY y UNIQUE.
 
 Columnas que se filtran o joinean sin índice:
@@ -47,6 +49,8 @@ Columnas que se filtran o joinean sin índice:
 Impacto: a ~10k órdenes el cron escanea linealmente cada 60s. A ~100k productos el listing paginado se vuelve lento. CRÍTICO antes de producción a escala.
 
 ### 2. ALTO — `cart.user_id` es nullable y SIN unique constraint
+
+> ✅ **RESUELTO 2026-05-15** — Ver [docs/fixed/resolved/04-base-de-datos.md](../resolved/04-base-de-datos.md) para el detalle del fix.
 
 Evidencia: `models/cart.ts:8` — `userId: varchar("user_id", { length: 36 }).references(() => users.id)` — sin `.notNull()` ni `.unique()`.
 
@@ -111,6 +115,8 @@ Impacto:
 Fix: agregar `deleted_at: timestamp` a `product`, `user`, `category`, `order`. Filtrar `IS NULL` por defecto. Para productos, si tiene `order_item` referenciados → marcar inactivo en vez de borrar.
 
 ### 9. MEDIO — Migración huérfana fuera del journal
+
+> ✅ **RESUELTO 2026-05-15** — Ver [docs/fixed/resolved/04-base-de-datos.md](../resolved/04-base-de-datos.md) para el detalle del fix.
 
 Evidencia:
 - `drizzle/20260316113300_burly_namor/migration.sql` existe (`backend/drizzle/`).

@@ -19,6 +19,8 @@ Auditoría de performance, caché HTTP, optimización de imágenes, bundle, conn
 
 ### 1. README MIENTE sobre la "arquitectura de caché de dos niveles" — ALTO
 
+> ✅ **RESUELTO 2026-05-15** — Ver [docs/fixed/resolved/12-documentacion.md](../resolved/12-documentacion.md) para el detalle del fix.
+
 **Evidencia**: `README.md:9` linkea `./docs/architecture/arquitectura-cache.md` y `README.md:14` afirma "Arquitectura de caché de dos niveles (global + por usuario)". El archivo NO existe (`docs/` solo contiene `improvements/`). Ninguna route del frontend exporta `headers()`. No hay `s-maxage` en ninguna respuesta.
 
 **Impacto**: documentación engañosa, onboarding falso, y (peor) NO HAY caché real. Cada request de home, products listing, categories pega a Render → DB. En Render plan free/starter esto se nota: cold start + latencia de DB en cada navegación.

@@ -48,17 +48,23 @@
 
 ### 1. [CRÍTICO] `JWT_SECRET` con fallback inseguro hardcoded
 
+> ✅ **RESUELTO 2026-05-15** — Ver [docs/fixed/resolved/02-auth-authorization.md](../resolved/02-auth-authorization.md) para el detalle del fix.
+
 - **Descripción:** tres archivos hacen `process.env.JWT_SECRET || "your-secret-key"` (o variantes). Si la env no se setea en producción, el secret pasa a ser una cadena pública conocida del repo.
 - **Evidencia:** `backend/src/middleware/auth.ts:8`, `backend/src/controller/auth.ts:21`, `backend/src/controller/google.ts:16`.
 - **Impacto:** un atacante puede firmar tokens válidos con cualquier `id`/`role` y autenticarse como admin. **Game over** completo. Además la inconsistencia con `backend/src/controller/auth.ts:142` (`process.env.JWT_SECRET!` sin fallback en login) demuestra que el código no tiene un único punto de configuración: en algunos paths el booteo falla, en otros funciona con secret default.
 
 ### 2. [CRÍTICO] `/dashboard/stats` accesible para cualquier usuario autenticado
 
+> ✅ **RESUELTO 2026-05-15** — Ver [docs/fixed/resolved/02-auth-authorization.md](../resolved/02-auth-authorization.md) para el detalle del fix.
+
 - **Descripción:** la ruta sólo aplica `authenticate`, sin `requireAdmin`. Cualquier customer logueado puede leer estadísticas de productos: total, stock bajo, sin stock, valor total del inventario.
 - **Evidencia:** `backend/src/routes/dashboard.ts:7` vs. `backend/src/routes/orders.ts:12-17` (admin sí está protegido).
 - **Impacto:** disclosure de datos comerciales (valor de inventario, conteos) a usuarios finales. Probablemente fue un olvido — `/orders/stats` sí pide admin y apunta al mismo controlador (`getProductStats`).
 
 ### 3. [ALTO] `jwt.verify` sin restringir `algorithms`
+
+> ✅ **RESUELTO 2026-05-15** — Ver [docs/fixed/resolved/02-auth-authorization.md](../resolved/02-auth-authorization.md) para el detalle del fix.
 
 - **Descripción:** `jwt.verify(token, JWT_SECRET)` sin pasar `{ algorithms: ["HS256"] }`. La librería `jsonwebtoken` >= 9 ya rechaza `none` por default, pero NO rechaza confusión de algoritmo (un atacante con la public key podría intentar firmar con HS256 si el server espera RS256, etc.).
 - **Evidencia:** `backend/src/middleware/auth.ts:43`.
@@ -85,6 +91,8 @@
 - **Impacto:** si un token se filtra (XSS, log accidental, dispositivo robado), el atacante tiene 7 días de acceso completo. El "logout" no logoutea realmente. Mitigación: tokens de acceso cortos (15min como en `auth.ts` para login local) + refresh token httpOnly de larga duración con rotación, o agregar `jti` y blacklist en Redis/DB.
 
 ### 7. [ALTO] Inconsistencia de `maxAge` y de verificación de secret
+
+> ✅ **RESUELTO 2026-05-15** — Ver [docs/fixed/resolved/02-auth-authorization.md](../resolved/02-auth-authorization.md) para el detalle del fix.
 
 - **Descripción:** `controller/auth.ts` define `TOKEN_MAX_AGE = 15min` mientras `controller/google.ts` define `TOKEN_MAX_AGE = 7 días`. Pero `expiresIn` del JWT en ambos es `"7d"`. La cookie expira en 15min (login local) pero el token sigue válido 7 días.
 - **Evidencia:** `backend/src/controller/auth.ts:22,92`, `backend/src/controller/google.ts:17,101`.
