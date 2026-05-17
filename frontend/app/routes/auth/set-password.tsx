@@ -1,4 +1,4 @@
-import { Form, Link, useSubmit } from "react-router";
+import { Form, Link, useFetcher } from "react-router";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import clsx from "clsx";
@@ -58,10 +58,11 @@ export async function action({ request }: Route.ActionArgs) {
   }
 }
 
-export default function SetPassword({ actionData }: Route.ComponentProps) {
-  const error = actionData && "error" in actionData ? actionData.error : undefined;
-  const success = actionData && "success" in actionData ? actionData.success : false;
-  const submit = useSubmit();
+export default function SetPassword() {
+  const fetcher = useFetcher<{ error?: string; success?: boolean }>();
+  const error = fetcher.data?.error;
+  const success = fetcher.data?.success ?? false;
+  const isSubmitting = fetcher.state === "submitting";
 
   const {
     register,
@@ -118,11 +119,11 @@ export default function SetPassword({ actionData }: Route.ComponentProps) {
             </div>
           </div>
         ) : (
-          <Form
+          <fetcher.Form
             className="space-y-4"
             method="post"
             onSubmit={handleSubmit((data) => {
-              submit(data as Record<string, string>, { method: "post" });
+              fetcher.submit(data as Record<string, string>, { method: "post" });
             })}
           >
             <FormInput
@@ -145,7 +146,7 @@ export default function SetPassword({ actionData }: Route.ComponentProps) {
 
             <FormError message={error} />
 
-            <FormButton loadingText="Guardando...">Guardar contraseña</FormButton>
+            <FormButton loadingText="Guardando..." isLoading={isSubmitting}>Guardar contraseña</FormButton>
 
             <div className="text-center">
               <Link
@@ -155,7 +156,7 @@ export default function SetPassword({ actionData }: Route.ComponentProps) {
                 ← Volver a la tienda
               </Link>
             </div>
-          </Form>
+          </fetcher.Form>
         )}
       </div>
     </div>
