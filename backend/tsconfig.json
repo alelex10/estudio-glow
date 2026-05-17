@@ -10,6 +10,9 @@
     // Bun recomienda esto:
     "moduleResolution": "bundler",
 
+    // Cargar tipos de Bun
+    "types": ["bun"],
+
     "allowImportingTsExtensions": true,
     "verbatimModuleSyntax": true,
     "noEmit": true,
@@ -35,5 +38,5 @@
     "outDir": "dist"
   },
 
-  "include": ["src"]
+  "include": ["src", "scripts"]
 }

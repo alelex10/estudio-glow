@@ -29,6 +29,9 @@
 Estos son bloqueantes de producción. Cada uno tiene capacidad de comprometer dinero, datos o cuentas.
 
 ### 1. Webhook MercadoPago sin validación HMAC
+
+> ✅ **RESUELTO 2026-05-15** — Middleware HMAC SHA-256 con clock-skew ±300s + tabla `webhook_event` con UNIQUE para idempotencia. Ver archive-report en engram `sdd/webhook-mp-hmac/archive-report`.
+
 **Archivo:** `backend/src/routes/webhooks.ts:11-24` · **Doc:** [01-seguridad.md](./01-seguridad.md), [05-diseno-api.md](./05-diseno-api.md)
 Cualquiera con la URL del webhook puede dispararlo y marcar órdenes como pagas. Sin verificación de `x-signature` ni deduplicación por `event id`, un atacante puede convertir compras impagas en pagas, o reproducir eventos para inflar métricas. **Es la vulnerabilidad más explotable del backend.**
 
@@ -41,7 +44,7 @@ Si la env var no está seteada en producción (cosa que ya pasó en otros proyec
 
 ### 3. Tokens JWT filtrados al cliente vía SSR loaders
 
-> 🟡 **PARCIAL 2026-05-15** — Los 5 loaders originales ya no devuelven `token`, pero `routes/layout.tsx` aún expone `{ user, token, favoriteIds }` y el backend sigue enviando el `token` en el JSON body al hacer login. Ver [resolved/06-arquitectura-frontend.md](../resolved/06-arquitectura-frontend.md).
+> ✅ **RESUELTO 2026-05-15 (leak cliente)** — `routes/layout.tsx` ya no devuelve `token`; `FavoritesContext` ya no acepta `token` prop y usa cookie httpOnly vía `credentials:include`. El `token` en el JSON body del backend queda como follow-up defense-in-depth (esa ruta sólo es consumida server-side por Remix actions, no es un leak directo).
 
 **Archivos:** `frontend/app/routes/checkout/checkout.tsx:26`, `admin/order/order.tsx:58`, `orders/orders.tsx:37`, `admin/product/product.new.tsx:24`, `admin/category/category.new.tsx:24` · **Doc:** [06-arquitectura-frontend.md](./06-arquitectura-frontend.md)
 5 loaders devuelven `{ token }` en el payload SSR. **Esto anula completamente el `httpOnly` de la cookie**: cualquier XSS o extensión maliciosa lee el token desde `window.__remixContext` o el HTML serializado.
@@ -71,6 +74,9 @@ El contenedor "productivo" arranca con watcher activo: reinicios espurios, alto 
 `if (isDevelopment) return callback(null, true)`. Si `NODE_ENV=development` se cuela en deploy (común), **CSRF total cross-origin con cookies habilitadas**.
 
 ### 7. Cero tests en todo el repo
+
+> 🟡 **SCAFFOLDING 2026-05-15** — Vitest configurado en backend (`vitest.config.ts`, scripts `test`/`test:watch`/`test:coverage`). Primer test del middleware CSRF pasa. Falta cobertura real de webhook HMAC, checkout, OrderService.
+
 **Doc:** [07-testing.md](./07-testing.md)
 Ni unit, ni integración, ni e2e. **El flujo de pago (checkout, MP, webhooks) no tiene un solo test** — riesgo financiero directo. Cualquier refactor es una ruleta rusa.
 
@@ -88,20 +94,20 @@ El README enlaza a `docs/architecture/arquitectura-cache.md` que **no existe**. 
 | # | Problema | Doc |
 |---|----------|-----|
 | ✅ 9 | `/dashboard/stats` sin `requireAdmin` — cualquier customer logueado lee stock e inventario | [02-auth-authorization.md](./02-auth-authorization.md) |
-| ❌ 10 | Account takeover vía linking automático Google ↔ Local sin confirmación | [02-auth-authorization.md](./02-auth-authorization.md) |
-| ❌ 11 | Sin helmet, sin rate-limit, sin CSRF protection | [01-seguridad.md](./01-seguridad.md) |
+| ✅ 10 | Account takeover vía linking automático Google ↔ Local sin confirmación — RESUELTO 2026-05-15: linking automático eliminado, throw ConflictError | [02-auth-authorization.md](./02-auth-authorization.md) |
+| ✅ 11 | Sin helmet, sin rate-limit, sin CSRF protection — RESUELTO 2026-05-15: helmet + express-rate-limit + custom-header CSRF | [01-seguridad.md](./01-seguridad.md) |
 | ✅ 12 | `cart.user_id` no es `unique` ni `notNull` → carritos duplicados por race | [04-base-de-datos.md](./04-base-de-datos.md) |
 | ✅ 13 | Cero índices en FKs y columnas filtradas (`order.user_id`, `expires_at`, etc.) | [04-base-de-datos.md](./04-base-de-datos.md) |
-| ❌ 14 | Convención de dinero indefinida: SQL `integer`, Zod ejemplo `1500.99` (decimales) | [04-base-de-datos.md](./04-base-de-datos.md) |
-| ❌ 15 | Cron in-process — duplicará trabajo si Render escala a 2 instancias | [09-performance-cache.md](./09-performance-cache.md) |
-| 🟡 16 | Sin `Idempotency-Key` en checkout — doble click crea órdenes duplicadas (solo frontend guard) | [05-diseno-api.md](./05-diseno-api.md) |
-| ❌ 17 | OpenAPI cubre ~40% de rutas (faltan cart, orders, checkout, webhooks, users, favorites) | [05-diseno-api.md](./05-diseno-api.md), [12-documentacion.md](./12-documentacion.md) |
-| ❌ 18 | Sin capa de Repositorio — controllers hablan directo a Drizzle, lógica de negocio en handlers | [03-arquitectura-backend.md](./03-arquitectura-backend.md) |
-| ❌ 19 | Tipos frontend desincronizados con Zod backend (`description`, `imageUrl`, `category` divergen en `nullable`) | [08-type-safety-shared.md](./08-type-safety-shared.md) |
-| ❌ 20 | Producción ciega: 37 `console.log`, sin Sentry, sin métricas, sin `/health` | [10-observabilidad.md](./10-observabilidad.md) |
-| 🟡 21 | Sin `.env.example`, sin CI (`.github/workflows/`), lockfiles duplicados (.env.example ✅, CI/lockfiles ❌) | [11-devops-deploy.md](./11-devops-deploy.md) |
-| ❌ 22 | Postgres pool sin configurar (`max`, `idle_timeout`, `statement_timeout`) | [09-performance-cache.md](./09-performance-cache.md) |
-| ❌ 23 | Drawer/Popover/Toast propios sin focus-trap, sin `aria-modal`, sin escape (a11y rota) | [06-arquitectura-frontend.md](./06-arquitectura-frontend.md) |
+| ✅ 14 | Convención de dinero indefinida: SQL `integer`, Zod ejemplo `1500.99` (decimales) — RESUELTO 2026-05-15: integer ARS en Zod, examples sin decimales | [04-base-de-datos.md](./04-base-de-datos.md) |
+| ✅ 15 | Cron in-process — duplicará trabajo si Render escala a 2 instancias — RESUELTO 2026-05-15: pg_try_advisory_lock | [09-performance-cache.md](./09-performance-cache.md) |
+| ✅ 16 | Sin `Idempotency-Key` en checkout — RESUELTO 2026-05-15: middleware idempotency in-memory + frontend manda header | [05-diseno-api.md](./05-diseno-api.md) |
+| ✅ 17 | OpenAPI cubre ~40% de rutas — RESUELTO 2026-05-15: 18 paths nuevos en cart/orders/checkout/webhooks/users/favorites | [05-diseno-api.md](./05-diseno-api.md), [12-documentacion.md](./12-documentacion.md) |
+| 🟡 18 | Sin capa de Repositorio — RESUELTO PARCIAL 2026-05-15: `ProductRepository` / `OrderRepository` / `UserRepository` extraídos; `controller/product.ts` -188 LOC, `OrderService` -126 LOC. Follow-up: cart/category/favorite/auth/google/dashboard | [03-arquitectura-backend.md](./03-arquitectura-backend.md) |
+| ✅ 19 | Tipos frontend desincronizados — RESUELTO 2026-05-15: `openapi-typescript` codegen (`backend/openapi.json` → `frontend/app/common/types/api.gen.ts`); `Product` alineado con backend (description/imageUrl nullable + category nested) | [08-type-safety-shared.md](./08-type-safety-shared.md) |
+| ✅ 20 | Producción ciega — RESUELTO 2026-05-15: pino + pino-http con redact, /health/live + /health/ready, X-Request-Id propagation | [10-observabilidad.md](./10-observabilidad.md) |
+| ✅ 21 | Sin `.env.example`, sin CI — RESUELTO 2026-05-15: `.github/workflows/ci.yml` (typecheck + tests para front y back) | [11-devops-deploy.md](./11-devops-deploy.md) |
+| ✅ 22 | Postgres pool sin configurar — RESUELTO 2026-05-15: max/idle_timeout/max_lifetime/connect_timeout/statement_timeout vía env | [09-performance-cache.md](./09-performance-cache.md) |
+| ✅ 23 | Drawer/Popover/Toast propios sin focus-trap, sin `aria-modal`, sin escape — RESUELTO 2026-05-15: focus-trap + aria-modal + Escape + body-scroll-lock en Drawer; aria-haspopup/expanded + click-outside en Popover; role=alert/status + aria-live en Toast | [06-arquitectura-frontend.md](./06-arquitectura-frontend.md) |
 
 ---
 
