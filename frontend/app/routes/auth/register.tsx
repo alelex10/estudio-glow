@@ -1,4 +1,4 @@
-import { Form, Link, useActionData, redirect, useSubmit, useNavigation } from "react-router";
+import { Form, Link, redirect, useFetcher } from "react-router";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import clsx from "clsx";
@@ -64,12 +64,10 @@ export async function action({ request }: Route.ActionArgs) {
 }
 
 export default function Register() {
-  const actionData = useActionData() as { error?: string } | undefined;
+  const fetcher = useFetcher<{ error?: string }>();
   const [googleError, setGoogleError] = useState<string | null>(null);
   const [isGoogleSubmitting, setIsGoogleSubmitting] = useState(false);
-  const submit = useSubmit();
-  const navigation = useNavigation();
-  const isSubmitting = navigation.state === "submitting";
+  const isSubmitting = fetcher.state === "submitting";
 
   const {
     register,
@@ -86,7 +84,7 @@ export default function Register() {
     formData.append("idToken", idToken);
     // S-3 fix: route to the dedicated action that handles all backend response variants,
     // including 202 link_email_sent (C3b), 401 GOOGLE_EMAIL_UNVERIFIED, and 409 GOOGLE_ID_MISMATCH.
-    submit(formData, { method: "post", action: ROUTES.actions.AUTH_GOOGLE_LOGIN });
+    fetcher.submit(formData, { method: "post", action: ROUTES.actions.AUTH_GOOGLE_LOGIN });
   };
 
   return (
@@ -148,7 +146,7 @@ export default function Register() {
           className="space-y-4"
           method="post"
           onSubmit={handleSubmit((data) => {
-            submit(data as Record<string, string>, { method: "post", action: ROUTES.actions.AUTH_REGISTER });
+            fetcher.submit(data as Record<string, string>, { method: "post", action: ROUTES.actions.AUTH_REGISTER });
           })}
           action={ROUTES.actions.AUTH_REGISTER}
         >
@@ -188,7 +186,7 @@ export default function Register() {
             errors={errors}
           />
 
-          <FormError message={actionData?.error || googleError || undefined} />
+          <FormError message={fetcher.data?.error || googleError || undefined} />
 
           <FormButton loadingText="Creando cuenta..." isLoading={isSubmitting}>Crear cuenta</FormButton>
         </Form>

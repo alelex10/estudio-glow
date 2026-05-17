@@ -95,10 +95,15 @@ export const register = [
     const rawToken = await AuthTokenService.issue(id, "EMAIL_VERIFY", 24 * 60 * 60 * 1000);
 
     // F1.5: Send verification email. If send fails, user row remains with email_verified=false.
-    // Error propagates as 500 — user can request a resend (N1.5).
+    // Log and swallow — user can request a resend (N1.5).
     // BACKEND_URL: the email link targets the backend endpoint that consumes the token and 302-redirects (W-2 fix)
     const verifyUrl = `${env.BACKEND_URL}/auth/verify-email?token=${rawToken}`;
-    await emailService().sendVerificationEmail({ to: email, name, verifyUrl });
+    try {
+      await emailService().sendVerificationEmail({ to: email, name, verifyUrl });
+    } catch (err) {
+      // Log the error but don't fail the request — user can request resend
+      console.error("Failed to send verification email:", err);
+    }
 
     // F1.3: Return 201 with pending_verification status — NO JWT, NO cookie (F1.1)
     res.status(201).json({ status: "pending_verification", email });
