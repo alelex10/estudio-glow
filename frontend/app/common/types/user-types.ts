@@ -14,6 +14,8 @@ export interface User {
   email: string;
   role: Role;
   provider?: "LOCAL" | "GOOGLE";
+  // F6.1: JWT now includes email_verified claim. May be absent in tokens issued before PR-2.
+  email_verified?: boolean;
 }
 
 export interface LoginCredentials {

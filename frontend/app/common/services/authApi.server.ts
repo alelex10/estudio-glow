@@ -1,6 +1,11 @@
-import { apiClient } from "../config/api-client";
-import { API_BASE_URL } from "../config/api-end-points";
-import type { LoginResponse, BackendGoogleLoginResponse } from "../types/response";
+import { apiClient, ApiError } from "../config/api-client";
+import type {
+  LoginResponse,
+  BackendGoogleLoginResponse,
+  GoogleLoginResponse,
+  GoogleLinkEmailSentResponse,
+  RegisterResponse,
+} from "../types/response";
 
 /**
  * Realiza el login directamente desde el servidor sin depender del cliente
@@ -9,52 +14,58 @@ export async function serverLogin(
   email: string,
   password: string,
 ): Promise<LoginResponse> {
-  const url = `${API_BASE_URL}/auth/login`;
-
-  const response = await fetch(url, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
+  return apiClient<LoginResponse>({
+    endpoint: "/auth/login",
+    options: {
+      method: "POST",
+      body: JSON.stringify({ email, password }),
     },
-    body: JSON.stringify({ email, password }),
   });
-
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({
-      message: `Error: ${response.status}`,
-    }));
-    throw new Error(errorData.error?.message || errorData.errorMessage || errorData.message || `Error: ${response.status}`);
-  }
-
-  return response.json();
 }
 
 /**
- * Realiza el registro directamente desde el servidor sin depender del cliente
+ * Realiza el registro directamente desde el servidor sin depender del cliente.
+ * Returns LoginResponse (session) or RegisterPendingVerificationResponse (email gate).
  */
 export async function serverRegister(
   name: string,
   email: string,
   password: string,
-): Promise<LoginResponse> {
-  const url = `${API_BASE_URL}/auth/register`;
-
-  const response = await fetch(url, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
+): Promise<RegisterResponse> {
+  return apiClient<RegisterResponse>({
+    endpoint: "/auth/register",
+    options: {
+      method: "POST",
+      body: JSON.stringify({ name, email, password }),
     },
-    body: JSON.stringify({ name, email, password }),
   });
+}
 
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({
-      message: `Error: ${response.status}`,
-    }));
-    throw new Error(errorData.error?.message || errorData.errorMessage || errorData.message || `Error: ${response.status}`);
-  }
+/**
+ * T2-10: Sends a POST /auth/resend-verification request.
+ * Always returns 200 (anti-enumeration) — caller should not branch on success/failure.
+ * Rate-limited on the backend (1/60s per email).
+ */
+export async function resendVerification(email: string): Promise<{ message: string }> {
+  return apiClient<{ message: string }>({
+    endpoint: "/auth/resend-verification",
+    options: {
+      method: "POST",
+      body: JSON.stringify({ email }),
+    },
+  });
+}
 
-  return response.json();
+export async function serverGoogleRegister(
+  idToken: string,
+): Promise<LoginResponse> {
+  return apiClient<LoginResponse>({
+    endpoint: "/auth/google/register",
+    options: {
+      method: "POST",
+      body: JSON.stringify({ idToken }),
+    },
+  });
 }
 
 export async function logout() {
@@ -74,35 +85,56 @@ export async function logout() {
 export async function serverGoogleLogin(
   idToken: string,
 ): Promise<BackendGoogleLoginResponse> {
-  const url = `${API_BASE_URL}/auth/google/login`;
+  try {
+    return await apiClient<BackendGoogleLoginResponse>({
+      endpoint: "/auth/google/login",
+      options: {
+        method: "POST",
+        body: JSON.stringify({ idToken }),
+      },
+    });
+  } catch (err) {
+    if (!(err instanceof ApiError)) throw err;
 
-  const response = await fetch(url, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ idToken }),
-  });
-
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({
-      message: `Error: ${response.status}`,
-    }));
-    const errorMessage = errorData.error?.message || errorData.message || `Error: ${response.status}`;
-    const error = new Error(errorMessage) as Error & { code?: string; statusCode?: number };
-    error.statusCode = response.status;
-    // Map backend error codes
-    if (response.status === 401 || errorMessage.includes("no registrado")) {
-      error.code = "NOT_REGISTERED";
-    } else if (response.status === 403 || errorMessage.includes("consent")) {
-      error.code = "CONSENT_DENIED";
-    } else if (response.status >= 500) {
-      error.code = "UPSTREAM_UNAVAILABLE";
-    } else {
-      error.code = "UNKNOWN";
-    }
-    throw error;
+    const mappedCode = mapGoogleLoginErrorCode(err);
+    const mapped = new Error(err.message) as Error & {
+      code: string;
+      statusCode: number;
+    };
+    mapped.code = mappedCode;
+    mapped.statusCode = err.statusCode;
+    throw mapped;
   }
+}
 
-  return response.json();
+function mapGoogleLoginErrorCode(err: ApiError): string {
+  switch (err.code) {
+    case "CSRF_ERROR":
+      return "CSRF_FAILED";
+    case "AUTHENTICATION_ERROR":
+      return "NOT_REGISTERED";
+    case "AUTHORIZATION_ERROR":
+      return "CONSENT_DENIED";
+    default:
+      return err.statusCode >= 500 ? "UPSTREAM_UNAVAILABLE" : "UNKNOWN";
+  }
+}
+
+/**
+ * T3-07: Google login with full response union support.
+ *
+ * Handles 200/201 (session) and 202 (link_email_sent) responses.
+ * Propagates ApiError for 401 GOOGLE_EMAIL_UNVERIFIED and 409 GOOGLE_ID_MISMATCH
+ * so the action can surface the error code to the UI.
+ */
+export async function serverGoogleLoginFull(
+  idToken: string,
+): Promise<GoogleLoginResponse> {
+  return apiClient<GoogleLoginResponse>({
+    endpoint: "/auth/google/login",
+    options: {
+      method: "POST",
+      body: JSON.stringify({ idToken }),
+    },
+  });
 }

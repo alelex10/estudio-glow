@@ -13,8 +13,10 @@ import {
   AuthResponseSchema,
 } from "../schemas/auth";
 import { asyncHandler } from "../middleware/async-handler";
-import { ConflictError, AuthenticationError, DatabaseError } from "../errors";
+import { ConflictError, AuthenticationError, DatabaseError, EmailNotVerifiedError } from "../errors";
 import type { AuthRequest } from "../middleware/auth";
+import AuthTokenService from "../services/AuthTokenService";
+import { emailService } from "../services/email/index";
 
 const TOKEN_MAX_AGE = 7 * 24 * 3600000; // 7 días en milisegundos
 
@@ -79,6 +81,7 @@ export const register = [
     const id = crypto.randomUUID();
     const userRole = "customer";
 
+    // F1.2: Insert user — email_verified defaults to false via DB column default (F1.1)
     await db.insert(users).values({
       id,
       name,
@@ -88,19 +91,17 @@ export const register = [
       role: userRole,
     });
 
-    const token = jwt.sign({ id, email, role: userRole }, env.JWT_SECRET, { expiresIn: "7d" });
+    // F1.4: Issue EMAIL_VERIFY token (24h TTL). Raw token is NEVER stored — only the hash.
+    const rawToken = await AuthTokenService.issue(id, "EMAIL_VERIFY", 24 * 60 * 60 * 1000);
 
-    setAuthCookie(res, token);
+    // F1.5: Send verification email. If send fails, user row remains with email_verified=false.
+    // Error propagates as 500 — user can request a resend (N1.5).
+    // BACKEND_URL: the email link targets the backend endpoint that consumes the token and 302-redirects (W-2 fix)
+    const verifyUrl = `${env.BACKEND_URL}/auth/verify-email?token=${rawToken}`;
+    await emailService().sendVerificationEmail({ to: email, name, verifyUrl });
 
-    const response = buildAuthResponse("Usuario registrado exitosamente", {
-      id,
-      name,
-      email,
-      role: userRole,
-      provider: "LOCAL",
-    });
-
-    res.status(201).json({ ...response, token });
+    // F1.3: Return 201 with pending_verification status — NO JWT, NO cookie (F1.1)
+    res.status(201).json({ status: "pending_verification", email });
   }),
 ];
 
@@ -136,8 +137,14 @@ export const login = [
       throw new AuthenticationError("Credenciales inválidas");
     }
 
+    // F1.6: Hard-block LOCAL users with unverified email — no JWT issued
+    if (!user.email_verified) {
+      throw new EmailNotVerifiedError();
+    }
+
+    // F1.7: Email verified — issue JWT with email_verified claim (F6.1, F6.2)
     const token = jwt.sign(
-      { id: user.id, email: user.email, role: user.role },
+      { id: user.id, email: user.email, role: user.role, email_verified: user.email_verified },
       env.JWT_SECRET,
       { expiresIn: "7d" }
     );

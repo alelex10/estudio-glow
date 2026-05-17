@@ -1,4 +1,4 @@
-import { pgTable, varchar, timestamp, text } from "drizzle-orm/pg-core";
+import { pgTable, varchar, timestamp, text, boolean } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 
 export const users = pgTable("user", {
@@ -9,6 +9,7 @@ export const users = pgTable("user", {
   provider: text("provider", { enum: ["LOCAL", "GOOGLE"] }).default("LOCAL").notNull(),
   google_id: varchar("google_id", { length: 255 }).unique(),
   role: text("role", { enum: ["admin", "customer"] }).default("customer").notNull(),
+  email_verified: boolean("email_verified").default(false).notNull(),
   created_at: timestamp("created_at").defaultNow(),
   updated_at: timestamp("updated_at").defaultNow(),
 });

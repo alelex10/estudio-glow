@@ -50,7 +50,7 @@ export default function Products({ loaderData }: Route.ComponentProps) {
           <div key={product.id}>
             <ProductCard
               productId={product.id}
-              imageUrl={product.imageUrl}
+              imageUrl={product.imageUrl ?? ""}
               name={product.name}
               price={product.price}
               stock={product.stock}

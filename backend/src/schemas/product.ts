@@ -14,9 +14,9 @@ export const CreateProductSchema = z
       example: "Laptop de alto rendimiento para gaming",
       description: "Descripción del producto",
     }),
-    price: z.coerce.number().positive().openapi({
-      example: 1500.99,
-      description: "Precio del producto",
+    price: z.coerce.number().int().positive().openapi({
+      example: 1500,
+      description: "Precio del producto en ARS (entero, sin decimales).",
     }),
     stock: z.coerce.number().int().min(0).openapi({
       example: 50,
@@ -51,11 +51,11 @@ export const ProductBaseSchema = z.object({
     example: "Laptop de alto rendimiento para gaming",
     description: "Descripción del producto",
   }),
-  price: z.number().openapi({
-    example: 1500.99,
-    description: "Precio del producto",
+  price: z.number().int().openapi({
+    example: 1500,
+    description: "Precio del producto en ARS (entero, sin decimales).",
   }),
-  stock: z.number().openapi({
+  stock: z.number().int().openapi({
     example: 50,
     description: "Cantidad en stock",
   }),
@@ -79,9 +79,9 @@ export const ProductWithCategoryResponseSchema = z
       example: "Laptop de alto rendimiento para gaming",
       description: "Descripción del producto",
     }),
-    price: z.number().openapi({
-      example: 1500.99,
-      description: "Precio del producto",
+    price: z.number().int().openapi({
+      example: 1500,
+      description: "Precio del producto en ARS (entero, sin decimales).",
     }),
     stock: z.number().openapi({
       example: 50,

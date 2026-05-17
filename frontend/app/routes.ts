@@ -27,6 +27,11 @@ export default [
   route(path(ROUTES.REGISTER), "./routes/auth/register.tsx"),
   route(path(ROUTES.LOGIN), "./routes/auth/login.tsx"),
 
+  // Email verification routes (PR-2 + PR-3)
+  route(path(ROUTES.AUTH.CHECK_EMAIL), "./routes/auth/check-email.tsx"),
+  route(path(ROUTES.AUTH.VERIFY_EMAIL), "./routes/auth/verify-email.tsx"),
+  route(path(ROUTES.AUTH.CONFIRM_LINK), "./routes/auth/confirm-link.tsx"),
+
   layout("./routes/admin/layout.tsx", [
     ...prefix(path(ROUTES.admin.BASE), [
       index("./routes/admin/dashboard/page.tsx"),
@@ -75,6 +80,14 @@ export default [
       route(
         path(ROUTES.actions.AUTH_LOGOUT, "actions/auth"),
         "./actions/auth/logout.tsx"
+      ),
+      route(
+        path(ROUTES.actions.AUTH_RESEND_VERIFICATION, "actions/auth"),
+        "./actions/auth/resend-verification.tsx"
+      ),
+      route(
+        path(ROUTES.actions.AUTH_GOOGLE_LOGIN, "actions/auth"),
+        "./actions/auth/google-login-action.tsx"
       ),
     ]),
   ]),

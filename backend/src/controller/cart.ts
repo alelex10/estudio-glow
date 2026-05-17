@@ -27,6 +27,9 @@ export const removeCartItem = [
   validateParams(ParamsIdSchema),
   asyncHandler(async (req: AuthRequest, res: Response) => {
     const productId = req.params.id;
+    if (!productId) {
+      throw new Error("productId required");
+    }
     const cart = await CartService.removeCartItem(req.user.id, productId);
     res.json(successResponse(cart, "Item removed"));
   }),

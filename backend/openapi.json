@@ -1,0 +1,3865 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "API de E-commerce",
+    "version": "1.0.0",
+    "description": "API backend para gestión de productos y autenticación"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000",
+      "description": "Servidor de desarrollo",
+      "security": [
+        {
+          "bearerAuth": {
+            "type": "http",
+            "scheme": "bearer",
+            "bearerFormat": "JWT"
+          }
+        }
+      ]
+    },
+    {
+      "url": "https://estudio-glow.onrender.com/",
+      "description": "Servidor de producción",
+      "security": [
+        {
+          "bearerAuth": {
+            "type": "https",
+            "scheme": "bearer",
+            "bearerFormat": "JWT"
+          }
+        }
+      ]
+    }
+  ],
+  "components": {
+    "schemas": {
+      "UserResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "admin-user-001",
+            "description": "ID del usuario"
+          },
+          "name": {
+            "type": "string",
+            "example": "Admin Estudio Glow",
+            "description": "Nombre del usuario"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "yasitacardenas3637@gmail.com",
+            "description": "Correo electrónico del usuario"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "admin",
+              "customer"
+            ],
+            "example": "admin",
+            "description": "Rol del usuario"
+          },
+          "provider": {
+            "type": "string",
+            "enum": [
+              "LOCAL",
+              "GOOGLE"
+            ],
+            "example": "LOCAL",
+            "description": "Proveedor de autenticación"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "email",
+          "role"
+        ]
+      },
+      "AuthResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "Login successful",
+            "description": "Mensaje de respuesta"
+          },
+          "user": {
+            "$ref": "#/components/schemas/UserResponse"
+          }
+        },
+        "required": [
+          "message"
+        ]
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "Error message",
+            "description": "Mensaje de error"
+          }
+        },
+        "required": [
+          "message"
+        ]
+      },
+      "ProductResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "example": "550e8400-e29b-41d4-a716-446655440000",
+            "description": "ID del producto"
+          },
+          "name": {
+            "type": "string",
+            "example": "Laptop Gaming",
+            "description": "Nombre del producto"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true,
+            "example": "Laptop de alto rendimiento para gaming",
+            "description": "Descripción del producto"
+          },
+          "price": {
+            "type": "integer",
+            "example": 1500,
+            "description": "Precio del producto en ARS (entero, sin decimales)."
+          },
+          "stock": {
+            "type": "number",
+            "example": 50,
+            "description": "Cantidad en stock"
+          },
+          "category": {
+            "type": "object",
+            "nullable": true,
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid",
+                "example": "550e8400-e29b-41d4-a716-446655440000",
+                "description": "ID de la categoría"
+              },
+              "name": {
+                "type": "string",
+                "example": "Electrónica",
+                "description": "Nombre de la categoría"
+              }
+            },
+            "required": [
+              "id",
+              "name"
+            ],
+            "example": {
+              "id": "550e8400-e29b-41d4-a716-446655440000",
+              "name": "Electrónica"
+            },
+            "description": "Categoría del producto (null si no tiene categoría asignada)"
+          },
+          "imageUrl": {
+            "type": "string",
+            "nullable": true,
+            "example": "https://example.com/image.jpg",
+            "description": "URL de la imagen del producto"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date",
+            "example": "2024-01-15T10:30:00Z",
+            "description": "Fecha de creación"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date",
+            "example": "2024-01-15T10:30:00Z",
+            "description": "Fecha de actualización"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "description",
+          "price",
+          "stock",
+          "category",
+          "imageUrl",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "ProductListResponse": {
+        "type": "object",
+        "properties": {
+          "products": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductResponse"
+            },
+            "description": "Lista de productos"
+          }
+        },
+        "required": [
+          "products"
+        ]
+      },
+      "CategoryResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "example": "550e8400-e29b-41d4-a716-446655440000",
+            "description": "ID de la categoría"
+          },
+          "name": {
+            "type": "string",
+            "example": "Electrónica",
+            "description": "Nombre de la categoría"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true,
+            "example": "Productos electrónicos y tecnológicos",
+            "description": "Descripción de la categoría"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date",
+            "example": "2024-01-15T10:30:00Z",
+            "description": "Fecha de creación"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date",
+            "example": "2024-01-15T10:30:00Z",
+            "description": "Fecha de actualización"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "description",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "CategoryListResponse": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/CategoryResponse"
+        },
+        "description": "Lista de categorías"
+      },
+      "RegisterRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "example": "Juan Pérez",
+            "description": "Nombre completo del usuario"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "juan@example.com",
+            "description": "Correo electrónico del usuario"
+          },
+          "password": {
+            "type": "string",
+            "minLength": 6,
+            "example": "password123",
+            "description": "Contraseña del usuario (mínimo 6 caracteres)"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "admin",
+              "customer"
+            ],
+            "example": "admin",
+            "description": "Rol del usuario (admin o customer)"
+          }
+        },
+        "required": [
+          "name",
+          "email",
+          "password"
+        ]
+      },
+      "LoginRequest": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "juan@example.com",
+            "description": "Correo electrónico del usuario"
+          },
+          "password": {
+            "type": "string",
+            "minLength": 1,
+            "example": "password123",
+            "description": "Contraseña del usuario"
+          }
+        },
+        "required": [
+          "email",
+          "password"
+        ]
+      },
+      "GoogleRegisterResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "token": {
+            "type": "string"
+          },
+          "user": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "email": {
+                "type": "string"
+              },
+              "role": {
+                "type": "string",
+                "enum": [
+                  "admin",
+                  "customer"
+                ]
+              },
+              "provider": {
+                "type": "string",
+                "enum": [
+                  "GOOGLE"
+                ]
+              }
+            },
+            "required": [
+              "id",
+              "name",
+              "email",
+              "role",
+              "provider"
+            ]
+          }
+        },
+        "required": [
+          "message",
+          "token",
+          "user"
+        ]
+      },
+      "GoogleAuthRequest": {
+        "type": "object",
+        "properties": {
+          "idToken": {
+            "type": "string",
+            "minLength": 1,
+            "example": "eyJhbGciOiJSUzI1NiIsInR5cCI6...",
+            "description": "Token de ID de Google obtenido del frontend"
+          }
+        },
+        "required": [
+          "idToken"
+        ]
+      },
+      "GoogleLoginResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "token": {
+            "type": "string"
+          },
+          "user": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "email": {
+                "type": "string"
+              },
+              "role": {
+                "type": "string",
+                "enum": [
+                  "admin",
+                  "customer"
+                ]
+              },
+              "provider": {
+                "type": "string",
+                "enum": [
+                  "GOOGLE"
+                ]
+              }
+            },
+            "required": [
+              "id",
+              "name",
+              "email",
+              "role",
+              "provider"
+            ]
+          }
+        },
+        "required": [
+          "message",
+          "token",
+          "user"
+        ]
+      },
+      "CreateProductRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255,
+            "example": "Laptop Gaming",
+            "description": "Nombre del producto"
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 500,
+            "example": "Laptop de alto rendimiento para gaming",
+            "description": "Descripción del producto"
+          },
+          "price": {
+            "type": "integer",
+            "minimum": 0,
+            "exclusiveMinimum": true,
+            "example": 1500,
+            "description": "Precio del producto en ARS (entero, sin decimales)."
+          },
+          "stock": {
+            "type": "integer",
+            "nullable": true,
+            "minimum": 0,
+            "example": 50,
+            "description": "Cantidad en stock"
+          },
+          "categoryId": {
+            "type": "string",
+            "format": "uuid",
+            "example": "550e8400-e29b-41d4-a716-446655440000",
+            "description": "ID de la categoría del producto"
+          },
+          "image": {
+            "type": "string",
+            "format": "binary",
+            "description": "Imagen del producto"
+          }
+        },
+        "required": [
+          "name",
+          "price",
+          "stock",
+          "categoryId"
+        ]
+      },
+      "UpdateProductRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255,
+            "example": "Laptop Gaming",
+            "description": "Nombre del producto"
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 500,
+            "example": "Laptop de alto rendimiento para gaming",
+            "description": "Descripción del producto"
+          },
+          "price": {
+            "type": "integer",
+            "minimum": 0,
+            "exclusiveMinimum": true,
+            "example": 1500,
+            "description": "Precio del producto en ARS (entero, sin decimales)."
+          },
+          "stock": {
+            "type": "integer",
+            "nullable": true,
+            "minimum": 0,
+            "example": 50,
+            "description": "Cantidad en stock"
+          },
+          "categoryId": {
+            "type": "string",
+            "format": "uuid",
+            "example": "550e8400-e29b-41d4-a716-446655440000",
+            "description": "ID de la categoría del producto"
+          },
+          "image": {
+            "type": "string",
+            "format": "binary",
+            "description": "Imagen del producto"
+          }
+        }
+      },
+      "PaginationQuery": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "type": "integer",
+            "minimum": 0,
+            "exclusiveMinimum": true,
+            "default": 1,
+            "example": 1,
+            "description": "Número de página (empieza desde 1)"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 0,
+            "exclusiveMinimum": true,
+            "maximum": 100,
+            "default": 10,
+            "example": 10,
+            "description": "Cantidad de productos por página (máximo 100)"
+          },
+          "sortOrder": {
+            "type": "string",
+            "enum": [
+              "asc",
+              "desc"
+            ],
+            "default": "desc",
+            "example": "desc",
+            "description": "Orden ascendente o descendente"
+          }
+        }
+      },
+      "PaginatedProductsResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductResponse"
+            },
+            "description": "Lista de productos de la página actual"
+          },
+          "pagination": {
+            "$ref": "#/components/schemas/PaginationQuery"
+          }
+        },
+        "required": [
+          "data",
+          "pagination"
+        ]
+      },
+      "CreateCategoryRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100,
+            "example": "Electrónica",
+            "description": "Nombre de la categoría"
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 500,
+            "example": "Productos electrónicos y tecnológicos",
+            "description": "Descripción de la categoría"
+          }
+        },
+        "required": [
+          "name"
+        ]
+      },
+      "UpdateCategoryRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100,
+            "example": "Electrónica",
+            "description": "Nombre de la categoría"
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 500,
+            "example": "Productos electrónicos y tecnológicos",
+            "description": "Descripción de la categoría"
+          }
+        }
+      },
+      "CartItem": {
+        "type": "object",
+        "properties": {
+          "productId": {
+            "type": "string",
+            "format": "uuid",
+            "example": "550e8400-e29b-41d4-a716-446655440000",
+            "description": "ID del producto"
+          },
+          "quantity": {
+            "type": "integer",
+            "minimum": 0,
+            "exclusiveMinimum": true,
+            "example": 1,
+            "description": "Cantidad del producto"
+          }
+        },
+        "required": [
+          "productId",
+          "quantity"
+        ]
+      },
+      "SyncCart": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CartItem"
+            },
+            "description": "Array de items del carrito"
+          }
+        },
+        "required": [
+          "items"
+        ]
+      }
+    },
+    "parameters": {}
+  },
+  "paths": {
+    "/auth/register": {
+      "post": {
+        "tags": [
+          "Authentication"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Usuario registrado exitosamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error en la solicitud",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error del servidor",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "tags": [
+          "Authentication"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login exitoso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Credenciales inválidas",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error del servidor",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/logout": {
+      "post": {
+        "tags": [
+          "Authentication"
+        ],
+        "responses": {
+          "200": {
+            "description": "Logout exitoso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/google": {
+      "post": {
+        "tags": [
+          "Authentication",
+          "Google OAuth"
+        ],
+        "deprecated": true,
+        "description": "DEPRECATED: Use /auth/google/register or /auth/google/login instead. Will be removed after 2026-05-02.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GoogleAuthRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login/registro híbrido con Google (deprecated)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GoogleRegisterResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token de Google inválido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/google/register": {
+      "post": {
+        "tags": [
+          "Authentication",
+          "Google OAuth"
+        ],
+        "description": "Registrar un nuevo usuario usando Google OAuth",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GoogleAuthRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Usuario registrado exitosamente con Google",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GoogleRegisterResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token de Google inválido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "El usuario ya existe (con Google o con email local)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/google/login": {
+      "post": {
+        "tags": [
+          "Authentication",
+          "Google OAuth"
+        ],
+        "description": "Iniciar sesión usando Google OAuth (usuario debe estar previamente registrado)",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GoogleAuthRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login exitoso con Google",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GoogleLoginResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Usuario no registrado o token inválido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/products": {
+      "get": {
+        "tags": [
+          "Products (Admin)"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de productos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductListResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Products (Admin)"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateProductRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Producto creado exitosamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error en la solicitud",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error del servidor",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/products/{id}": {
+      "get": {
+        "tags": [
+          "Products (Admin)"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "example": "1",
+              "description": "ID del producto"
+            },
+            "required": true,
+            "description": "ID del producto",
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Producto encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Producto no encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Products (Admin)"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "example": "1",
+              "description": "ID del producto"
+            },
+            "required": true,
+            "description": "ID del producto",
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateProductRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Producto actualizado exitosamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error en la solicitud",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Producto no encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Products (Admin)"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "example": "1",
+              "description": "ID del producto"
+            },
+            "required": true,
+            "description": "ID del producto",
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Producto eliminado exitosamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Producto no encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/products/search": {
+      "get": {
+        "tags": [
+          "Products (Public)"
+        ],
+        "security": [],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "example": "laptop",
+              "description": "Término de búsqueda"
+            },
+            "required": false,
+            "description": "Término de búsqueda",
+            "name": "q",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "example": "550e8400-e29b-41d4-a716-446655440000",
+              "description": "Filtrar por ID de categoría"
+            },
+            "required": false,
+            "description": "Filtrar por ID de categoría",
+            "name": "categoryId",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "number",
+              "minimum": 0,
+              "exclusiveMinimum": true,
+              "example": 100,
+              "description": "Precio mínimo"
+            },
+            "required": false,
+            "description": "Precio mínimo",
+            "name": "minPrice",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "number",
+              "minimum": 0,
+              "exclusiveMinimum": true,
+              "example": 2000,
+              "description": "Precio máximo"
+            },
+            "required": false,
+            "description": "Precio máximo",
+            "name": "maxPrice",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Resultados de búsqueda",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedProductsResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/products/paginated": {
+      "get": {
+        "tags": [
+          "Products (Public)"
+        ],
+        "security": [],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "name",
+                "price",
+                "createdAt",
+                "stock"
+              ],
+              "default": "createdAt",
+              "example": "createdAt",
+              "description": "Campo por el cual ordenar"
+            },
+            "required": false,
+            "description": "Campo por el cual ordenar",
+            "name": "sortBy",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "example": "laptop",
+              "description": "Término de búsqueda por nombre de producto"
+            },
+            "required": false,
+            "description": "Término de búsqueda por nombre de producto",
+            "name": "q",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "example": "skincare",
+              "description": "Filtrar por nombre de categoría"
+            },
+            "required": false,
+            "description": "Filtrar por nombre de categoría",
+            "name": "category",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "example": "550e8400-e29b-41d4-a716-446655440000",
+              "description": "Filtrar por ID de categoría"
+            },
+            "required": false,
+            "description": "Filtrar por ID de categoría",
+            "name": "categoryId",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "low",
+                "out",
+                "ok"
+              ],
+              "example": "low",
+              "description": "Filtrar por nivel de stock: low (≤10), out (=0), ok (>10)"
+            },
+            "required": false,
+            "description": "Filtrar por nivel de stock: low (≤10), out (=0), ok (>10)",
+            "name": "stock",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "exclusiveMinimum": true,
+              "default": 1,
+              "example": 1,
+              "description": "Número de página (empieza desde 1)"
+            },
+            "required": false,
+            "description": "Número de página (empieza desde 1)",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "exclusiveMinimum": true,
+              "maximum": 100,
+              "default": 10,
+              "example": 10,
+              "description": "Cantidad de productos por página (máximo 100)"
+            },
+            "required": false,
+            "description": "Cantidad de productos por página (máximo 100)",
+            "name": "limit",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "default": "desc",
+              "example": "desc",
+              "description": "Orden ascendente o descendente"
+            },
+            "required": false,
+            "description": "Orden ascendente o descendente",
+            "name": "sortOrder",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de productos paginada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedProductsResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/products/news": {
+      "get": {
+        "tags": [
+          "Products (Public)"
+        ],
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Nuevos productos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "uuid",
+                            "example": "550e8400-e29b-41d4-a716-446655440000",
+                            "description": "ID del producto"
+                          },
+                          "name": {
+                            "type": "string",
+                            "example": "Laptop Gaming",
+                            "description": "Nombre del producto"
+                          },
+                          "description": {
+                            "type": "string",
+                            "nullable": true,
+                            "example": "Laptop de alto rendimiento para gaming",
+                            "description": "Descripción del producto"
+                          },
+                          "price": {
+                            "type": "integer",
+                            "example": 1500,
+                            "description": "Precio del producto en ARS (entero, sin decimales)."
+                          },
+                          "stock": {
+                            "type": "integer",
+                            "example": 50,
+                            "description": "Cantidad en stock"
+                          },
+                          "categoryId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "example": "550e8400-e29b-41d4-a716-446655440000",
+                            "description": "ID de la categoría del producto"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "name",
+                          "description",
+                          "price",
+                          "stock",
+                          "categoryId"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "message",
+                    "data"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/categories": {
+      "get": {
+        "tags": [
+          "Categories (Admin)"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de categorías",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/CategoryListResponse"
+                    }
+                  },
+                  "required": [
+                    "message",
+                    "data"
+                  ]
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error del servidor",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Categories (Admin)"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCategoryRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Categoría creada exitosamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/CategoryResponse"
+                    }
+                  },
+                  "required": [
+                    "message",
+                    "data"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error en la solicitud",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Categoría ya existe",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error del servidor",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/categories/{id}": {
+      "get": {
+        "tags": [
+          "Categories (Admin)"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "example": "550e8400-e29b-41d4-a716-446655440000",
+              "description": "ID de la categoría"
+            },
+            "required": true,
+            "description": "ID de la categoría",
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Categoría encontrada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CategoryResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Categoría no encontrada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error del servidor",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Categories (Admin)"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "example": "1",
+              "description": "ID de la categoría"
+            },
+            "required": true,
+            "description": "ID de la categoría",
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCategoryRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Categoría actualizada exitosamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CategoryResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error en la solicitud",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Categoría no encontrada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Nombre de categoría ya existe",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error del servidor",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Categories (Admin)"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "example": "1",
+              "description": "ID de la categoría"
+            },
+            "required": true,
+            "description": "ID de la categoría",
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Categoría eliminada exitosamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ],
+                  "example": {
+                    "message": "Category deleted successfully"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Categoría no encontrada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "No se puede eliminar categoría con productos asociados",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error del servidor",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/dashboard/stats": {
+      "get": {
+        "tags": [
+          "Dashboard"
+        ],
+        "summary": "Obtener estadísticas del dashboard",
+        "description": "Retorna estadísticas generales del sistema incluyendo productos, categorías y niveles de stock",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Estadísticas del dashboard obtenidas exitosamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "total": {
+                      "type": "number",
+                      "description": "Total de productos en el sistema",
+                      "example": 150
+                    },
+                    "lowStock": {
+                      "type": "number",
+                      "description": "Número de productos con stock bajo (menos de 10 unidades)",
+                      "example": 12
+                    },
+                    "totalCategory": {
+                      "type": "number",
+                      "description": "Total de categorías registradas",
+                      "example": 8
+                    },
+                    "withoutStock": {
+                      "type": "number",
+                      "description": "Número de productos sin stock (stock igual a 0)",
+                      "example": 5
+                    },
+                    "totalValue": {
+                      "type": "number",
+                      "description": "Valor total de todos los productos en stock",
+                      "example": 15000
+                    }
+                  },
+                  "required": [
+                    "total",
+                    "lowStock",
+                    "totalCategory",
+                    "withoutStock",
+                    "totalValue"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No autorizado - token de autenticación inválido o ausente"
+          },
+          "500": {
+            "description": "Error interno del servidor"
+          }
+        }
+      }
+    },
+    "/cart": {
+      "get": {
+        "tags": [
+          "Cart"
+        ],
+        "summary": "Obtener carrito del usuario autenticado",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Carrito del usuario",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "items": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "productId": {
+                                "type": "string",
+                                "format": "uuid"
+                              },
+                              "quantity": {
+                                "type": "integer",
+                                "minimum": 0,
+                                "exclusiveMinimum": true
+                              }
+                            },
+                            "required": [
+                              "productId",
+                              "quantity"
+                            ]
+                          }
+                        }
+                      },
+                      "required": [
+                        "items"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "message",
+                    "data"
+                  ],
+                  "example": {
+                    "message": "Cart fetched",
+                    "data": {
+                      "items": [
+                        {
+                          "productId": "550e8400-e29b-41d4-a716-446655440000",
+                          "quantity": 2
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No autenticado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error del servidor",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/cart/sync": {
+      "post": {
+        "tags": [
+          "Cart"
+        ],
+        "summary": "Sincronizar carrito local con el servidor",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SyncCart"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Carrito sincronizado exitosamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/CartItem"
+                      }
+                    }
+                  },
+                  "required": [
+                    "message",
+                    "data"
+                  ],
+                  "example": {
+                    "message": "Cart synced",
+                    "data": [
+                      {
+                        "productId": "550e8400-e29b-41d4-a716-446655440000",
+                        "quantity": 1
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Datos de carrito inválidos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No autenticado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error del servidor",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/cart/{productId}": {
+      "delete": {
+        "tags": [
+          "Cart"
+        ],
+        "summary": "Eliminar un item del carrito",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "example": "550e8400-e29b-41d4-a716-446655440000",
+              "description": "ID del producto a eliminar del carrito"
+            },
+            "required": true,
+            "description": "ID del producto a eliminar del carrito",
+            "name": "productId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Item eliminado del carrito",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ],
+                  "example": {
+                    "message": "Cart item removed"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No autenticado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Item no encontrado en el carrito",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error del servidor",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/orders/stats": {
+      "get": {
+        "tags": [
+          "Orders (Admin)"
+        ],
+        "summary": "Obtener estadísticas de productos/ventas",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Estadísticas de ventas",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {}
+                    }
+                  },
+                  "required": [
+                    "message",
+                    "data"
+                  ],
+                  "example": {
+                    "message": "Stats fetched",
+                    "data": {}
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No autenticado o sin permisos de admin",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error del servidor",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/orders": {
+      "get": {
+        "tags": [
+          "Orders (Admin)"
+        ],
+        "summary": "Listar todas las órdenes (admin)",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "createdAt",
+                "totalAmount"
+              ],
+              "default": "createdAt",
+              "example": "createdAt",
+              "description": "Campo por el cual ordenar"
+            },
+            "required": false,
+            "description": "Campo por el cual ordenar",
+            "name": "sortBy",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "PENDING",
+                "PAID",
+                "PENDING_VERIFICATION",
+                "CANCELLED",
+                "EXPIRED"
+              ],
+              "example": "PENDING_VERIFICATION",
+              "description": "Filtrar por estado de la orden"
+            },
+            "required": false,
+            "description": "Filtrar por estado de la orden",
+            "name": "status",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "TRANSFER",
+                "MERCADO_PAGO"
+              ],
+              "example": "TRANSFER",
+              "description": "Filtrar por método de pago"
+            },
+            "required": false,
+            "description": "Filtrar por método de pago",
+            "name": "paymentMethod",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "boolean",
+              "example": false,
+              "description": "Incluir items de la orden en la respuesta"
+            },
+            "required": false,
+            "description": "Incluir items de la orden en la respuesta",
+            "name": "includeItems",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "exclusiveMinimum": true,
+              "default": 1,
+              "example": 1,
+              "description": "Número de página (empieza desde 1)"
+            },
+            "required": false,
+            "description": "Número de página (empieza desde 1)",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "exclusiveMinimum": true,
+              "maximum": 100,
+              "default": 10,
+              "example": 10,
+              "description": "Cantidad de productos por página (máximo 100)"
+            },
+            "required": false,
+            "description": "Cantidad de productos por página (máximo 100)",
+            "name": "limit",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "default": "desc",
+              "example": "desc",
+              "description": "Orden ascendente o descendente"
+            },
+            "required": false,
+            "description": "Orden ascendente o descendente",
+            "name": "sortOrder",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista paginada de órdenes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "uuid"
+                          },
+                          "userId": {
+                            "type": "string",
+                            "format": "uuid"
+                          },
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "PENDING",
+                              "PAID",
+                              "PENDING_VERIFICATION",
+                              "CANCELLED",
+                              "EXPIRED"
+                            ]
+                          },
+                          "paymentMethod": {
+                            "type": "string",
+                            "enum": [
+                              "TRANSFER",
+                              "MERCADO_PAGO"
+                            ]
+                          },
+                          "totalAmount": {
+                            "type": "number"
+                          },
+                          "createdAt": {
+                            "type": "string",
+                            "format": "date-time"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "userId",
+                          "status",
+                          "paymentMethod",
+                          "totalAmount",
+                          "createdAt"
+                        ],
+                        "example": {
+                          "id": "550e8400-e29b-41d4-a716-446655440000",
+                          "userId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+                          "status": "PENDING",
+                          "paymentMethod": "MERCADO_PAGO",
+                          "totalAmount": 1500,
+                          "createdAt": "2026-05-15T10:00:00.000Z"
+                        }
+                      }
+                    },
+                    "total": {
+                      "type": "integer"
+                    },
+                    "page": {
+                      "type": "integer"
+                    },
+                    "pageSize": {
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "message",
+                    "data",
+                    "total",
+                    "page",
+                    "pageSize"
+                  ],
+                  "example": {
+                    "message": "Orders fetched",
+                    "data": [],
+                    "total": 0,
+                    "page": 1,
+                    "pageSize": 10
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No autenticado o sin permisos de admin",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error del servidor",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/orders/{id}": {
+      "get": {
+        "tags": [
+          "Orders (Admin)"
+        ],
+        "summary": "Obtener orden por ID (admin)",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "example": "550e8400-e29b-41d4-a716-446655440000",
+              "description": "ID del recurso"
+            },
+            "required": true,
+            "description": "ID del recurso",
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Orden encontrada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "format": "uuid"
+                        },
+                        "userId": {
+                          "type": "string",
+                          "format": "uuid"
+                        },
+                        "status": {
+                          "type": "string",
+                          "enum": [
+                            "PENDING",
+                            "PAID",
+                            "PENDING_VERIFICATION",
+                            "CANCELLED",
+                            "EXPIRED"
+                          ]
+                        },
+                        "paymentMethod": {
+                          "type": "string",
+                          "enum": [
+                            "TRANSFER",
+                            "MERCADO_PAGO"
+                          ]
+                        },
+                        "totalAmount": {
+                          "type": "number"
+                        },
+                        "createdAt": {
+                          "type": "string",
+                          "format": "date-time"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "userId",
+                        "status",
+                        "paymentMethod",
+                        "totalAmount",
+                        "createdAt"
+                      ],
+                      "example": {
+                        "id": "550e8400-e29b-41d4-a716-446655440000",
+                        "userId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+                        "status": "PENDING",
+                        "paymentMethod": "MERCADO_PAGO",
+                        "totalAmount": 1500,
+                        "createdAt": "2026-05-15T10:00:00.000Z"
+                      }
+                    }
+                  },
+                  "required": [
+                    "message",
+                    "data"
+                  ],
+                  "example": {
+                    "message": "Order fetched",
+                    "data": {
+                      "id": "550e8400-e29b-41d4-a716-446655440000",
+                      "userId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+                      "status": "PENDING",
+                      "paymentMethod": "MERCADO_PAGO",
+                      "totalAmount": 1500,
+                      "createdAt": "2026-05-15T10:00:00.000Z"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No autenticado o sin permisos de admin",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Orden no encontrada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error del servidor",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/orders/{id}/approve": {
+      "post": {
+        "tags": [
+          "Orders (Admin)"
+        ],
+        "summary": "Aprobar una orden (admin)",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "example": "550e8400-e29b-41d4-a716-446655440000",
+              "description": "ID de la orden"
+            },
+            "required": true,
+            "description": "ID de la orden",
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Orden aprobada exitosamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ],
+                  "example": {
+                    "message": "Order approved"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No autenticado o sin permisos de admin",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Orden no encontrada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error del servidor",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/orders/{id}/reject": {
+      "post": {
+        "tags": [
+          "Orders (Admin)"
+        ],
+        "summary": "Rechazar una orden (admin)",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "example": "550e8400-e29b-41d4-a716-446655440000",
+              "description": "ID de la orden"
+            },
+            "required": true,
+            "description": "ID de la orden",
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Orden rechazada exitosamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ],
+                  "example": {
+                    "message": "Order rejected"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No autenticado o sin permisos de admin",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Orden no encontrada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error del servidor",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/checkout/mercadopago": {
+      "post": {
+        "tags": [
+          "Checkout"
+        ],
+        "summary": "Iniciar pago con MercadoPago",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "example": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+              "description": "Clave de idempotencia requerida para evitar órdenes duplicadas (UUID o string único por intento de pago)"
+            },
+            "required": true,
+            "description": "Clave de idempotencia requerida para evitar órdenes duplicadas (UUID o string único por intento de pago)",
+            "name": "idempotency-key",
+            "in": "header"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "items": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/CartItem"
+                    }
+                  }
+                },
+                "required": [
+                  "items"
+                ],
+                "example": {
+                  "items": [
+                    {
+                      "productId": "550e8400-e29b-41d4-a716-446655440000",
+                      "quantity": 2
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Preferencia de pago de MercadoPago creada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "orderId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "preferenceUrl": {
+                      "type": "string",
+                      "format": "uri"
+                    }
+                  },
+                  "required": [
+                    "orderId",
+                    "preferenceUrl"
+                  ],
+                  "example": {
+                    "orderId": "550e8400-e29b-41d4-a716-446655440000",
+                    "preferenceUrl": "https://www.mercadopago.com.ar/checkout/v1/redirect?pref_id=..."
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Carrito vacío, items inválidos o falta Idempotency-Key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No autenticado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Solicitud duplicada en vuelo (mismo Idempotency-Key concurrente)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "message"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "example": {
+                    "error": {
+                      "message": "Duplicate request in flight"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error del servidor",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/checkout/transfer": {
+      "post": {
+        "tags": [
+          "Checkout"
+        ],
+        "summary": "Iniciar pago por transferencia bancaria con comprobante",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "example": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+              "description": "Clave de idempotencia requerida para evitar órdenes duplicadas (UUID o string único por intento de pago)"
+            },
+            "required": true,
+            "description": "Clave de idempotencia requerida para evitar órdenes duplicadas (UUID o string único por intento de pago)",
+            "name": "idempotency-key",
+            "in": "header"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "receipt": {
+                    "nullable": true,
+                    "description": "Imagen del comprobante de transferencia (JPG, PNG, WEBP — máx 5 MB)",
+                    "example": "(binary file)"
+                  },
+                  "items": {
+                    "type": "string",
+                    "description": "JSON serializado del array de items del carrito",
+                    "example": "[{\"productId\":\"550e8400-e29b-41d4-a716-446655440000\",\"quantity\":1}]"
+                  }
+                },
+                "required": [
+                  "items"
+                ],
+                "example": {
+                  "receipt": "(binary file)",
+                  "items": "[{\"productId\":\"550e8400-e29b-41d4-a716-446655440000\",\"quantity\":1}]"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Orden de transferencia creada, pendiente de verificación",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "orderId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "PENDING_VERIFICATION"
+                      ]
+                    },
+                    "receiptUrl": {
+                      "type": "string",
+                      "format": "uri"
+                    }
+                  },
+                  "required": [
+                    "orderId",
+                    "status",
+                    "receiptUrl"
+                  ],
+                  "example": {
+                    "orderId": "550e8400-e29b-41d4-a716-446655440000",
+                    "status": "PENDING_VERIFICATION",
+                    "receiptUrl": "https://res.cloudinary.com/example/receipts/abc123.jpg"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Comprobante faltante, carrito vacío, items inválidos o falta Idempotency-Key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No autenticado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Solicitud duplicada en vuelo (mismo Idempotency-Key concurrente)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "message"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "example": {
+                    "error": {
+                      "message": "Duplicate request in flight"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error del servidor",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/webhooks/mercadopago": {
+      "post": {
+        "tags": [
+          "Webhooks"
+        ],
+        "summary": "Recibir notificaciones de pago de MercadoPago",
+        "description": "Endpoint de webhook para notificaciones de MercadoPago. Valida la firma HMAC-SHA256 mediante los headers `x-signature` (formato `ts=<unix>,v1=<hex>`) y `x-request-id`. El cuerpo debe enviarse como `application/json` raw (sin parsear) para que la validación de firma sea correcta.",
+        "security": [],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "example": "ts=1715000000,v1=abc123def456...",
+              "description": "Firma HMAC-SHA256 de MercadoPago en formato ts=<unix_seconds>,v1=<hex_digest>"
+            },
+            "required": true,
+            "description": "Firma HMAC-SHA256 de MercadoPago en formato ts=<unix_seconds>,v1=<hex_digest>",
+            "name": "x-signature",
+            "in": "header"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "example": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+              "description": "ID único de la solicitud enviado por MercadoPago, usado en el cálculo de firma"
+            },
+            "required": true,
+            "description": "ID único de la solicitud enviado por MercadoPago, usado en el cálculo de firma",
+            "name": "x-request-id",
+            "in": "header"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "action": {
+                    "type": "string"
+                  },
+                  "type": {
+                    "type": "string"
+                  },
+                  "data": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "id"
+                    ]
+                  }
+                },
+                "example": {
+                  "action": "payment.updated",
+                  "type": "payment",
+                  "data": {
+                    "id": "12345678"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Webhook procesado exitosamente (o evento duplicado ignorado por idempotencia)"
+          },
+          "400": {
+            "description": "Cuerpo del webhook no parseable como JSON",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Firma inválida, headers faltantes, clock skew excedido o secreto no configurado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error del servidor",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/me": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Obtener perfil del usuario autenticado",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Perfil del usuario",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/UserResponse"
+                    }
+                  },
+                  "required": [
+                    "message",
+                    "data"
+                  ],
+                  "example": {
+                    "message": "User fetched",
+                    "data": {
+                      "id": "admin-user-001",
+                      "name": "Admin Estudio Glow",
+                      "email": "admin@example.com",
+                      "role": "customer",
+                      "provider": "LOCAL"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No autenticado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Usuario no encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error del servidor",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/orders": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Listar órdenes del usuario autenticado",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "createdAt",
+                "totalAmount"
+              ],
+              "default": "createdAt",
+              "example": "createdAt",
+              "description": "Campo por el cual ordenar"
+            },
+            "required": false,
+            "description": "Campo por el cual ordenar",
+            "name": "sortBy",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "PENDING",
+                "PAID",
+                "PENDING_VERIFICATION",
+                "CANCELLED",
+                "EXPIRED"
+              ],
+              "example": "PENDING_VERIFICATION",
+              "description": "Filtrar por estado de la orden"
+            },
+            "required": false,
+            "description": "Filtrar por estado de la orden",
+            "name": "status",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "TRANSFER",
+                "MERCADO_PAGO"
+              ],
+              "example": "TRANSFER",
+              "description": "Filtrar por método de pago"
+            },
+            "required": false,
+            "description": "Filtrar por método de pago",
+            "name": "paymentMethod",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "boolean",
+              "example": false,
+              "description": "Incluir items de la orden en la respuesta"
+            },
+            "required": false,
+            "description": "Incluir items de la orden en la respuesta",
+            "name": "includeItems",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "exclusiveMinimum": true,
+              "default": 1,
+              "example": 1,
+              "description": "Número de página (empieza desde 1)"
+            },
+            "required": false,
+            "description": "Número de página (empieza desde 1)",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "exclusiveMinimum": true,
+              "maximum": 100,
+              "default": 10,
+              "example": 10,
+              "description": "Cantidad de productos por página (máximo 100)"
+            },
+            "required": false,
+            "description": "Cantidad de productos por página (máximo 100)",
+            "name": "limit",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "default": "desc",
+              "example": "desc",
+              "description": "Orden ascendente o descendente"
+            },
+            "required": false,
+            "description": "Orden ascendente o descendente",
+            "name": "sortOrder",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista paginada de órdenes del usuario",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "uuid"
+                          },
+                          "userId": {
+                            "type": "string",
+                            "format": "uuid"
+                          },
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "PENDING",
+                              "PAID",
+                              "PENDING_VERIFICATION",
+                              "CANCELLED",
+                              "EXPIRED"
+                            ]
+                          },
+                          "paymentMethod": {
+                            "type": "string",
+                            "enum": [
+                              "TRANSFER",
+                              "MERCADO_PAGO"
+                            ]
+                          },
+                          "totalAmount": {
+                            "type": "number"
+                          },
+                          "createdAt": {
+                            "type": "string",
+                            "format": "date-time"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "userId",
+                          "status",
+                          "paymentMethod",
+                          "totalAmount",
+                          "createdAt"
+                        ],
+                        "example": {
+                          "id": "550e8400-e29b-41d4-a716-446655440000",
+                          "userId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+                          "status": "PAID",
+                          "paymentMethod": "MERCADO_PAGO",
+                          "totalAmount": 1500,
+                          "createdAt": "2026-05-15T10:00:00.000Z"
+                        }
+                      }
+                    },
+                    "total": {
+                      "type": "integer"
+                    },
+                    "page": {
+                      "type": "integer"
+                    },
+                    "pageSize": {
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "message",
+                    "data",
+                    "total",
+                    "page",
+                    "pageSize"
+                  ],
+                  "example": {
+                    "message": "Orders fetched",
+                    "data": [],
+                    "total": 0,
+                    "page": 1,
+                    "pageSize": 10
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No autenticado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error del servidor",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/orders/{id}": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Obtener una orden del usuario autenticado por ID",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "example": "550e8400-e29b-41d4-a716-446655440000",
+              "description": "ID del recurso"
+            },
+            "required": true,
+            "description": "ID del recurso",
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Orden encontrada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "format": "uuid"
+                        },
+                        "userId": {
+                          "type": "string",
+                          "format": "uuid"
+                        },
+                        "status": {
+                          "type": "string",
+                          "enum": [
+                            "PENDING",
+                            "PAID",
+                            "PENDING_VERIFICATION",
+                            "CANCELLED",
+                            "EXPIRED"
+                          ]
+                        },
+                        "paymentMethod": {
+                          "type": "string",
+                          "enum": [
+                            "TRANSFER",
+                            "MERCADO_PAGO"
+                          ]
+                        },
+                        "totalAmount": {
+                          "type": "number"
+                        },
+                        "createdAt": {
+                          "type": "string",
+                          "format": "date-time"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "userId",
+                        "status",
+                        "paymentMethod",
+                        "totalAmount",
+                        "createdAt"
+                      ],
+                      "example": {
+                        "id": "550e8400-e29b-41d4-a716-446655440000",
+                        "userId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+                        "status": "PAID",
+                        "paymentMethod": "MERCADO_PAGO",
+                        "totalAmount": 1500,
+                        "createdAt": "2026-05-15T10:00:00.000Z"
+                      }
+                    }
+                  },
+                  "required": [
+                    "message",
+                    "data"
+                  ],
+                  "example": {
+                    "message": "Order fetched",
+                    "data": {
+                      "id": "550e8400-e29b-41d4-a716-446655440000",
+                      "userId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+                      "status": "PAID",
+                      "paymentMethod": "MERCADO_PAGO",
+                      "totalAmount": 1500,
+                      "createdAt": "2026-05-15T10:00:00.000Z"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No autenticado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Orden no encontrada o no pertenece al usuario",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error del servidor",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/favorites": {
+      "get": {
+        "tags": [
+          "Favorites"
+        ],
+        "summary": "Listar favoritos del usuario autenticado",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de productos favoritos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "productId": {
+                            "type": "string",
+                            "format": "uuid"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "price": {
+                            "type": "number"
+                          }
+                        },
+                        "required": [
+                          "productId",
+                          "name",
+                          "price"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "message",
+                    "data"
+                  ],
+                  "example": {
+                    "message": "Favorites fetched",
+                    "data": [
+                      {
+                        "productId": "550e8400-e29b-41d4-a716-446655440000",
+                        "name": "Crema Hidratante",
+                        "price": 1200
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No autenticado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error del servidor",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/favorites/ids": {
+      "get": {
+        "tags": [
+          "Favorites"
+        ],
+        "summary": "Obtener solo los IDs de productos favoritos del usuario",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Array de IDs de productos favoritos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "format": "uuid"
+                      }
+                    }
+                  },
+                  "required": [
+                    "message",
+                    "data"
+                  ],
+                  "example": {
+                    "message": "Favorite IDs fetched",
+                    "data": [
+                      "550e8400-e29b-41d4-a716-446655440000",
+                      "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No autenticado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error del servidor",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/favorites/{productId}": {
+      "post": {
+        "tags": [
+          "Favorites"
+        ],
+        "summary": "Agregar un producto a favoritos",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "example": "550e8400-e29b-41d4-a716-446655440000",
+              "description": "ID del producto"
+            },
+            "required": true,
+            "description": "ID del producto",
+            "name": "productId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Producto agregado a favoritos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ],
+                  "example": {
+                    "message": "Favorite added"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No autenticado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Producto no encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "El producto ya es favorito",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error del servidor",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Favorites"
+        ],
+        "summary": "Eliminar un producto de favoritos",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "example": "550e8400-e29b-41d4-a716-446655440000",
+              "description": "ID del producto"
+            },
+            "required": true,
+            "description": "ID del producto",
+            "name": "productId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Producto eliminado de favoritos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ],
+                  "example": {
+                    "message": "Favorite removed"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No autenticado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Favorito no encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error del servidor",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

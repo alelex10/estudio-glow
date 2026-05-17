@@ -6,6 +6,12 @@ import "./auth";
 import "./products";
 import "./categories";
 import "./dashboard";
+import "./cart";
+import "./orders";
+import "./checkout";
+import "./webhooks";
+import "./users";
+import "./favorites";
 
 import {
   AuthResponseSchema,

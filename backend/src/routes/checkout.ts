@@ -8,6 +8,7 @@ import { OrderService } from "../services/OrderService";
 import { MercadoPagoService } from "../services/MercadoPagoService";
 import { validateImageFile } from "../middleware/file-validation";
 import { ImageUploadService } from "../services/imageUploadService";
+import { idempotency } from "../middleware/idempotency";
 
 const router = Router();
 
@@ -15,7 +16,7 @@ router.use(authenticate);
 
 const upload = validateImageFile(5);
 
-router.post("/mercadopago", asyncHandler(async (req: AuthRequest, res: Response) => {
+router.post("/mercadopago", idempotency, asyncHandler(async (req: AuthRequest, res: Response) => {
   const userId = req.user.id;
   const { items } = req.body;
 
@@ -34,7 +35,7 @@ router.post("/mercadopago", asyncHandler(async (req: AuthRequest, res: Response)
   res.json({ orderId: order.id, preferenceUrl: preference.init_point });
 }));
 
-router.post("/transfer", upload.single("receipt"), asyncHandler(async (req: AuthRequest, res: Response) => {
+router.post("/transfer", idempotency, upload.single("receipt"), asyncHandler(async (req: AuthRequest, res: Response) => {
   const userId = req.user.id;
 
   if (!req.file) {

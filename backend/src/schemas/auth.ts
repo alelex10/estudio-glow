@@ -80,3 +80,13 @@ export const ErrorResponseSchema = z
     }),
   })
   .openapi("ErrorResponse");
+
+// T2-07: Schema for POST /auth/resend-verification body (F1.10, spec §5.3)
+export const ResendVerificationSchema = z
+  .object({
+    email: z.email().openapi({
+      example: "usuario@ejemplo.com",
+      description: "Email del usuario para reenviar verificación",
+    }),
+  })
+  .openapi("ResendVerificationRequest");

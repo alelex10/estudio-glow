@@ -133,7 +133,7 @@ export default function AdminProducts({ loaderData }: Route.ComponentProps) {
       header: "Categoría",
       render: (product: ProductResponse) => (
         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary-100 text-primary-800">
-          {product.category.name}
+          {product.category?.name}
         </span>
       ),
     },

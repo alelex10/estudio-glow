@@ -20,6 +20,13 @@ export const ROUTES = {
   LOGIN: "/login",
   REGISTER: "/auth/register",
 
+  // Email verification routes (PR-2 + PR-3)
+  AUTH: {
+    CHECK_EMAIL: "/auth/check-email",
+    VERIFY_EMAIL: "/auth/verify-email",
+    CONFIRM_LINK: "/auth/confirm-link",
+  } as const,
+
   admin: {
     BASE: "/admin",
     PRODUCTS: "/admin/products",
@@ -34,6 +41,8 @@ export const ROUTES = {
   actions: {
     AUTH_REGISTER: "/actions/auth/register-action",
     AUTH_LOGOUT: "/actions/auth/logout",
+    AUTH_RESEND_VERIFICATION: "/actions/auth/resend-verification",
+    AUTH_GOOGLE_LOGIN: "/actions/auth/google-login-action",
     PRODUCT_DELETE: (id: string | number) => `/actions/product/delete/${String(id)}` as const,
     CATEGORY_DELETE: (id: string | number) => `/actions/category/delete/${String(id)}` as const,
   } as const,

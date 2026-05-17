@@ -38,11 +38,29 @@ export interface ResponseSchema<T> {
 
 export interface ErrorResponse {
   error: {
+    code: string;
     message: string;
-    statusCode: number;
-    error: string;
+    details?: unknown;
   };
 }
+
+// ========== EMAIL VERIFICATION ==========
+
+/**
+ * Response from POST /auth/register when email verification is required.
+ * Backend returns 201 with status="pending_verification" — NO JWT, NO session (F1.3).
+ */
+export interface RegisterPendingVerificationResponse {
+  status: "pending_verification";
+  email: string;
+}
+
+/**
+ * Union type for all possible register responses.
+ * - LoginResponse: legacy/Google auth that issues a session immediately
+ * - RegisterPendingVerificationResponse: LOCAL register that requires email verification
+ */
+export type RegisterResponse = LoginResponse | RegisterPendingVerificationResponse;
 
 // ========== GOOGLE LOGIN ACTION CONTRACT ==========
 
@@ -66,7 +84,7 @@ export interface GoogleLoginErrorMetadata {
 }
 
 /**
- * Backend response from Google login endpoint
+ * Backend response from Google login endpoint — normal success (200/201)
  */
 export interface BackendGoogleLoginResponse {
   token: string;
@@ -79,3 +97,18 @@ export interface BackendGoogleLoginResponse {
   };
   message: string;
 }
+
+/**
+ * Backend 202 response when a verified LOCAL account needs explicit Google link.
+ * The backend sent an account-link email; no JWT is issued.
+ * Spec ref: C3b — ACCOUNT_LINK email flow
+ */
+export interface GoogleLinkEmailSentResponse {
+  status: "link_email_sent";
+  email: string;
+}
+
+/**
+ * Union of all possible Google login endpoint responses.
+ */
+export type GoogleLoginResponse = BackendGoogleLoginResponse | GoogleLinkEmailSentResponse;

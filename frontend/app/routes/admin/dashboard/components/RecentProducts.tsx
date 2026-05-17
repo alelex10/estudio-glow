@@ -65,7 +65,7 @@ export function RecentProducts({ products }: RecentProductsProps) {
                   {product.name}
                 </p>
                 <p className="text-sm text-gray-500">
-                  {product.category.name}
+                  {product.category?.name}
                 </p>
               </div>
 
