@@ -37,8 +37,11 @@ function ToastItem({ toast, onDismiss }: ToastProps) {
     return () => clearTimeout(timer);
   }, [toast.id, onDismiss]);
 
+  const isError = toast.type === "error" || toast.type === "warning";
   return (
     <div
+      role={isError ? "alert" : "status"}
+      aria-live={isError ? "assertive" : "polite"}
       className={clsx(
         "flex items-center gap-3 px-4 py-3 rounded-lg shadow-lg",
         "animate-in slide-in-from-right-full duration-300",
@@ -48,7 +51,9 @@ function ToastItem({ toast, onDismiss }: ToastProps) {
       {icons[toast.type]}
       <span className="font-medium">{toast.message}</span>
       <button
+        type="button"
         onClick={() => onDismiss(toast.id)}
+        aria-label="Cerrar notificación"
         className="ml-2 hover:opacity-70 transition-opacity"
       >
         <X className="w-4 h-4" />
@@ -69,6 +74,12 @@ export function ToastContainer() {
   const [toasts, setToasts] = useState<Toast[]>([]);
 
   useEffect(() => {
+    if (toastCallback) {
+      console.warn(
+        "[Toast] Multiple ToastContainer instances detected. Only the first one is active.",
+      );
+      return;
+    }
     toastCallback = (newToast) => {
       const id = Date.now().toString();
       setToasts((prev) => [...prev, { ...newToast, id }]);
@@ -83,7 +94,12 @@ export function ToastContainer() {
   }, []);
 
   return (
-    <div className="fixed top-4 right-4 z-50 flex flex-col gap-2">
+    <div
+      role="region"
+      aria-label="Notificaciones"
+      aria-live="polite"
+      className="fixed top-4 right-4 z-50 flex flex-col gap-2"
+    >
       {toasts.map((t) => (
         <ToastItem key={t.id} toast={t} onDismiss={dismissToast} />
       ))}

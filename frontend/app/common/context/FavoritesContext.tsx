@@ -18,7 +18,6 @@ export interface FavoritesContextType {
 interface FavoritesProviderProps {
   children: React.ReactNode;
   serverFavoriteIds?: string[];
-  token?: string | null;
   isAuthenticated?: boolean;
 }
 
@@ -29,7 +28,6 @@ const FavoritesContext = createContext<FavoritesContextType | undefined>(
 export function FavoritesProvider({
   children,
   serverFavoriteIds = [],
-  token = null,
   isAuthenticated = false,
 }: FavoritesProviderProps) {
   const [favoriteIds, setFavoriteIds] = useState<Set<string>>(
@@ -37,21 +35,31 @@ export function FavoritesProvider({
   );
   const [isLoading, setIsLoading] = useState(false);
 
-  // On client mount: read localStorage as warm cache only if server data is empty
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    if (serverFavoriteIds.length === 0) {
-      try {
-        const stored = localStorage.getItem("glow_favorites");
-        if (stored) {
-          const parsed = JSON.parse(stored) as string[];
-          setFavoriteIds(new Set(parsed));
-        }
-      } catch {
-        // ignore parse errors
+  const readLocalStorage = (): Set<string> => {
+    if (typeof window === "undefined") return new Set();
+    try {
+      const stored = localStorage.getItem("glow_favorites");
+      if (stored) {
+        const parsed = JSON.parse(stored) as string[];
+        return new Set(parsed);
       }
+    } catch {
+      // ignore parse errors
     }
-  }, [serverFavoriteIds.length]);
+    return new Set();
+  };
+
+  // Gate favorites source by authentication state.
+  // Authenticated: server is the source of truth (avoids ghost favorites after logout).
+  // Anonymous: read from localStorage for continuity.
+  useEffect(() => {
+    if (isAuthenticated) {
+      setFavoriteIds(new Set(serverFavoriteIds));
+    } else {
+      setFavoriteIds(readLocalStorage());
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAuthenticated, serverFavoriteIds]);
 
   const isFav = useCallback(
     (productId: string) => favoriteIds.has(productId),
@@ -84,10 +92,10 @@ export function FavoritesProvider({
 
       try {
         if (adding) {
-          await favoriteService.add(productId, token ?? undefined);
+          await favoriteService.add(productId);
           toast("success", "Agregado a favoritos");
         } else {
-          await favoriteService.remove(productId, token ?? undefined);
+          await favoriteService.remove(productId);
           toast("success", "Eliminado de favoritos");
         }
 
@@ -104,7 +112,7 @@ export function FavoritesProvider({
         setIsLoading(false);
       }
     },
-    [favoriteIds, isLoading, isAuthenticated, token],
+    [favoriteIds, isLoading, isAuthenticated],
   );
 
   return (

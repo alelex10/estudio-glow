@@ -1,4 +1,4 @@
-import { Form, Link, useActionData, redirect, useSubmit } from "react-router";
+import { Form, Link, useActionData, redirect, useSubmit, useNavigation } from "react-router";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import clsx from "clsx";
@@ -11,8 +11,9 @@ import { GoogleLoginButton } from "~/common/components/button/GoogleLoginButton"
 import { useState } from "react";
 import type { Route } from "./+types/register";
 import { getUserRole, isAuthenticated, createAuthSession } from "~/common/services/auth.server";
+import { serverGoogleRegister } from "~/common/services/authApi.server";
 import { ROUTES } from "~/common/constants/routes";
-import { API_BASE_URL } from "~/common/config/api-end-points";
+import { ApiError } from "~/common/config/api-client";
 
 export function meta() {
   return [
@@ -37,22 +38,6 @@ export async function loader({ request }: Route.LoaderArgs) {
   }
 }
 
-async function serverGoogleRegister(idToken: string) {
-  const response = await fetch(`${API_BASE_URL}/auth/google/register`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ idToken }),
-  });
-
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({ error: { message: "Error en registro con Google" } }));
-    const errorMessage = errorData.error?.message || errorData.message || "Error al registrarse con Google";
-    throw new Error(errorMessage);
-  }
-
-  return response.json();
-}
-
 export async function action({ request }: Route.ActionArgs) {
   const formData = await request.formData();
   const idToken = formData.get("idToken") as string;
@@ -64,8 +49,17 @@ export async function action({ request }: Route.ActionArgs) {
   try {
     const { token, user } = await serverGoogleRegister(idToken);
     return createAuthSession(request, token, user, user.role === "admin" ? ROUTES.admin.BASE : ROUTES.HOME);
-  } catch (err: any) {
-    return { error: err.message || "Error al registrarse con Google" };
+  } catch (err) {
+    if (err instanceof ApiError) {
+      const msg =
+        err.code === "EMAIL_ALREADY_EXISTS"
+          ? "Ya existe una cuenta con ese email. Iniciá sesión en su lugar."
+          : err.code === "GOOGLE_ID_MISMATCH"
+            ? "Esta cuenta de Google no coincide con el email registrado."
+            : "Error al registrarse con Google";
+      return { error: msg };
+    }
+    return { error: "Error al registrarse con Google" };
   }
 }
 
@@ -74,6 +68,8 @@ export default function Register() {
   const [googleError, setGoogleError] = useState<string | null>(null);
   const [isGoogleSubmitting, setIsGoogleSubmitting] = useState(false);
   const submit = useSubmit();
+  const navigation = useNavigation();
+  const isSubmitting = navigation.state === "submitting";
 
   const {
     register,
@@ -88,7 +84,9 @@ export default function Register() {
     setIsGoogleSubmitting(true);
     const formData = new FormData();
     formData.append("idToken", idToken);
-    submit(formData, { method: "post" });
+    // S-3 fix: route to the dedicated action that handles all backend response variants,
+    // including 202 link_email_sent (C3b), 401 GOOGLE_EMAIL_UNVERIFIED, and 409 GOOGLE_ID_MISMATCH.
+    submit(formData, { method: "post", action: ROUTES.actions.AUTH_GOOGLE_LOGIN });
   };
 
   return (
@@ -149,8 +147,8 @@ export default function Register() {
         <Form
           className="space-y-4"
           method="post"
-          onSubmit={handleSubmit((_, e) => {
-            e?.target.submit();
+          onSubmit={handleSubmit((data) => {
+            submit(data as Record<string, string>, { method: "post", action: ROUTES.actions.AUTH_REGISTER });
           })}
           action={ROUTES.actions.AUTH_REGISTER}
         >
@@ -192,7 +190,7 @@ export default function Register() {
 
           <FormError message={actionData?.error || googleError || undefined} />
 
-          <FormButton loadingText="Creando cuenta...">Crear cuenta</FormButton>
+          <FormButton loadingText="Creando cuenta..." isLoading={isSubmitting}>Crear cuenta</FormButton>
         </Form>
 
         {/* Links */}

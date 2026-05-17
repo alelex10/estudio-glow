@@ -21,8 +21,6 @@ import {
 import { LoadingSpinner } from "./LoadingSpinner";
 import { Button } from "../button/Button";
 
-type ProductFormData = CreateProductData & { image?: File };
-
 const getProductSchema = (mode: "create" | "edit") =>
   z.object({
     name: z.string().min(1, "El nombre es requerido"),
@@ -38,6 +36,8 @@ const getProductSchema = (mode: "create" | "edit") =>
         mode === "create" ? "Archivo requerido" : undefined
       ),
   });
+
+type ProductFormData = z.infer<ReturnType<typeof getProductSchema>>;
 
 interface ProductFormProps {
   initialData?: ProductResponse;
@@ -68,7 +68,7 @@ export function ProductForm({
     setValue,
     watch,
   } = useForm<ProductFormData>({
-    resolver: zodResolver(getProductSchema(mode)) as any,
+    resolver: zodResolver(getProductSchema(mode)),
     defaultValues: {
       name: initialData?.name || "",
       description: initialData?.description || "",
@@ -92,10 +92,10 @@ export function ProductForm({
     loadCategories();
   }, []);
 
-  const onFormSubmit = async (data: any) => {
+  const onFormSubmit = async (data: ProductFormData) => {
     const { image: imageFile, ...productData } = data;
 
-    await onSubmit(productData, imageFile);
+    await onSubmit(productData as CreateProductData, imageFile instanceof File ? imageFile : undefined);
   };
 
   return (
@@ -213,7 +213,7 @@ export function ProductForm({
           register={register}
           name="image"
           errors={errors}
-          initialPreview={initialData?.imageUrl}
+          initialPreview={initialData?.imageUrl ?? undefined}
           required={mode === "create"}
         />
       </div>

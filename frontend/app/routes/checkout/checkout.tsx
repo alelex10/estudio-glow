@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Form, useActionData, useNavigation, useNavigate, redirect } from "react-router";
 import type { Route } from "./+types/checkout";
-import { API_BASE_URL } from "../../common/config/api-end-points";
+import { apiClient, ApiError } from "../../common/config/api-client";
 import { useCart } from "../../common/context/CartContext";
 import { getToken } from "../../common/services/auth.server";
 import { Button } from "~/common/components/button/Button";
@@ -11,6 +11,7 @@ import { CartItemsList } from "~/common/components/cart/CartItemsList";
 import { OrderSummarySidebar } from "~/common/components/cart/OrderSummarySidebar";
 import { ROUTES } from "~/common/constants/routes";
 import { toast } from "~/common/components/Toast";
+import { z } from "zod";
 
 export function meta({ }: Route.MetaArgs) {
   return [
@@ -41,39 +42,38 @@ export async function action({ request }: Route.ActionArgs) {
     return { error: "Tu carrito está vacío" };
   }
 
-  const items = JSON.parse(cartItemsRaw);
+  const cartItemsSchema = z.array(
+    z.object({
+      productId: z.string().uuid(),
+      quantity: z.number().int().min(1),
+    }),
+  );
+  let items: z.infer<typeof cartItemsSchema>;
+  try {
+    items = cartItemsSchema.parse(JSON.parse(cartItemsRaw));
+  } catch {
+    return { error: "Carrito inválido" };
+  }
   if (items.length === 0) {
     return { error: "Tu carrito está vacío" };
   }
 
-  const apiFetch = (endpoint: string, options: RequestInit = {}) => {
-    return fetch(`${API_BASE_URL}${endpoint}`, {
-      ...options,
-      headers: {
-        Authorization: `Bearer ${token}`,
-        ...(options.body instanceof FormData
-          ? {}
-          : { "Content-Type": "application/json" }),
-        ...(options.headers as Record<string, string>),
-      },
-    });
-  };
+  // Same idempotency key for both attempts within this action invocation
+  // so a double-submit at the network layer hits the backend cache.
+  const idempotencyKey = crypto.randomUUID();
 
   try {
     // Create order directly with items (no intermediate sync needed)
     if (paymentMethod === "MERCADO_PAGO") {
-      const checkoutRes = await apiFetch("/checkout/mercadopago", {
-        method: "POST",
-        body: JSON.stringify({ items }),
+      const checkoutData = await apiClient<{ preferenceUrl: string }>({
+        token,
+        endpoint: "/checkout/mercadopago",
+        options: {
+          method: "POST",
+          body: JSON.stringify({ items }),
+          headers: { "Idempotency-Key": idempotencyKey },
+        },
       });
-
-      if (!checkoutRes.ok) {
-        const err = await checkoutRes.json().catch(() => ({ error: { message: "Error al procesar el pago" } }));
-        const message = err.error?.message || err.message || "Error al procesar el pago";
-        return { error: message };
-      }
-
-      const checkoutData = await checkoutRes.json();
       return { preferenceUrl: checkoutData.preferenceUrl };
     }
 
@@ -87,23 +87,28 @@ export async function action({ request }: Route.ActionArgs) {
     receiptFormData.set("receipt", receipt);
     receiptFormData.set("items", JSON.stringify(items));
 
-    const transferRes = await fetch(`${API_BASE_URL}/checkout/transfer`, {
-      method: "POST",
-      body: receiptFormData,
-      headers: {
-        Authorization: `Bearer ${token}`,
+    await apiClient<{ success: true }>({
+      token,
+      endpoint: "/checkout/transfer",
+      options: {
+        method: "POST",
+        body: receiptFormData,
+        headers: { "Idempotency-Key": idempotencyKey },
       },
     });
 
-    if (!transferRes.ok) {
-      const err = await transferRes.json().catch(() => ({ error: { message: "Error al procesar el pago" } }));
-      const message = err.error?.message || err.message || "Error al procesar el pago";
-      return { error: message };
-    }
-
     return { success: true };
-  } catch (err: any) {
-    return { error: err.message || "Ocurrió un error inesperado" };
+  } catch (err) {
+    if (err instanceof ApiError) {
+      const msg =
+        err.code === "INSUFFICIENT_STOCK"
+          ? "Stock insuficiente para uno o más productos"
+          : err.code === "INVALID_CART"
+            ? "Carrito inválido"
+            : "Ocurrió un error inesperado";
+      return { error: msg };
+    }
+    return { error: "Ocurrió un error inesperado" };
   }
 }
 

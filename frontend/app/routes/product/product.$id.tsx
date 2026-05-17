@@ -45,10 +45,6 @@ export default function ProductDetail() {
   const { addToCart, totalItems } = useCart();
   const [quantity, setQuantity] = useState(1);
 
-  if (!product) {
-    throw new Error("No se encontro el producto");
-  }
-
   const handleQuantityChange = (delta: number) => {
     const newQuantity = quantity + delta;
     if (newQuantity >= 1 && newQuantity <= product.stock) {
@@ -62,7 +58,7 @@ export default function ProductDetail() {
       productId: product.id,
       name: product.name,
       price: product.price,
-      imageUrl: product.imageUrl,
+      imageUrl: product.imageUrl ?? undefined,
       quantity,
       stock: product.stock,
     });
@@ -116,7 +112,7 @@ export default function ProductDetail() {
             <div className="mb-8 lg:mb-0 lg:relative lg:top-auto absolute top-0 left-0 right-0">
               <div className="space-y-4">
                 <img
-                  src={getCloudinaryUrl(product.imageUrl, 800)}
+                  src={getCloudinaryUrl(product.imageUrl ?? "", 800)}
                   alt={product.name}
                   loading="lazy"
                   className="w-full h-full object-cover lg:rounded-2xl lg:shadow-lg lg:max-h-[600px]"

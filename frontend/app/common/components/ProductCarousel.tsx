@@ -26,7 +26,6 @@ export function ProductCarousel({ products }: ProductCarouselProps) {
         setCurrentIndex(0);
     }, [itemsPerPage]);
 
-    const colorDisabled = "bg-primary-600/10";
     const maxIndex = Math.max(0, products.length - itemsPerPage);
 
     const handlePrevious = () => {
@@ -42,8 +41,12 @@ export function ProductCarousel({ products }: ProductCarouselProps) {
             <button
                 onClick={handlePrevious}
                 disabled={currentIndex === 0}
-                className={clsx(`absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-primary-400 disabled:${colorDisabled} disabled:cursor-not-allowed text-primary-100 p-3 rounded-full transition-all duration-300 shadow-lg`,
-                    "hover:bg-primary-600 hover:cursor-pointer"
+                className={clsx(
+                    "absolute left-0 top-1/2 -translate-y-1/2 z-10 text-primary-100 p-3 rounded-full transition-all duration-300 shadow-lg",
+                    "hover:bg-primary-600 hover:cursor-pointer",
+                    currentIndex === 0
+                        ? "bg-primary-600/10 disabled:bg-primary-600/10 disabled:cursor-not-allowed"
+                        : "bg-primary-400",
                 )}
                 aria-label="Anterior"
             >
@@ -59,9 +62,9 @@ export function ProductCarousel({ products }: ProductCarouselProps) {
                         transform: `translateX(-${currentIndex * (100 / itemsPerPage)}%)`,
                     }}
                 >
-                    {products.map((product, index) => (
+                    {products.map((product) => (
                         <div
-                            key={index}
+                            key={product.id}
                             className={clsx("shrink-0 flex justify-center",
                                 "w-full",
                                 "md:w-1/2",
@@ -71,7 +74,7 @@ export function ProductCarousel({ products }: ProductCarouselProps) {
                         >
                             <ProductCard
                                 productId={product.id}
-                                imageUrl={getCloudinaryUrl(product.imageUrl, 400)}
+                                imageUrl={getCloudinaryUrl(product.imageUrl ?? "", 400)}
                                 name={product.name}
                                 price={product.price}
                                 stock={product.stock}
@@ -84,8 +87,12 @@ export function ProductCarousel({ products }: ProductCarouselProps) {
             <button
                 onClick={handleNext}
                 disabled={currentIndex >= maxIndex}
-                className={clsx(`absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-primary-500 hover:bg-primary-600 disabled:${colorDisabled} disabled:cursor-not-allowed text-primary-100 p-3 rounded-full transition-all duration-300 shadow-lg`,
-                    "hover:cursor-pointer")}
+                className={clsx(
+                    "absolute right-0 top-1/2 -translate-y-1/2 z-10 text-primary-100 p-3 rounded-full transition-all duration-300 shadow-lg hover:cursor-pointer",
+                    currentIndex >= maxIndex
+                        ? "bg-primary-600/10 disabled:bg-primary-600/10 disabled:cursor-not-allowed"
+                        : "bg-primary-500 hover:bg-primary-600",
+                )}
                 aria-label="Siguiente"
             >
                 <ArrowRightIcon className="w-6 h-6" />

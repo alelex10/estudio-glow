@@ -1,4 +1,4 @@
-import { Form, Link, redirect, useSubmit } from "react-router";
+import { Form, Link, redirect, useSubmit, useFetcher } from "react-router";
 import type { ActionFunctionArgs } from "react-router";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -14,6 +14,7 @@ import type { Route } from "./+types/login";
 import { getUserRole, isAuthenticated, createAuthSession } from "~/common/services/auth.server";
 import { ROUTES } from "~/common/constants/routes";
 import { serverLogin, serverGoogleLogin } from "~/common/services/authApi.server";
+import { ApiError } from "~/common/config/api-client";
 import { parseFormData } from "~/common/actions/form-helpers";
 import { handleAuthActionError } from "~/common/actions/error-helpers";
 
@@ -41,7 +42,11 @@ export async function loader({ request }: Route.LoaderArgs) {
   return null;
 }
 
-export async function action({ request }: ActionFunctionArgs) {
+type ActionData =
+  | { error: string; suggestion?: string; code?: string; email?: string }
+  | { redirectTo: string };
+
+export async function action({ request }: ActionFunctionArgs): Promise<ActionData> {
   const formData = await request.formData();
   const idToken = formData.get("idToken");
 
@@ -51,9 +56,8 @@ export async function action({ request }: ActionFunctionArgs) {
       const redirectPath = { admin: ROUTES.admin.BASE, customer: ROUTES.HOME }[response.user.role];
       return createAuthSession(request, response.token, response.user, redirectPath);
     } catch (error) {
-      const err = error as Error & { code?: string };
-      
-      switch (err.code) {
+      const code = error instanceof Error && "code" in error ? (error as Error & { code: string }).code : "";
+      switch (code) {
         case "NOT_REGISTERED":
           return { error: "Usuario no registrado con Google. Por favor, registrate primero.", suggestion: "register" };
         case "CONSENT_DENIED":
@@ -75,15 +79,27 @@ export async function action({ request }: ActionFunctionArgs) {
     const redirectPath = { admin: ROUTES.admin.BASE, customer: ROUTES.HOME }[response.user.role];
     return createAuthSession(request, response.token, response.user, redirectPath);
   } catch (error) {
+    // F1.6: Backend returns 403 EMAIL_NOT_VERIFIED for unverified LOCAL users
+    if (error instanceof ApiError && error.code === "EMAIL_NOT_VERIFIED") {
+      const email = formData.get("email") as string | null;
+      return { error: "Necesitás verificar tu email antes de ingresar.", code: "EMAIL_NOT_VERIFIED", email: email ?? "" };
+    }
     return handleAuthActionError(error);
   }
 }
 
 export default function CustomerLogin({ actionData }: Route.ComponentProps) {
-  const error = (actionData as { error?: string; suggestion?: string } | undefined)?.error;
-  const suggestion = (actionData as { suggestion?: string } | undefined)?.suggestion;
+  const typedData = actionData as ActionData | undefined;
+  const error = typedData && "error" in typedData ? typedData.error : undefined;
+  const suggestion = typedData && "error" in typedData ? typedData.suggestion : undefined;
+  const errorCode = typedData && "error" in typedData ? typedData.code : undefined;
+  const unverifiedEmail = (typedData && "error" in typedData ? typedData.email : undefined) ?? "";
+  const isEmailNotVerified = errorCode === "EMAIL_NOT_VERIFIED";
+
   const [isGoogleSubmitting, setIsGoogleSubmitting] = useState(false);
   const submit = useSubmit();
+  const resendFetcher = useFetcher<{ message: string }>();
+  const isResending = resendFetcher.state !== "idle";
 
   useEffect(() => {
     if (actionData) setIsGoogleSubmitting(false);
@@ -139,7 +155,9 @@ export default function CustomerLogin({ actionData }: Route.ComponentProps) {
               setIsGoogleSubmitting(true);
               const formData = new FormData();
               formData.append("idToken", idToken);
-              submit(formData, { method: "post" });
+              // C3b fix: submit to the dedicated google-login-action which handles
+              // 202 link_email_sent, 401 GOOGLE_EMAIL_UNVERIFIED, 409 GOOGLE_ID_MISMATCH.
+              submit(formData, { method: "post", action: ROUTES.actions.AUTH_GOOGLE_LOGIN });
             }}
             onError={(_err) => {
               setIsGoogleSubmitting(false);
@@ -162,8 +180,8 @@ export default function CustomerLogin({ actionData }: Route.ComponentProps) {
         {/* Formulario */}
         <Form
           className="space-y-4"
-          onSubmit={handleSubmit((_, e) => {
-            e?.target.submit();
+          onSubmit={handleSubmit((data) => {
+            submit(data as Record<string, string>, { method: "post" });
           })}
           method="post"
         >
@@ -186,6 +204,32 @@ export default function CustomerLogin({ actionData }: Route.ComponentProps) {
           />
 
           <FormError message={error} />
+
+          {/* EMAIL_NOT_VERIFIED: show resend CTA (F1.6, design Flow B) */}
+          {isEmailNotVerified && (
+            <div className="rounded-xl bg-amber-50 border border-amber-200 p-3 space-y-2">
+              {resendFetcher.data ? (
+                <p className="text-sm text-amber-700 text-center">{resendFetcher.data.message}</p>
+              ) : (
+                <>
+                  <p className="text-xs text-amber-600 text-center">
+                    ¿No recibiste el email?
+                  </p>
+                  <resendFetcher.Form method="post" action={ROUTES.actions.AUTH_RESEND_VERIFICATION}>
+                    <input type="hidden" name="email" value={unverifiedEmail} />
+                    <button
+                      type="submit"
+                      disabled={isResending}
+                      className="w-full py-2 px-3 text-sm text-amber-700 border border-amber-300 hover:bg-amber-100 disabled:opacity-50 rounded-lg transition-colors"
+                    >
+                      {isResending ? "Reenviando..." : "Reenviar email de verificación"}
+                    </button>
+                  </resendFetcher.Form>
+                </>
+              )}
+            </div>
+          )}
+
           {suggestion === "register" && (
             <p className="text-sm text-center mt-2">
               <Link
