@@ -1,6 +1,7 @@
 import type { Request, Response, NextFunction } from "express";
 import { AppError } from "../errors";
 import { ZodError } from "zod";
+import { logger } from "../lib/logger";
 
 /**
  * Interface para la respuesta de error estandarizada
@@ -16,8 +17,9 @@ interface ErrorResponse {
 /**
  * Middleware para logging de errores
  *
- * Registra todos los errores en la consola con información detallada.
- * En desarrollo, incluye el stack trace completo.
+ * Registra todos los errores con pino (estructurado, correlacionado por request).
+ * Sanitiza el cause de Postgres para evitar que PII (emails, valores de columnas)
+ * escape a los logs — solo se registra code + constraint_name.
  */
 export function logErrors(
   err: Error,
@@ -25,23 +27,28 @@ export function logErrors(
   res: Response,
   next: NextFunction
 ): void {
-  const isProduction = process.env.NODE_ENV === "production";
+  const cause = (err as any).cause;
 
-  console.error("❌ Error capturado:");
-  console.error({
-    timestamp: new Date().toISOString(),
-    method: req.method,
-    path: req.path,
-    errorName: err.name,
-    errorMessage: err.message,
-    ...(err instanceof AppError && { errorCode: err.code }),
-    ...(err instanceof AppError && { statusCode: err.statusCode }),
-  });
+  // Only log safe fields from the Postgres error cause — detail/table/column may contain PII
+  // (e.g. "Key (email)=(user@example.com) already exists").
+  const safeCause = cause
+    ? {
+        code: cause.code,
+        constraint: cause.constraint_name,
+      }
+    : undefined;
 
-  if (!isProduction && err.stack) {
-    console.error("Stack trace:");
-    console.error(err.stack);
-  }
+  logger.error(
+    {
+      requestId: (req as any).id,
+      method: req.method,
+      path: req.path,
+      errorName: err.name,
+      ...(err instanceof AppError && { errorCode: err.code, statusCode: err.statusCode }),
+      ...(safeCause && { cause: safeCause }),
+    },
+    err.message,
+  );
 
   // Pasar al siguiente middleware de error
   next(err);
