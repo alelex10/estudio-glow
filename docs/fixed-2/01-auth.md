@@ -1,5 +1,7 @@
 # Authentication Audit — User Perspective
 
+> **ESTADO ACTUAL (2026-05-17):** ✅ Parcialmente resuelto. CSRF helpers fixed, email verification implementado. ❌ Pendientes críticos: sesión 15 min (#1), account-linking UI inexistente (#3), Google 409 mapping roto (#4), password reset ausente (#5).
+
 ## Overview
 
 Glow Studio implements a dual authentication system: email/password (local) and Google OAuth (Google Identity Services / "One Tap"). Sessions are persisted via two parallel mechanisms — an HTTP-only JWT cookie set by the backend (`token`, 7-day lifetime) and a React Router server-side cookie session (`__session`, **15-minute lifetime**) holding token + user + role. No password reset, no email verification, no account-linking UI. Auth endpoints are CSRF-protected by a custom-header strategy and globally rate-limited at 10 req/min/IP.

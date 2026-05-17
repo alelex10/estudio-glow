@@ -64,10 +64,11 @@ export async function action({ request }: Route.ActionArgs) {
 }
 
 export default function Register() {
-  const fetcher = useFetcher<{ error?: string }>();
+  const fetcher = useFetcher<{ error?: string; code?: string }>();
   const [googleError, setGoogleError] = useState<string | null>(null);
   const [isGoogleSubmitting, setIsGoogleSubmitting] = useState(false);
   const isSubmitting = fetcher.state === "submitting";
+  const isGoogleAccountExists = fetcher.data?.code === "GOOGLE_ACCOUNT_EXISTS";
 
   const {
     register,
@@ -187,6 +188,20 @@ export default function Register() {
           />
 
           <FormError message={fetcher.data?.error || googleError || undefined} />
+
+          {/* GOOGLE_ACCOUNT_EXISTS: show login with Google CTA */}
+          {isGoogleAccountExists && (
+            <div className="rounded-xl bg-blue-50 border border-blue-200 p-3 space-y-2">
+              <p className="text-sm text-blue-700 text-center">
+                ¿Ya tenés una cuenta de Google con este email?
+              </p>
+              <GoogleLoginButton
+                onSuccess={handleGoogleSuccess}
+                onError={(err) => setGoogleError(err)}
+                text="Iniciar sesión con Google"
+              />
+            </div>
+          )}
 
           <FormButton loadingText="Creando cuenta..." isLoading={isSubmitting}>Crear cuenta</FormButton>
         </Form>

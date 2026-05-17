@@ -1,5 +1,7 @@
 # Orders / Order History — User Perspective Audit
 
+> **ESTADO ACTUAL (2026-05-17):** ✅ Backend: filtros AND resueltos, transaccionalidad en expiración, guard de estado terminal en `markPaid`. ❌ Frontend: filtro de status sigue client-side sobre página actual (no funciona), usuario no puede cancelar su orden, status tabs hacen full reload.
+
 Project: `estudio-glow`
 Audited paths (FE/BE):
 - `frontend/app/routes/orders/orders.tsx`

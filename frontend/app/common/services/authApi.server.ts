@@ -138,3 +138,21 @@ export async function serverGoogleLoginFull(
     },
   });
 }
+
+/**
+ * Sets a password for the current authenticated user.
+ * Used by Google-created users to enable manual login.
+ */
+export async function serverSetPassword(
+  token: string,
+  password: string,
+): Promise<{ status: string }> {
+  return apiClient<{ status: string }>({
+    token,
+    endpoint: "/auth/set-password",
+    options: {
+      method: "POST",
+      body: JSON.stringify({ password }),
+    },
+  });
+}

@@ -1,11 +1,11 @@
 import { Router } from "express";
-import { register, login, logout, verifyToken } from "../controller/auth";
+import { register, login, logout, verifyToken, setPassword } from "../controller/auth";
 import { googleRegister, googleLogin } from "../controller/google";
 import { verifyEmail, resendVerification, confirmLink } from "../controller/email-verify";
 import { authenticate } from "../middleware/auth";
 import { resendVerificationLimiter } from "../middleware/rate-limit";
 import { validateBody } from "../middleware/validation";
-import { ResendVerificationSchema } from "../schemas/auth";
+import { ResendVerificationSchema, SetPasswordSchema } from "../schemas/auth";
 
 const router = Router();
 
@@ -39,6 +39,9 @@ router.post(
 // Consumes ACCOUNT_LINK token, sets google_id on user, 302-redirects to FE with outcome.
 // SEC1: Referrer-Policy: no-referrer set inside handler.
 router.get("/confirm-link", confirmLink);
+
+// POST /auth/set-password — allows Google-created users to set a password for manual login
+router.post("/set-password", authenticate, validateBody(SetPasswordSchema), setPassword);
 
 export const authRouter = router;
 

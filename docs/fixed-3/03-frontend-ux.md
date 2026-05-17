@@ -1,5 +1,7 @@
 # 03 — Frontend / UX
 
+> **ESTADO ACTUAL (2026-05-17):** ✅ Todos los 11 issues frontend listados aquí están **RESUELTOS** (commits `c4030d2` y `557047b`).
+
 **Prioridad:** P1-P2 — bugs visibles para el usuario o que rompen patrones de React Router v7.
 **Áreas:** `frontend/app/routes/auth/*`, `frontend/app/common/config/api-client.ts`, `frontend/app/common/context/FavoritesContext.tsx`, componentes comunes.
 

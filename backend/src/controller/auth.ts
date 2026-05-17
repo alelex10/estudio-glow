@@ -11,6 +11,7 @@ import {
   RegisterSchema,
   LoginSchema,
   AuthResponseSchema,
+  SetPasswordSchema,
 } from "../schemas/auth";
 import { asyncHandler } from "../middleware/async-handler";
 import { ConflictError, AuthenticationError, DatabaseError, EmailNotVerifiedError } from "../errors";
@@ -72,6 +73,12 @@ export const register = [
       .where(eq(users.email, email));
 
     if (existingUser.length > 0) {
+      if (existingUser[0].provider === "GOOGLE") {
+        throw new ConflictError(
+          "Este email ya tiene una cuenta de Google. Iniciá sesión con el botón de Google o, si ya iniciaste sesión, establecé una contraseña desde tu perfil.",
+          "GOOGLE_ACCOUNT_EXISTS"
+        );
+      }
       throw new ConflictError(`El usuario con email ${email} ya existe`);
     }
 
@@ -133,7 +140,8 @@ export const login = [
     // Block Google-only users from password login
     if (!user.password_hash) {
       throw new AuthenticationError(
-        "Esta cuenta usa Google para iniciar sesión. Usá el botón de Google."
+        "Esta cuenta usa Google para iniciar sesión. Usá el botón de Google o establecé una contraseña desde tu perfil.",
+        "GOOGLE_NO_PASSWORD"
       );
     }
 
@@ -199,3 +207,19 @@ export const verifyToken = asyncHandler(async (req: AuthRequest, res: Response) 
 
   res.status(200).json(responseDto.data);
 });
+
+export const setPassword = [
+  validateBody(SetPasswordSchema),
+  asyncHandler(async (req: AuthRequest, res: Response) => {
+    const { password } = req.body;
+    const userId = req.user.id;
+    const hashedPassword = await bcrypt.hash(password, 12);
+
+    await db
+      .update(users)
+      .set({ password_hash: hashedPassword })
+      .where(eq(users.id, userId));
+
+    res.status(200).json({ status: "password_set" });
+  }),
+];

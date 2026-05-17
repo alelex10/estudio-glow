@@ -95,6 +95,7 @@ export default function CustomerLogin({ actionData }: Route.ComponentProps) {
   const errorCode = typedData && "error" in typedData ? typedData.code : undefined;
   const unverifiedEmail = (typedData && "error" in typedData ? typedData.email : undefined) ?? "";
   const isEmailNotVerified = errorCode === "EMAIL_NOT_VERIFIED";
+  const isGoogleNoPassword = errorCode === "GOOGLE_NO_PASSWORD";
 
   const [isGoogleSubmitting, setIsGoogleSubmitting] = useState(false);
   const submit = useSubmit();
@@ -227,6 +228,36 @@ export default function CustomerLogin({ actionData }: Route.ComponentProps) {
                   </resendFetcher.Form>
                 </>
               )}
+            </div>
+          )}
+
+          {/* GOOGLE_NO_PASSWORD: show Google login CTA + link to set password */}
+          {isGoogleNoPassword && (
+            <div className="rounded-xl bg-blue-50 border border-blue-200 p-3 space-y-2">
+              <p className="text-sm text-blue-700 text-center">
+                Esta cuenta usa Google para iniciar sesión.
+              </p>
+              <GoogleLoginButton
+                onSuccess={(idToken) => {
+                  setIsGoogleSubmitting(true);
+                  const formData = new FormData();
+                  formData.append("idToken", idToken);
+                  submit(formData, { method: "post", action: ROUTES.actions.AUTH_GOOGLE_LOGIN });
+                }}
+                onError={(_err) => {
+                  setIsGoogleSubmitting(false);
+                }}
+                text="Iniciar sesión con Google"
+              />
+              <p className="text-xs text-blue-600 text-center">
+                ¿Ya iniciaste sesión con Google?{" "}
+                <Link
+                  to="/set-password"
+                  className="underline font-medium hover:text-blue-800 transition-colors"
+                >
+                  Establecer contraseña
+                </Link>
+              </p>
             </div>
           )}
 

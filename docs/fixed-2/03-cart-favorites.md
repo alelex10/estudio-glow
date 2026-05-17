@@ -1,5 +1,7 @@
 # Audit: Cart & Favorites (User Perspective)
 
+> **ESTADO ACTUAL (2026-05-17):** ✅ Favorites fixed (ghost favorites resuelto). ❌ Cart: sin feedback al agregar, solo localStorage (sin sync server), mobile drawer muestra "Próximamente", sin merge guest→user.
+
 Static review of code only. The application was not run. All file references are absolute paths with line numbers.
 
 ---

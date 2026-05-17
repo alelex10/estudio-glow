@@ -1,5 +1,7 @@
 # 02 — Pagos y MercadoPago
 
+> **ESTADO ACTUAL (2026-05-17):** ✅ Todos los issues de pagos listados aquí están **RESUELTOS**. Quedan pendientes solo los tests de webhook/reconciliación (último item del checklist).
+
 **Prioridad:** P1 — algunos son P0 ANTES de habilitar el botón de MP en la UI (hoy está disabled).
 **Áreas:** `backend/src/routes/webhooks.ts`, `backend/src/services/MercadoPagoService.ts`, `backend/src/middleware/idempotency.ts`, `backend/src/services/WebhookEventService.ts`, `backend/src/models/order.ts`.
 

@@ -5,8 +5,8 @@ import { AppError } from "./app-error";
  * HTTP Status: 401 Unauthorized
  */
 export class AuthenticationError extends AppError {
-  constructor(message: string = "No autenticado") {
-    super(message, 401, "AUTHENTICATION_ERROR");
+  constructor(message: string = "No autenticado", code: string = "AUTHENTICATION_ERROR") {
+    super(message, 401, code);
     Object.setPrototypeOf(this, AuthenticationError.prototype);
   }
 }

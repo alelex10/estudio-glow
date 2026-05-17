@@ -15,6 +15,7 @@ export const ROUTES = {
   PRODUCT: (id: string | number) => `/product/${String(id)}` as const,
   CART: "/cart",
   CHECKOUT: "/checkout",
+  CHECKOUT_RESULT: "/checkout/result",
   ORDERS: "/orders",
   FAVORITES: "/favorites",
   LOGIN: "/login",

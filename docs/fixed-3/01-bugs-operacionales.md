@@ -1,5 +1,7 @@
 # 01 — Bugs operacionales (checkout / órdenes)
 
+> **ESTADO ACTUAL (2026-05-17):** ✅ Todos los bugs operacionales listados aquí están **RESUELTOS**. Quedan pendientes solo los tests de concurrencia (últimos 2 items del checklist).
+
 **Prioridad:** P0 — pueden ocurrir en uso normal sin necesidad de atacante.
 **Áreas:** `backend/src/services/OrderService.ts`, `backend/src/services/CronService.ts`, `backend/src/repositories/OrderRepository.ts`, `backend/src/routes/webhooks.ts`.
 

@@ -1,5 +1,7 @@
 # Resumen Ejecutivo — Code Review de cambios locales
 
+> **ESTADO ACTUAL (2026-05-17):** ✅ Todos los 8 bloqueadores de producción están **RESUELTOS**. Quedan 5 issues operacionales menores y 5 items de seguridad en backlog P3.
+
 **Fecha:** 2026-05-16
 **Método:** code review estático sobre cambios sin commitear (52 archivos modificados + ~30 nuevos · +1571/-958 LOC).
 **Subagentes:** 4 en paralelo (seguridad, arquitectura backend, frontend, flujos cross-cutting).

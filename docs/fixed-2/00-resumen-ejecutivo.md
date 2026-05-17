@@ -1,5 +1,7 @@
 # Resumen Ejecutivo — Relevamiento Funcional desde la Perspectiva del Usuario
 
+> **ESTADO ACTUAL (2026-05-17):** ✅ Backend: infraestructura crítica resuelta (race conditions, idempotencia, webhooks, CSRF helpers, email verification, repos completos). ❌ Frontend: los **9 bloqueadores del journey de compra siguen todos pendientes** (sesión 15 min, paginación, feedback cart, persistencia cart, MP deshabilitado, direcciones, confirmación, filtros órdenes, cancelación usuario).
+
 **Fecha:** 2026-05-15
 **Método:** auditoría estática (sin ejecución), 6 subagentes especializados, uno por área funcional.
 **Alcance:** estado real de las funcionalidades que un usuario (cliente o admin) puede usar hoy.

@@ -90,3 +90,12 @@ export const ResendVerificationSchema = z
     }),
   })
   .openapi("ResendVerificationRequest");
+
+export const SetPasswordSchema = z
+  .object({
+    password: z.string().min(6).openapi({
+      example: "nuevaPassword123",
+      description: "Nueva contraseña (mínimo 6 caracteres)",
+    }),
+  })
+  .openapi("SetPasswordRequest");

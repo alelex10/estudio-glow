@@ -20,7 +20,13 @@ export class MercadoPagoService {
           }
         ],
         external_reference: orderId,
-        notification_url: notificationUrl
+        notification_url: notificationUrl,
+        back_urls: {
+          success: `${env.FRONTEND_URL}/checkout/result?orderId=${orderId}`,
+          failure: `${env.FRONTEND_URL}/checkout/result?orderId=${orderId}`,
+          pending: `${env.FRONTEND_URL}/checkout/result?orderId=${orderId}`,
+        },
+        auto_return: "approved",
       }
     });
   }

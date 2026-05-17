@@ -1,5 +1,7 @@
 # 04 — Arquitectura / Tests
 
+> **ESTADO ACTUAL (2026-05-17):** ✅ Issues 4.1–4.3, 4.6, 4.7, 4.10 **RESUELTOS**. Pendientes: 4.4 (casts residuales), 4.5 (logging parcial), 4.8–4.9 (tests).
+
 **Prioridad:** P2 — no rompe nada hoy pero deja deuda técnica que aparecerá.
 **Áreas:** controllers, repositories, services, logging, tests.
 

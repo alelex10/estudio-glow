@@ -1,5 +1,7 @@
 # Product Browsing & Discovery — User-Perspective Audit
 
+> **ESTADO ACTUAL (2026-05-17):** ❌ Sin cambios. Paginación del catálogo sigue rota, sin search global, sin productos relacionados, precios sin formato ARS.
+
 > Static code review of what an end user can and cannot do today when browsing, searching and viewing products. The app was NOT executed; all findings are traced to file:line.
 
 ## Overview

@@ -1,8 +1,8 @@
 import { createCookieSessionStorage } from "react-router";
 
 
-// 15 minutos en milisegundos
-const SESSION_MAX_AGE = 15 * 60 * 1000; 
+// 7 días en milisegundos
+const SESSION_MAX_AGE = 7 * 24 * 60 * 60 * 1000; 
 
 export const sessionStorage = createCookieSessionStorage({
   cookie: {

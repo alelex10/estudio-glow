@@ -12,14 +12,19 @@ export function handleActionError(error: unknown): { success: false; errors: str
 
 /**
  * Formateador de errores para acciones de auth.
- * Convierte cualquier error en el formato { error: string } para formularios de login/register.
+ * Convierte cualquier error en el formato { error: string, code?: string } para formularios de login/register.
+ * Preserva el código de error de ApiError cuando está disponible.
  *
  * @param error - Error a formatear (Error, string, unknown)
  * @returns Objeto de error para auth
  */
-export function handleAuthActionError(error: unknown): { error: string } {
+export function handleAuthActionError(error: unknown): { error: string; code?: string } {
   const message = error instanceof Error ? error.message : "Error desconocido";
-  return { error: message };
+  const code =
+    error instanceof Error && "code" in error
+      ? (error as Error & { code: string }).code
+      : undefined;
+  return { error: message, code };
 }
 
 /**

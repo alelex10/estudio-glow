@@ -177,25 +177,25 @@ export default function Checkout() {
             </h2>
             
             <div className="space-y-3 sm:space-y-4 mb-6">
-              <label 
-                className={`flex items-center gap-3 sm:gap-4 p-4 rounded-lg transition-all border-2 opacity-60 cursor-not-allowed ${
-                  method === "MERCADO_PAGO" 
-                    ? "border-primary-500 bg-primary-50" 
-                    : "border-primary-200"
+              <label
+                className={`flex items-center gap-3 sm:gap-4 p-4 rounded-lg cursor-pointer transition-all border-2 ${
+                  method === "MERCADO_PAGO"
+                    ? "border-primary-500 bg-primary-50"
+                    : "border-primary-200 hover:border-primary-300 hover:bg-primary-50"
                 }`}
               >
-                <input 
-                  type="radio" 
-                  name="paymentMethod" 
+                <input
+                  type="radio"
+                  name="paymentMethod"
                   value="MERCADO_PAGO"
-                  checked={method === "MERCADO_PAGO"} 
-                  disabled
+                  checked={method === "MERCADO_PAGO"}
+                  onChange={() => setMethod("MERCADO_PAGO")}
                   className="w-5 h-5 sm:w-4 sm:h-4 text-primary-600"
                 />
-                <CreditCard className="w-6 h-6 sm:w-5 sm:h-5 text-primary-400" />
+                <CreditCard className="w-6 h-6 sm:w-5 sm:h-5 text-primary-600" />
                 <div className="flex-1">
-                  <span className="font-semibold text-gray-400 text-base sm:text-lg">Mercado Pago</span>
-                  <p className="text-gray-400 text-xs sm:text-sm">No disponible por el momento</p>
+                  <span className="font-semibold text-primary-900 text-base sm:text-lg">Mercado Pago</span>
+                  <p className="text-gray-600 text-xs sm:text-sm">Pago rápido y seguro</p>
                 </div>
               </label>
 

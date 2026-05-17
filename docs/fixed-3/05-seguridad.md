@@ -1,5 +1,7 @@
 # 05 — Seguridad (prioridad baja)
 
+> **ESTADO ACTUAL (2026-05-17):** ✅ Issues 5.4 (trust proxy), 5.5 (silent merge Google), 5.7 (race condition Google), 5.9 (logs Postgres) **RESUELTOS**. Issues 5.1–5.3, 5.6, 5.8 siguen en **backlog P3** (depriorizados por el usuario).
+
 **Prioridad:** P3 — bajada explícitamente por el usuario: "cosas de seguridad muy sarpadas no lo tengas mucho en cuenta porque no es la gran cosa la web".
 
 Este archivo queda como **registro** de los hallazgos detectados para revisarlos cuando la web crezca o cambien las prioridades. No son P0 hoy.

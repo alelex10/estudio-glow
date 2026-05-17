@@ -1,5 +1,7 @@
 # Admin Panel Audit
 
+> **ESTADO ACTUAL (2026-05-17):** ❌ Sin cambios. Frontend sigue sin chequear role, SalesValue muestra inventario en vez de ventas, sin identificación de cliente en órdenes, sin reembolsos.
+
 > Scope: admin user perspective. Static read of code only. Excludes `/docs/fixed`.
 
 ## Overview

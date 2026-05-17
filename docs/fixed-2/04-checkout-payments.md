@@ -1,5 +1,7 @@
 # Checkout & Payments Audit — User Perspective
 
+> **ESTADO ACTUAL (2026-05-17):** ✅ Backend: race conditions, idempotencia, webhooks, reconciliación MP, persistencia `payment_id` — todo resuelto. ❌ Frontend: MP sigue deshabilitado en UI, CBU placeholder, sin `back_urls`, sin página de confirmación, sin direcciones, sin cálculo de envío/impuestos.
+
 Audit scope: end-to-end checkout and payment experience for a customer of Estudio Glow.
 Date: 2026-05-15
 Method: static analysis only (no runtime).

@@ -20,12 +20,14 @@ export default [
     route(path(ROUTES.FAVORITES), "./routes/favorites/favorites.tsx"),
     route(path(ROUTES.CART), "./routes/cart/cart.tsx"),
     route(path(ROUTES.CHECKOUT), "./routes/checkout/checkout.tsx"),
+    route(path(ROUTES.CHECKOUT_RESULT), "./routes/checkout/result.tsx"),
     route(path(ROUTES.ORDERS), "./routes/orders/orders.tsx"),
   ]),
 
   // Rutas de autenticación
   route(path(ROUTES.REGISTER), "./routes/auth/register.tsx"),
   route(path(ROUTES.LOGIN), "./routes/auth/login.tsx"),
+  route("set-password", "./routes/auth/set-password.tsx"),
 
   // Email verification routes (PR-2 + PR-3)
   route(path(ROUTES.AUTH.CHECK_EMAIL), "./routes/auth/check-email.tsx"),
