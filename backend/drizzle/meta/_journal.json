@@ -36,6 +36,41 @@
       "when": 1778496136570,
       "tag": "0004_giant_rocket_raccoon",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1778882916626,
+      "tag": "0005_ancient_wendell_vaughn",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1779000000000,
+      "tag": "0006_email_verified_auth_tokens",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1747439940000,
+      "tag": "0007_orders_mp_payment_id",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1747439970000,
+      "tag": "0008_webhook_event_dedup_key",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1747440000000,
+      "tag": "0009_idempotency_keys",
+      "breakpoints": true
     }
   ]
 }

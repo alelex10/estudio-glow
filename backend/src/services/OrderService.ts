@@ -1,8 +1,11 @@
 import { db } from "../db";
-import { orders, orderItems, type OrderWithItems } from "../models/order";
+import { orders } from "../models/order";
 import { products } from "../models/product";
-import { count, eq, desc, asc, inArray } from "drizzle-orm";
+import { and, eq, gte, sql } from "drizzle-orm";
+import type { OrderWithItems } from "../models/order";
 import { BadRequestError, ConflictError, NotFoundError, DatabaseError } from "../errors";
+import { OrderRepository } from "../repositories/OrderRepository";
+import { logger } from "../lib/logger";
 
 export class OrderService {
   static async createOrder(
@@ -17,27 +20,43 @@ export class OrderService {
       }
 
       let totalAmount = 0;
+      const priceByProductId = new Map<string, number>();
 
+      // Atomic stock decrement with guard — prevents oversell under concurrency
       for (const item of items) {
-        const product = await tx
-          .select()
-          .from(products)
-          .where(eq(products.id, item.productId));
+        const updated = await tx
+          .update(products)
+          .set({ stock: sql`${products.stock} - ${item.quantity}` })
+          .where(
+            and(
+              eq(products.id, item.productId),
+              gte(products.stock, item.quantity),
+            ),
+          )
+          .returning({
+            id: products.id,
+            name: products.name,
+            price: products.price,
+            stock: products.stock,
+          });
 
-        if (!product[0])
-          throw new NotFoundError(`Producto no encontrado: ${item.productId}`);
+        if (!updated[0]) {
+          const existing = await tx
+            .select({ name: products.name, stock: products.stock })
+            .from(products)
+            .where(eq(products.id, item.productId));
 
-        if (product[0].stock < item.quantity) {
+          if (!existing[0]) {
+            throw new NotFoundError(`Producto no encontrado: ${item.productId}`);
+          }
+
           throw new ConflictError(
-            `Stock insuficiente para "${product[0]?.name || item.productId}". Disponible: ${product[0].stock}, solicitado: ${item.quantity}`,
+            `Stock insuficiente para "${existing[0].name || item.productId}". Disponible: ${existing[0].stock}, solicitado: ${item.quantity}`,
           );
         }
 
-        await tx
-          .update(products)
-          .set({ stock: product[0].stock - item.quantity })
-          .where(eq(products.id, item.productId));
-        totalAmount += product[0].price * item.quantity;
+        priceByProductId.set(item.productId, updated[0].price);
+        totalAmount += updated[0].price * item.quantity;
       }
 
       const expiresAt = new Date();
@@ -50,49 +69,85 @@ export class OrderService {
       const initialStatus =
         paymentMethod === "TRANSFER" ? "PENDING_VERIFICATION" : "PENDING";
 
-      const [newOrder] = await tx
-        .insert(orders)
-        .values({
+      const newOrder = await OrderRepository.create(
+        {
           userId,
           status: initialStatus,
           paymentMethod,
           totalAmount,
           receiptUrl,
           expiresAt,
-        })
-        .returning();
+        },
+        tx as unknown as typeof db,
+      );
 
       if (!newOrder) {
         throw new DatabaseError("No se pudo crear la orden");
       }
 
+      // Insert order items using prices captured during atomic decrement
       for (const item of items) {
-        const product = await tx
-          .select()
-          .from(products)
-          .where(eq(products.id, item.productId));
-
-        if (!product[0]) {
-          throw new NotFoundError(`Producto no encontrado: ${item.productId}`);
-        }
-
-        await tx.insert(orderItems).values({
-          orderId: newOrder.id,
-          productId: item.productId,
-          quantity: item.quantity,
-          priceAtPurchase: product[0].price,
-        });
+        await OrderRepository.insertItem(
+          {
+            orderId: newOrder.id,
+            productId: item.productId,
+            quantity: item.quantity,
+            priceAtPurchase: priceByProductId.get(item.productId)!,
+          },
+          tx as unknown as typeof db,
+        );
       }
 
       return newOrder;
     });
   }
 
-  static async markOrderPaid(orderId: string) {
-    await db
-      .update(orders)
-      .set({ status: "PAID", expiresAt: null })
-      .where(eq(orders.id, orderId));
+  static async markOrderPaid(orderId: string, paymentId?: string) {
+    const updated = await OrderRepository.markPaid(orderId, paymentId);
+    if (!updated) {
+      logger.warn({ orderId }, "order.mark_paid.skipped_non_pending");
+    }
+  }
+
+  static async expireOrder(orderId: string) {
+    return await db.transaction(async (tx) => {
+      const order = await tx
+        .select()
+        .from(orders)
+        .where(eq(orders.id, orderId))
+        .for("update");
+
+      if (!order[0]) return null;
+
+      if (
+        order[0].status === "PAID" ||
+        order[0].status === "CANCELLED" ||
+        order[0].status === "EXPIRED"
+      ) {
+        return null;
+      }
+
+      const items = await OrderRepository.findItemsByOrderId(
+        orderId,
+        tx as unknown as typeof db,
+      );
+
+      for (const item of items) {
+        await tx
+          .update(products)
+          .set({ stock: sql`${products.stock} + ${item.quantity}` })
+          .where(eq(products.id, item.productId));
+      }
+
+      await OrderRepository.setStatus(
+        orderId,
+        "EXPIRED",
+        undefined,
+        tx as unknown as typeof db,
+      );
+
+      return order[0];
+    });
   }
 
   static async cancelOrder(orderId: string) {
@@ -112,10 +167,11 @@ export class OrderService {
         return;
       }
 
-      const items = await tx
-        .select()
-        .from(orderItems)
-        .where(eq(orderItems.orderId, orderId));
+      const items = await OrderRepository.findItemsByOrderId(
+        orderId,
+        tx as unknown as typeof db,
+      );
+
       for (const item of items) {
         const product = await tx
           .select()
@@ -129,44 +185,21 @@ export class OrderService {
         }
       }
 
-      await tx
-        .update(orders)
-        .set({ status: "CANCELLED" })
-        .where(eq(orders.id, orderId));
+      await OrderRepository.setStatus(
+        orderId,
+        "CANCELLED",
+        undefined,
+        tx as unknown as typeof db,
+      );
     });
   }
 
   static async getOrderById(orderId: string): Promise<OrderWithItems> {
-    const order = await db
-      .select()
-      .from(orders)
-      .where(eq(orders.id, orderId))
-      .limit(1);
-
-    if (!order[0]) {
+    const order = await OrderRepository.findByIdWithItems(orderId);
+    if (!order) {
       throw new NotFoundError("Orden no encontrada");
     }
-
-    const items = await db
-      .select({
-        id: orderItems.id,
-        productId: orderItems.productId,
-        quantity: orderItems.quantity,
-        priceAtPurchase: orderItems.priceAtPurchase,
-        product: {
-          id: products.id,
-          name: products.name,
-          imageUrl: products.imageUrl,
-        },
-      })
-      .from(orderItems)
-      .innerJoin(products, eq(orderItems.productId, products.id))
-      .where(eq(orderItems.orderId, orderId));
-
-    return {
-      ...order[0],
-      items,
-    };
+    return order;
   }
 
   static async getUserOrders(
@@ -174,27 +207,12 @@ export class OrderService {
     page: number,
     limit: number,
     sortBy: string = "createdAt",
-    sortOrder: "asc" | "desc" = "desc"
+    sortOrder: "asc" | "desc" = "desc",
   ) {
-    const offset = (page - 1) * limit;
-    const orderFn = sortOrder === "desc" ? desc : asc;
-
-    const sortByColumn = sortBy === "createdAt" ? orders.createdAt : orders.totalAmount;
-
-    const data = await db
-      .select()
-      .from(orders)
-      .where(eq(orders.userId, userId))
-      .orderBy(orderFn(sortByColumn))
-      .limit(limit)
-      .offset(offset);
-
-    const [totalResult] = await db
-      .select({ total: count() })
-      .from(orders)
-      .where(eq(orders.userId, userId));
-
-    const total = totalResult?.total ?? 0;
+    const [data, total] = await Promise.all([
+      OrderRepository.findByUserId(userId, { page, limit, sortBy, sortOrder }),
+      OrderRepository.countByUserId(userId),
+    ]);
 
     return {
       data,
@@ -216,80 +234,27 @@ export class OrderService {
     sortOrder: "asc" | "desc" = "desc",
     status?: string,
     paymentMethod?: string,
-    includeItems: boolean = false
+    includeItems = false,
   ) {
-    const offset = (page - 1) * limit;
-    const orderFn = sortOrder === "desc" ? desc : asc;
-    const sortByColumn = sortBy === "createdAt" ? orders.createdAt : orders.totalAmount;
+    const [data, total] = await Promise.all([
+      OrderRepository.findPaginated({ page, limit, sortBy, sortOrder, status, paymentMethod }),
+      OrderRepository.countFiltered({ status, paymentMethod }),
+    ]);
 
-    let query = db.select().from(orders);
-
-    if (status) {
-      query = query.where(eq(orders.status, status as any)) as typeof query;
-    }
-
-    if (paymentMethod) {
-      query = query.where(eq(orders.paymentMethod, paymentMethod as any)) as typeof query;
-    }
-
-    let data;
-
-    data = await query
-      .orderBy(orderFn(sortByColumn))
-      .limit(limit)
-      .offset(offset);
+    let enriched: typeof data | Array<(typeof data)[0] & { items: any[] }> = data;
 
     if (includeItems && data.length > 0) {
       const orderIds = data.map((o) => o.id);
+      const itemsByOrderId = await OrderRepository.findItemsByOrderIds(orderIds);
 
-      // Single batch query for ALL items of ALL orders
-      const allItems = await db
-        .select({
-          id: orderItems.id,
-          orderId: orderItems.orderId,
-          productId: orderItems.productId,
-          quantity: orderItems.quantity,
-          priceAtPurchase: orderItems.priceAtPurchase,
-          product: {
-            id: products.id,
-            name: products.name,
-            imageUrl: products.imageUrl,
-          },
-        })
-        .from(orderItems)
-        .innerJoin(products, eq(orderItems.productId, products.id))
-        .where(inArray(orderItems.orderId, orderIds));
-
-      // Group items by orderId in JS (O(n) instead of N queries)
-      const itemsByOrderId = new Map<string, typeof allItems>();
-      for (const item of allItems) {
-        const group = itemsByOrderId.get(item.orderId);
-        if (group) {
-          group.push(item);
-        } else {
-          itemsByOrderId.set(item.orderId, [item]);
-        }
-      }
-
-      data = data.map((order) => ({
+      enriched = data.map((order) => ({
         ...order,
         items: itemsByOrderId.get(order.id) ?? [],
       }));
     }
 
-    // Total count (respects the same filters as the data query)
-    let totalQuery = db.select({ total: count() }).from(orders);
-    if (status) {
-      totalQuery = totalQuery.where(eq(orders.status, status as any)) as typeof totalQuery;
-    }
-    if (paymentMethod) {
-      totalQuery = totalQuery.where(eq(orders.paymentMethod, paymentMethod as any)) as typeof totalQuery;
-    }
-    const [totalResult] = await totalQuery;
-    const total = totalResult?.total ?? 0;
-
     return {
-      data,
+      data: enriched,
       pagination: {
         page,
         limit,

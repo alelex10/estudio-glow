@@ -11,6 +11,7 @@ export const orders = pgTable("order", {
   paymentMethod: text("payment_method", { enum: ["MERCADO_PAGO", "TRANSFER"] }).notNull(),
   receiptUrl: varchar("receipt_url", { length: 255 }),
   mpPreferenceId: varchar("mp_preference_id", { length: 255 }),
+  mpPaymentId: varchar("mp_payment_id", { length: 255 }),
   expiresAt: timestamp("expires_at"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
@@ -18,6 +19,7 @@ export const orders = pgTable("order", {
   index("idx_order_user_id").on(table.userId),
   index("idx_order_status").on(table.status),
   index("idx_order_expires_at").on(table.expiresAt),
+  index("idx_order_mp_payment_id").on(table.mpPaymentId),
 ]);
 
 export const orderItems = pgTable("order_item", {
