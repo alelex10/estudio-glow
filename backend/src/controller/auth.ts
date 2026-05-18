@@ -12,6 +12,7 @@ import {
   LoginSchema,
   AuthResponseSchema,
   SetPasswordSchema,
+  SetPasswordByTokenSchema,
 } from "../schemas/auth";
 import { asyncHandler } from "../middleware/async-handler";
 import { ConflictError, AuthenticationError, DatabaseError, EmailNotVerifiedError } from "../errors";
@@ -73,7 +74,8 @@ export const register = [
       .where(eq(users.email, email));
 
     if (existingUser.length > 0) {
-      if (existingUser[0].provider === "GOOGLE") {
+      const firstUser = existingUser[0]!;
+      if (firstUser.provider === "GOOGLE") {
         throw new ConflictError(
           "Este email ya tiene una cuenta de Google. Iniciá sesión con el botón de Google o, si ya iniciaste sesión, establecé una contraseña desde tu perfil.",
           "GOOGLE_ACCOUNT_EXISTS"
@@ -137,12 +139,16 @@ export const login = [
       throw new AuthenticationError("Usuario no encontrado");
     }
 
-    // Block Google-only users from password login
+    // Google-only users: issue SET_PASSWORD token and send email instead of rejecting
     if (!user.password_hash) {
-      throw new AuthenticationError(
-        "Esta cuenta usa Google para iniciar sesión. Usá el botón de Google o establecé una contraseña desde tu perfil.",
-        "GOOGLE_NO_PASSWORD"
-      );
+      const rawToken = await AuthTokenService.issue(user.id, "SET_PASSWORD", 3600 * 1000);
+      const setPasswordUrl = `${env.FRONTEND_URL}/auth/set-password-by-token?token=${rawToken}`;
+      try {
+        await emailService().sendSetPasswordEmail({ to: email, name: user.name, setPasswordUrl });
+      } catch (err) {
+        console.error("Failed to send set-password email:", err);
+      }
+      return res.status(200).json({ status: "set_password_email_sent", email });
     }
 
     const isMatch = await bcrypt.compare(password, user.password_hash);
@@ -219,6 +225,32 @@ export const setPassword = [
       .update(users)
       .set({ password_hash: hashedPassword })
       .where(eq(users.id, userId));
+
+    res.status(200).json({ status: "password_set" });
+  }),
+];
+
+export const setPasswordByToken = [
+  validateBody(SetPasswordByTokenSchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    const { token, password } = req.body;
+
+    let tokenRecord;
+    try {
+      tokenRecord = await AuthTokenService.consume(token, "SET_PASSWORD");
+    } catch {
+      throw new AuthenticationError("Token inválido, expirado o ya usado.");
+    }
+
+    if (!tokenRecord) {
+      throw new AuthenticationError("Token inválido, expirado o ya usado.");
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 12);
+    await db
+      .update(users)
+      .set({ password_hash: hashedPassword })
+      .where(eq(users.id, tokenRecord.user_id));
 
     res.status(200).json({ status: "password_set" });
   }),

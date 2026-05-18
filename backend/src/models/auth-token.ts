@@ -13,7 +13,7 @@ export const authTokens = pgTable(
       .references(() => users.id, { onDelete: "cascade" }),
     // sha256 hex of the raw token — raw token is NEVER stored (N1.1)
     token_hash: varchar("token_hash", { length: 64 }).notNull().unique(),
-    type: text("type", { enum: ["EMAIL_VERIFY", "ACCOUNT_LINK"] }).notNull(),
+    type: text("type", { enum: ["EMAIL_VERIFY", "ACCOUNT_LINK", "SET_PASSWORD"] }).notNull(),
     // only populated for ACCOUNT_LINK tokens (F3.4)
     target_google_id: varchar("target_google_id", { length: 255 }),
     expires_at: timestamp("expires_at").notNull(),
@@ -34,7 +34,7 @@ export const authTokens = pgTable(
     // is what caused the original 0007_legal_the_leader.sql drop.
     typeCheck: check(
       "auth_tokens_type_chk",
-      sql`${t.type} IN ('EMAIL_VERIFY', 'ACCOUNT_LINK')`,
+      sql`${t.type} IN ('EMAIL_VERIFY', 'ACCOUNT_LINK', 'SET_PASSWORD')`,
     ),
   }),
 );

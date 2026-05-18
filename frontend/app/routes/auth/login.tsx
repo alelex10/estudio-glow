@@ -14,6 +14,7 @@ import type { Route } from "./+types/login";
 import { getUserRole, isAuthenticated, createAuthSession } from "~/common/services/auth.server";
 import { ROUTES } from "~/common/constants/routes";
 import { serverLogin, serverGoogleLogin } from "~/common/services/authApi.server";
+import type { LoginResponse } from "~/common/types/response";
 import { ApiError } from "~/common/config/api-client";
 import { parseFormData } from "~/common/actions/form-helpers";
 import { handleAuthActionError } from "~/common/actions/error-helpers";
@@ -37,6 +38,12 @@ export async function loader({ request }: Route.LoaderArgs) {
       admin: redirect(ROUTES.admin.BASE),
       customer: redirect(ROUTES.HOME),
     }[userRole];
+  }
+
+  const url = new URL(request.url);
+  const message = url.searchParams.get("message");
+  if (message === "password_set") {
+    return { passwordSet: true };
   }
 
   return null;
@@ -76,8 +83,14 @@ export async function action({ request }: ActionFunctionArgs): Promise<ActionDat
       password: (v) => String(v),
     });
     const response = await serverLogin(data.email, data.password);
-    const redirectPath = { admin: ROUTES.admin.BASE, customer: ROUTES.HOME }[response.user.role];
-    return createAuthSession(request, response.token, response.user, redirectPath);
+
+    if ("status" in response && response.status === "set_password_email_sent") {
+      return { error: "Te enviamos un email para establecer tu contraseña.", code: "GOOGLE_NO_PASSWORD", email: data.email };
+    }
+
+    const loginResponse = response as LoginResponse;
+    const redirectPath = { admin: ROUTES.admin.BASE, customer: ROUTES.HOME }[loginResponse.user.role];
+    return createAuthSession(request, loginResponse.token, loginResponse.user, redirectPath);
   } catch (error) {
     // F1.6: Backend returns 403 EMAIL_NOT_VERIFIED for unverified LOCAL users
     if (error instanceof ApiError && error.code === "EMAIL_NOT_VERIFIED") {
@@ -88,7 +101,7 @@ export async function action({ request }: ActionFunctionArgs): Promise<ActionDat
   }
 }
 
-export default function CustomerLogin({ actionData }: Route.ComponentProps) {
+export default function CustomerLogin({ actionData, loaderData }: Route.ComponentProps) {
   const typedData = actionData as ActionData | undefined;
   const error = typedData && "error" in typedData ? typedData.error : undefined;
   const suggestion = typedData && "error" in typedData ? typedData.suggestion : undefined;
@@ -96,6 +109,7 @@ export default function CustomerLogin({ actionData }: Route.ComponentProps) {
   const unverifiedEmail = (typedData && "error" in typedData ? typedData.email : undefined) ?? "";
   const isEmailNotVerified = errorCode === "EMAIL_NOT_VERIFIED";
   const isGoogleNoPassword = errorCode === "GOOGLE_NO_PASSWORD";
+  const passwordSet = loaderData && "passwordSet" in loaderData ? loaderData.passwordSet : false;
 
   const [isGoogleSubmitting, setIsGoogleSubmitting] = useState(false);
   const submit = useSubmit();
@@ -143,6 +157,15 @@ export default function CustomerLogin({ actionData }: Route.ComponentProps) {
             Iniciá sesión para ver tus favoritos
           </p>
         </div>
+
+        {/* Password set success message */}
+        {passwordSet && (
+          <div className="rounded-xl bg-green-50 border border-green-200 p-3 mb-6">
+            <p className="text-sm text-green-700 text-center">
+              ¡Contraseña establecida correctamente! Ahora podés iniciar sesión con tu email y contraseña.
+            </p>
+          </div>
+        )}
 
         {/* Google Login */}
         <div
@@ -231,18 +254,13 @@ export default function CustomerLogin({ actionData }: Route.ComponentProps) {
             </div>
           )}
 
-          {/* GOOGLE_NO_PASSWORD: show message + link to set password */}
+          {/* GOOGLE_NO_PASSWORD: inform user that a set-password email was sent */}
           {isGoogleNoPassword && (
             <div className="rounded-xl bg-blue-50 border border-blue-200 p-3 space-y-2">
               <p className="text-sm text-blue-700 text-center">
-                Esta cuenta usa Google para iniciar sesión. Usá el botón de Google arriba o, si ya iniciaste sesión con Google, podés{" "}
-                <Link
-                  to="/set-password"
-                  className="underline font-medium hover:text-blue-800 transition-colors"
-                >
-                  establecer una contraseña
-                </Link>{" "}
-                para iniciar sesión manualmente.
+                Esta cuenta usa Google para iniciar sesión. Te enviamos un email a{" "}
+                <strong>{unverifiedEmail}</strong>{" "}
+                con un enlace para establecer una contraseña y poder iniciar sesión manualmente.
               </p>
             </div>
           )}

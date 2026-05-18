@@ -28,6 +28,7 @@ export default [
   route(path(ROUTES.REGISTER), "./routes/auth/register.tsx"),
   route(path(ROUTES.LOGIN), "./routes/auth/login.tsx"),
   route("set-password", "./routes/auth/set-password.tsx"),
+  route(path(ROUTES.AUTH.SET_PASSWORD_BY_TOKEN), "./routes/auth/set-password-by-token.tsx"),
 
   // Email verification routes (PR-2 + PR-3)
   route(path(ROUTES.AUTH.CHECK_EMAIL), "./routes/auth/check-email.tsx"),

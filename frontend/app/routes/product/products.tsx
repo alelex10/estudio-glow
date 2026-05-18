@@ -1,4 +1,6 @@
+import { useSearchParams } from "react-router";
 import { ProductCard } from "~/common/components/Card";
+import { PaginationFooter } from "~/common/components/data-table/PaginationFooter";
 import { productService } from "~/common/services/productService";
 import type { Route } from "./+types/products";
 
@@ -37,6 +39,7 @@ export async function loader({ request }: Route.LoaderArgs) {
 
 export default function Products({ loaderData }: Route.ComponentProps) {
   const { products } = loaderData;
+  const [searchParams, setSearchParams] = useSearchParams();
 
   return (
     <>
@@ -57,6 +60,19 @@ export default function Products({ loaderData }: Route.ComponentProps) {
             />
           </div>
         ))}
+      </div>
+      <div className="mt-6">
+        <PaginationFooter
+          pagination={products.pagination}
+          totalItems={products.data.length}
+          onPageChange={(page) => {
+            setSearchParams((prev) => {
+              const next = new URLSearchParams(prev);
+              next.set("page", String(page));
+              return next;
+            });
+          }}
+        />
       </div>
     </>
   );

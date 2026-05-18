@@ -1,6 +1,7 @@
 import { apiClient, ApiError } from "../config/api-client";
 import type {
   LoginResponse,
+  SetPasswordEmailSentResponse,
   BackendGoogleLoginResponse,
   GoogleLoginResponse,
   GoogleLinkEmailSentResponse,
@@ -13,8 +14,8 @@ import type {
 export async function serverLogin(
   email: string,
   password: string,
-): Promise<LoginResponse> {
-  return apiClient<LoginResponse>({
+): Promise<LoginResponse | SetPasswordEmailSentResponse> {
+  return apiClient<LoginResponse | SetPasswordEmailSentResponse>({
     endpoint: "/auth/login",
     options: {
       method: "POST",
@@ -153,6 +154,23 @@ export async function serverSetPassword(
     options: {
       method: "POST",
       body: JSON.stringify({ password }),
+    },
+  });
+}
+
+/**
+ * Sets a password using a SET_PASSWORD token from email.
+ * No authentication required.
+ */
+export async function serverSetPasswordByToken(
+  token: string,
+  password: string,
+): Promise<{ status: string }> {
+  return apiClient<{ status: string }>({
+    endpoint: "/auth/set-password-by-token",
+    options: {
+      method: "POST",
+      body: JSON.stringify({ token, password }),
     },
   });
 }

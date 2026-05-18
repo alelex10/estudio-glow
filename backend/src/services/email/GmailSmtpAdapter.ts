@@ -12,6 +12,7 @@ import crypto from "crypto";
 import type { EmailService } from "./EmailService";
 import { verifyEmailTemplate } from "./templates/verifyEmail";
 import { linkAccountTemplate } from "./templates/linkAccount";
+import { setPasswordTemplate } from "./templates/setPassword";
 
 export interface GmailSmtpConfig {
   user: string;
@@ -88,6 +89,33 @@ export class GmailSmtpAdapter implements EmailService {
   }): Promise<{ id: string }> {
     const { to, name, linkUrl, googleEmail } = params;
     const { subject, html, text } = linkAccountTemplate({ name, linkUrl, googleEmail });
+
+    const info = await this.transporter.sendMail({
+      from: this.from,
+      to,
+      replyTo: this.replyTo,
+      subject,
+      html,
+      text,
+    });
+
+    const recipientHash = crypto.createHash("sha256").update(to).digest("hex");
+    console.info("[GmailSmtpAdapter] sent", {
+      provider: "gmail",
+      recipient_hash: recipientHash,
+      message_id: info.messageId,
+    });
+
+    return { id: info.messageId as string };
+  }
+
+  async sendSetPasswordEmail(params: {
+    to: string;
+    name: string;
+    setPasswordUrl: string;
+  }): Promise<{ id: string }> {
+    const { to, name, setPasswordUrl } = params;
+    const { subject, html, text } = setPasswordTemplate({ name, url: setPasswordUrl });
 
     const info = await this.transporter.sendMail({
       from: this.from,

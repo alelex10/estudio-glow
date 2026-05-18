@@ -11,6 +11,7 @@ import crypto from "crypto";
 import type { EmailService } from "./EmailService";
 import { verifyEmailTemplate } from "./templates/verifyEmail";
 import { linkAccountTemplate } from "./templates/linkAccount";
+import { setPasswordTemplate } from "./templates/setPassword";
 
 export interface ResendConfig {
   apiKey: string;
@@ -76,6 +77,38 @@ export class ResendAdapter implements EmailService {
   }): Promise<{ id: string }> {
     const { to, name, linkUrl, googleEmail } = params;
     const { subject, html, text } = linkAccountTemplate({ name, linkUrl, googleEmail });
+
+    const result = await this.resend.emails.send({
+      from: this.from,
+      to,
+      subject,
+      html,
+      text,
+    });
+
+    if (result.error) {
+      throw new Error(`[ResendAdapter] Failed to send email: ${result.error.message}`);
+    }
+
+    const messageId = result.data?.id ?? "unknown";
+
+    const recipientHash = crypto.createHash("sha256").update(to).digest("hex");
+    console.info("[ResendAdapter] sent", {
+      provider: "resend",
+      recipient_hash: recipientHash,
+      message_id: messageId,
+    });
+
+    return { id: messageId };
+  }
+
+  async sendSetPasswordEmail(params: {
+    to: string;
+    name: string;
+    setPasswordUrl: string;
+  }): Promise<{ id: string }> {
+    const { to, name, setPasswordUrl } = params;
+    const { subject, html, text } = setPasswordTemplate({ name, url: setPasswordUrl });
 
     const result = await this.resend.emails.send({
       from: this.from,

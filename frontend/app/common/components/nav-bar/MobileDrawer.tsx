@@ -7,6 +7,7 @@ import { Form } from "react-router";
 import type { User } from "../../types/user-types";
 import { ROUTES, NAV_LINKS } from "~/common/constants/routes";
 import { useFavorites } from "~/common/context/FavoritesContext";
+import { useCart } from "~/common/context/CartContext";
 
 interface MobileDrawerProps {
   isOpen: boolean;
@@ -23,6 +24,7 @@ export default function MobileDrawer({ isOpen, onClose, user }: MobileDrawerProp
   const isCustomer = user?.role === "customer";
   const isAdmin = user?.role === "admin";
   const { favoriteCount } = useFavorites();
+  const { totalItems } = useCart();
   const { pathname } = useLocation();
 
   return (
@@ -102,15 +104,21 @@ export default function MobileDrawer({ isOpen, onClose, user }: MobileDrawerProp
                       <Link
                         to={ROUTES.CART}
                         className={clsx(
-                          "flex items-center gap-3 text-lg font-medium transition-all duration-200 py-3 px-4 rounded-lg opacity-50 cursor-not-allowed",
+                          "flex items-center gap-3 text-lg font-medium transition-all duration-200 py-3 px-4 rounded-lg",
                           isActiveLink(ROUTES.CART, pathname)
                             ? "bg-white/20 text-white font-semibold"
                             : "text-white hover:text-primary-200 hover:bg-white/10",
                         )}
                         onClick={onClose}
-                        title="Próximamente"
                       >
-                        <ShoppingBag className="w-5 h-5" />
+                        <div className="relative">
+                          <ShoppingBag className="w-5 h-5" />
+                          {totalItems > 0 && (
+                            <span className="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
+                              {totalItems}
+                            </span>
+                          )}
+                        </div>
                         Carrito
                       </Link>
                     </li>

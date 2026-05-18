@@ -1,9 +1,9 @@
 import { Router } from "express";
-import { register, login, logout, verifyToken, setPassword } from "../controller/auth";
+import { register, login, logout, verifyToken, setPassword, setPasswordByToken } from "../controller/auth";
 import { googleRegister, googleLogin } from "../controller/google";
 import { verifyEmail, resendVerification, confirmLink } from "../controller/email-verify";
 import { authenticate } from "../middleware/auth";
-import { resendVerificationLimiter } from "../middleware/rate-limit";
+import { authLimiter, resendVerificationLimiter } from "../middleware/rate-limit";
 import { validateBody } from "../middleware/validation";
 import { ResendVerificationSchema, SetPasswordSchema } from "../schemas/auth";
 
@@ -11,7 +11,7 @@ const router = Router();
 
 router.post("/register", register);
 
-router.post("/login", login);
+router.post("/login", authLimiter, login);
 
 // T3-04: POST /auth/google (deprecated) REMOVED — googleAuth handler deleted from controller/google.ts
 router.post("/google/register", googleRegister);
@@ -42,6 +42,9 @@ router.get("/confirm-link", confirmLink);
 
 // POST /auth/set-password — allows Google-created users to set a password for manual login
 router.post("/set-password", authenticate, validateBody(SetPasswordSchema), setPassword);
+
+// POST /auth/set-password-by-token — no auth, consumes SET_PASSWORD token from email
+router.post("/set-password-by-token", authLimiter, setPasswordByToken);
 
 export const authRouter = router;
 

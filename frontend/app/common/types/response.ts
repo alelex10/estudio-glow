@@ -13,6 +13,15 @@ export interface LoginResponse {
   token: string;
 }
 
+/**
+ * Response from POST /auth/login when a Google user without password attempts login.
+ * Backend sends a SET_PASSWORD email instead of rejecting.
+ */
+export interface SetPasswordEmailSentResponse {
+  status: "set_password_email_sent";
+  email: string;
+}
+
 export interface PaginationResponse<T> {
   data: T[];
   pagination: {

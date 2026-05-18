@@ -71,6 +71,13 @@
       "when": 1747440000000,
       "tag": "0009_idempotency_keys",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1779067019494,
+      "tag": "0010_heavy_toxin",
+      "breakpoints": true
     }
   ]
 }

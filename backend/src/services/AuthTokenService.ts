@@ -5,7 +5,7 @@ import { authTokens } from "../models/auth-token";
 import { AppError } from "../errors/index";
 
 // Token types as a const enum-like object for type safety
-export type TokenType = "EMAIL_VERIFY" | "ACCOUNT_LINK";
+export type TokenType = "EMAIL_VERIFY" | "ACCOUNT_LINK" | "SET_PASSWORD";
 
 export interface TokenExtras {
   target_google_id?: string;

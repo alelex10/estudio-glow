@@ -26,6 +26,7 @@ export const ROUTES = {
     CHECK_EMAIL: "/auth/check-email",
     VERIFY_EMAIL: "/auth/verify-email",
     CONFIRM_LINK: "/auth/confirm-link",
+    SET_PASSWORD_BY_TOKEN: "/auth/set-password-by-token",
   } as const,
 
   admin: {

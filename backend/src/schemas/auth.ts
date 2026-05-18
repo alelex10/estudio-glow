@@ -99,3 +99,16 @@ export const SetPasswordSchema = z
     }),
   })
   .openapi("SetPasswordRequest");
+
+export const SetPasswordByTokenSchema = z
+  .object({
+    token: z.string().min(1).openapi({
+      example: "rawToken123",
+      description: "Token SET_PASSWORD recibido por email",
+    }),
+    password: z.string().min(6).openapi({
+      example: "nuevaPassword123",
+      description: "Nueva contraseña (mínimo 6 caracteres)",
+    }),
+  })
+  .openapi("SetPasswordByTokenRequest");

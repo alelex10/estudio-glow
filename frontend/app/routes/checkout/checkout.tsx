@@ -65,7 +65,7 @@ export async function action({ request }: Route.ActionArgs) {
   try {
     // Create order directly with items (no intermediate sync needed)
     if (paymentMethod === "MERCADO_PAGO") {
-      const checkoutData = await apiClient<{ preferenceUrl: string }>({
+      const checkoutData = await apiClient<{ preferenceUrl: string; orderId: string }>({
         token,
         endpoint: "/checkout/mercadopago",
         options: {
@@ -74,7 +74,7 @@ export async function action({ request }: Route.ActionArgs) {
           headers: { "Idempotency-Key": idempotencyKey },
         },
       });
-      return { preferenceUrl: checkoutData.preferenceUrl };
+      return { preferenceUrl: checkoutData.preferenceUrl, orderId: checkoutData.orderId };
     }
 
     // TRANSFER: forward receipt file + items
@@ -87,7 +87,7 @@ export async function action({ request }: Route.ActionArgs) {
     receiptFormData.set("receipt", receipt);
     receiptFormData.set("items", JSON.stringify(items));
 
-    await apiClient<{ success: true }>({
+    const transferData = await apiClient<{ orderId: string }>({
       token,
       endpoint: "/checkout/transfer",
       options: {
@@ -97,7 +97,7 @@ export async function action({ request }: Route.ActionArgs) {
       },
     });
 
-    return { success: true };
+    return { success: true, orderId: transferData.orderId };
   } catch (err) {
     if (err instanceof ApiError) {
       const msg =
@@ -131,10 +131,9 @@ export default function Checkout() {
     if ("preferenceUrl" in actionData && actionData.preferenceUrl) {
       clearCart();
       window.location.href = actionData.preferenceUrl;
-    } else if ("success" in actionData && actionData.success) {
+    } else if ("success" in actionData && actionData.success && "orderId" in actionData && actionData.orderId) {
       clearCart();
-      toast("success", "Orden creada exitosamente. Un administrador validará el pago.");
-      navigate(ROUTES.HOME);
+      navigate(`/checkout/result?orderId=${actionData.orderId}`);
     } else if ("error" in actionData && actionData.error) {
       toast("error", String(actionData.error));
     }

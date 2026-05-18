@@ -29,4 +29,15 @@ export interface EmailService {
     linkUrl: string;
     googleEmail: string;
   }): Promise<{ id: string }>;
+
+  /**
+   * Sends a set-password email for Google OAuth users who attempt manual login
+   * without having set a password yet.
+   * The setPasswordUrl contains the raw SET_PASSWORD token as a query param.
+   */
+  sendSetPasswordEmail(params: {
+    to: string;
+    name: string;
+    setPasswordUrl: string;
+  }): Promise<{ id: string }>;
 }
