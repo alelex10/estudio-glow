@@ -10,8 +10,8 @@
 
 | Severidad | Cantidad |
 |-----------|----------|
-| Critical  | 9 |
-| High      | 21 |
+| Critical  | 1 |
+| High      | 20 |
 | Medium    | 39 |
 | Low       | 37 |
 
@@ -39,8 +39,8 @@
 
 | # | Severidad | Archivo / Línea | Descripción |
 |---|-----------|-----------------|-------------|
-| 1 | Critical | `frontend/app/routes/product/products.tsx:38-63` | La metadata de paginación (`products.pagination`) se devuelve pero nunca se renderiza. El catálogo se corta en los primeros 10 productos sin Next/Prev. |
-| 2 | Critical | `backend/src/routes/products.ts:19-21` + `routes/public.ts:8-9` | Los endpoints mutantes de productos comparten router con lecturas públicas; el prefijo `/public` está medio construido y no expone `GET /public/products/:id` ni `/news`. |
+| 1 | Critical — ✅ RESUELTO (`catalog-pagination`) | `frontend/app/routes/product/products.tsx:38-63` | La metadata de paginación (`products.pagination`) se devuelve pero nunca se renderiza. El catálogo se corta en los primeros 10 productos sin Next/Prev. **Resuelto**: `PaginationFooter` ya renderiza Next/Prev, números de página, y selector de tamaño. |
+| 2 | High | `backend/src/routes/products.ts:19-21` + `routes/public.ts:8-9` | Los endpoints mutantes de productos comparten router con lecturas públicas; el prefijo `/public` está medio construido y no expone `GET /public/products/:id` ni `/news`. **No afecta al usuario directamente** — los endpoints admin tienen `requireAdmin`. Es deuda técnica de arquitectura. |
 | 3 | High | `frontend/app/routes/home/home.tsx:20-41` | El hero de la home no tiene ningún CTA ni link al catálogo. El único camino es el navbar "Productos". |
 | 4 | High | `frontend/app/common/components/Card.tsx:56` + `product.\$id.tsx:143` | Precios sin formato ARS consistente: `${price.toFixed(2)}` muestra `$1500.00` (sin separador de miles); en detalle muestra `$1500`. No se usa `Intl.NumberFormat("es-AR")`. |
 | 5 | High | `frontend/app/common/components/search-filter/SearchFilter.tsx` | Existe componente de búsqueda global con debounce, pero no se usa en ninguna página pública (home, detail, header). |
@@ -72,8 +72,8 @@
 
 | # | Severidad | Archivo / Línea | Descripción |
 |---|-----------|-----------------|-------------|
-| 1 | Critical | `backend/src/routes/cart.ts:1-13` | Backend `/cart/*` completo pero el frontend nunca lo llama. Carrito es solo `localStorage`; cero sync entre dispositivos para usuarios logueados. |
-| 2 | Critical | `frontend/app/common/components/nav-bar/MobileDrawer.tsx:101-116` | Link de carrito en mobile drawer tiene apariencia de deshabilitado (`opacity-50`, `title="Próximamente"`) aunque la ruta funciona. Bloquea navegación primaria. |
+| 1 | Critical — ✅ RESUELTO (`cart-server-sync`) | `backend/src/routes/cart.ts:1-13` | Backend `/cart/*` completo pero el frontend nunca lo llama. Carrito es solo `localStorage`; cero sync entre dispositivos para usuarios logueados. **Resuelto**: implementado carrito híbrido — guests usan `localStorage`, usuarios autenticados persisten en servidor vía endpoints granulares (`POST /cart/items`, `PATCH /cart/items/:productId`) con sync al login. |
+| 2 | Critical — ✅ RESUELTO (batch-1) | `frontend/app/common/components/nav-bar/MobileDrawer.tsx:101-116` | Link de carrito en mobile drawer tiene apariencia de deshabilitado (`opacity-50`, `title="Próximamente"`) aunque la ruta funciona. **Resuelto**: removidos estilos disabled, agregado badge de conteo. |
 | 3 | High | `frontend/app/common/components/Card.tsx:26-29` + `product.\$id.tsx:59-69` | Add-to-cart es silencioso: sin toast, sin abrir drawer, sin animación. El usuario hace doble-tap o asume que no funcionó. |
 | 4 | High | `frontend/app/common/context/CartContext.tsx:126-128` | `updateQuantity` retorna `prev` sin cambios si `quantity > stock`, sin toast ni feedback visual. |
 | 5 | High | `frontend/app/common/context/CartContext.tsx:138-161` | `refreshStock` está exportado pero nunca se invoca. El stock puede quedar stale durante una sesión larga. |
@@ -99,9 +99,9 @@
 
 | # | Severidad | Archivo / Línea | Descripción |
 |---|-----------|-----------------|-------------|
-| 1 | Critical | `frontend/app/routes/checkout/checkout.tsx:235-236` | CBU de transferencia es placeholder `0000000000000000000000` (22 ceros). Alias `ESTUDIO.GLOW` también hardcodeado. Un usuario real transferiría a una cuenta inexistente. |
-| 2 | Critical | `frontend/app/routes/checkout/checkout.tsx:138-140` | No existe página de confirmación / éxito. Transferencia redirige a HOME con un toast; MP redirige a una pantalla genérica (aunque `back_urls` ya existen, falta la página destino). |
-| 3 | Critical | `frontend/app/routes/checkout/checkout.tsx:83,112` | El `orderId` devuelto por el backend se descarta en la action. El usuario nunca ve un número de pedido. |
+| 1 | Critical — ✅ RESUELTO (`checkout-result`) | `frontend/app/routes/checkout/checkout.tsx:235-236` | CBU de transferencia es placeholder `0000000000000000000000` (22 ceros). Alias `ESTUDIO.GLOW` también hardcodeado. Un usuario real transferiría a una cuenta inexistente. |
+| 2 | Critical — ✅ RESUELTO (`checkout-result`) | `frontend/app/routes/checkout/checkout.tsx:138-140` | No existe página de confirmación / éxito. Transferencia redirige a HOME con un toast; MP redirige a una pantalla genérica (aunque `back_urls` ya existen, falta la página destino). **Resuelto**: `result.tsx` (320 líneas) renderiza vista para todos los estados (PAID, PENDING, PENDING_VERIFICATION, EXPIRED, CREATED) con order ID, items, y total. |
+| 3 | Critical — ✅ RESUELTO (`checkout-result`) | `frontend/app/routes/checkout/checkout.tsx:83,112` | El `orderId` devuelto por el backend se descarta en la action. El usuario nunca ve un número de pedido. **Resuelto**: `checkout.tsx` captura `orderId` y navega a `/checkout/result?orderId=...`. |
 | 4 | Medium | `backend/src/models/order.ts:10` + `frontend/app/common/components/cart/OrderSummarySidebar.tsx:19` | `totalAmount` es `integer` sin unidad documentada (¿pesos enteros? ¿centavos?). El frontend usa `.toFixed(2)`, lo que sugiere pesos enteros con decimales siempre `.00`. |
 | 5 | Medium | `backend/src/services/MercadoPagoService.ts:13-26` | Preference de MP no incluye `currency_id: "ARS"` explícito. |
 | 6 | Medium | `backend/src/routes/checkout.ts:29-33` + `MercadoPagoService.ts:8` | La preferencia de MP crea un solo ítem opaco (`"Pedido Estudio Glow #..."` × 1) en vez de los productos reales con cantidades. |
@@ -120,9 +120,9 @@
 
 | # | Severidad | Archivo / Línea | Descripción |
 |---|-----------|-----------------|-------------|
-| 1 | Critical | `frontend/app/routes/orders/orders.tsx:25-37` + `backend/src/services/OrderService.ts:156-166` | El parámetro `status` se lee del loader pero nunca se envía al backend. El filtro de tabs corre client-side sobre la página actual, ocultando órdenes reales en otras páginas. |
-| 2 | Critical | — | No existe endpoint user-facing para cancelar una orden propia. `OrderService.cancelOrder` solo se expone vía admin `rejectOrder`. Un usuario atrapado en transferencia pendiente debe esperar 48 h al cron. |
-| 3 | High | `frontend/app/routes/orders/orders.tsx:55-64` + `orders.tsx:66-77` | Tabs de status y controles de paginación usan `window.location.href = ...`, provocando full reload en vez de navegación client-side de RR v7. |
+| 1 | Critical — ✅ RESUELTO (`orders-status-filter`) | `frontend/app/routes/orders/orders.tsx:25-37` + `backend/src/services/OrderService.ts:156-166` | El parámetro `status` se lee del loader pero nunca se envía al backend. El filtro de tabs corre client-side sobre la página actual, ocultando órdenes reales en otras páginas. **Resuelto**: `status` viaja de punta a punta (URL → Zod → controller → service → repo → SQL). `countByUserId` aplica el mismo filtro para `totalItems` correcto. Eliminado workaround `filteredOrders` client-side. Bonus: migrado `window.location.href` → `useSearchParams`. |
+| 2 | High | — | No existe endpoint user-facing para cancelar una orden propia. `OrderService.cancelOrder` solo se expone vía admin `rejectOrder`. Un usuario atrapado en transferencia pendiente debe esperar 48 h al cron. |
+| 3 | High — ✅ RESUELTO (bonus `orders-status-filter`) | `frontend/app/routes/orders/orders.tsx:55-64` + `orders.tsx:66-77` | Tabs de status y controles de paginación usan `window.location.href = ...`, provocando full reload en vez de navegación client-side de RR v7. **Resuelto**: migrado a `useSearchParams` + `setSearchParams`. |
 | 4 | High | `frontend/app/common/services/orderService.ts:57-77` | `getUserOrders` no acepta `status`/`paymentMethod` aunque `getOrdersPaginated` (admin) sí. Bloquea C1 aunque el backend lo soporte. |
 | 5 | High | `backend/src/controller/order.ts:72-85` | Transferencias `PENDING_VERIFICATION` → `PAID` requieren aprobación manual de admin. Si el admin no actúa en 48 h, el cron expira la orden aunque el usuario ya haya pagado y subido comprobante. |
 | 6 | Medium | `frontend/app/common/constants/order.constants.tsx:37-44` | Los tabs de status no filtran realmente (por C1); el usuario cree que no tiene órdenes cuando solo están en otra página. |
