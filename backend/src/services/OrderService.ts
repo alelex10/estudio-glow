@@ -208,10 +208,11 @@ export class OrderService {
     limit: number,
     sortBy: string = "createdAt",
     sortOrder: "asc" | "desc" = "desc",
+    status?: string,
   ) {
     const [data, total] = await Promise.all([
-      OrderRepository.findByUserId(userId, { page, limit, sortBy, sortOrder }),
-      OrderRepository.countByUserId(userId),
+      OrderRepository.findByUserId(userId, { page, limit, sortBy, sortOrder, status }),
+      OrderRepository.countByUserId(userId, status),
     ]);
 
     return {

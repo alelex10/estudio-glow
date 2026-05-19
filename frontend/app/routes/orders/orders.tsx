@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useLoaderData } from "react-router";
+import { useLoaderData, useSearchParams } from "react-router";
 import { requireAuth } from "~/common/actions/auth-helpers";
 import { orderService } from "~/common/services/orderService";
 import { StatusTabs } from "~/common/components/admin/StatusTabs";
@@ -31,6 +31,7 @@ export async function loader({ request }: any) {
     limit,
     sortBy,
     sortOrder,
+    status,
     token,
   );
 
@@ -39,41 +40,37 @@ export async function loader({ request }: any) {
 
 export default function UserOrders() {
   const { ordersPaginated, initialStatus } = useLoaderData<typeof loader>();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
   const [orderWithItems, setOrderWithItems] = useState<any>(null);
   const [loadingItems, setLoadingItems] = useState(false);
-  const [currentStatus, setCurrentStatus] = useState<string>(initialStatus || "ALL");
 
+  const currentStatus = searchParams.get("status") || "ALL";
   const orders = ordersPaginated?.data || [];
   const pagination = ordersPaginated?.pagination;
 
-  // Filtrar órdenes por estado localmente (ya que el backend getUserOrders no filtra por estado)
-  const filteredOrders = currentStatus === "ALL" 
-    ? orders 
-    : orders.filter((order: any) => order.status === currentStatus);
-
   const handleStatusFilter = (status: string) => {
-    setCurrentStatus(status);
-    const url = new URL(window.location.href);
+    const newParams = new URLSearchParams(searchParams);
     if (status === "ALL") {
-      url.searchParams.delete("status");
+      newParams.delete("status");
     } else {
-      url.searchParams.set("status", status);
+      newParams.set("status", status);
     }
-    window.location.href = url.toString();
+    newParams.delete("page"); // reset to page 1
+    setSearchParams(newParams);
   };
 
   const handlePageChange = (newPage: number) => {
-    const url = new URL(window.location.href);
-    url.searchParams.set("page", newPage.toString());
-    window.location.href = url.toString();
+    const newParams = new URLSearchParams(searchParams);
+    newParams.set("page", newPage.toString());
+    setSearchParams(newParams);
   };
 
   const handlePageSizeChange = (newLimit: number) => {
-    const url = new URL(window.location.href);
-    url.searchParams.set("limit", newLimit.toString());
-    url.searchParams.set("page", "1");
-    window.location.href = url.toString();
+    const newParams = new URLSearchParams(searchParams);
+    newParams.set("limit", newLimit.toString());
+    newParams.set("page", "1");
+    setSearchParams(newParams);
   };
 
   const handleViewDetail = async (order: any) => {
@@ -186,7 +183,7 @@ export default function UserOrders() {
       />
 
       <DataTable
-        data={filteredOrders}
+        data={orders}
         columns={columns}
         keyExtractor={(order) => order.id}
         pagination={pagination}

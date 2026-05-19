@@ -59,6 +59,7 @@ class OrderService {
     limit: number,
     sortBy?: string,
     sortOrder?: string,
+    status?: string,
     token?: string
   ) => {
     const params = new URLSearchParams();
@@ -66,6 +67,7 @@ class OrderService {
     params.append("limit", limit.toString());
     if (sortBy) params.append("sortBy", sortBy);
     if (sortOrder) params.append("sortOrder", sortOrder);
+    if (status) params.append("status", status);
 
     return apiClient<PaginationResponse<any>>({
       endpoint: `/users/orders?${params.toString()}`,

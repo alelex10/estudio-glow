@@ -39,14 +39,15 @@ export const getOrderById = [
 export const getUserOrders = asyncHandler(async (req: AuthRequest, res: Response) => {
   const userId = req.user.id;
   const validatedQuery = PaginationOrderQuerySchema.parse(req.query);
-  const { page, limit, sortBy, sortOrder } = validatedQuery;
+  const { page, limit, sortBy, sortOrder, status } = validatedQuery;
 
   const result = await OrderService.getUserOrders(
     userId,
     page,
     limit,
     sortBy,
-    sortOrder
+    sortOrder,
+    status
   );
 
   res.json(result);

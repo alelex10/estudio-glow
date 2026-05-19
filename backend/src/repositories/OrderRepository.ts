@@ -142,27 +142,33 @@ export class OrderRepository {
 
   static async findByUserId(
     userId: string,
-    opts: { page: number; limit: number; sortBy?: string; sortOrder?: "asc" | "desc" },
+    opts: { page: number; limit: number; sortBy?: string; sortOrder?: "asc" | "desc"; status?: string },
   ) {
-    const { page, limit, sortBy = "createdAt", sortOrder = "desc" } = opts;
+    const { page, limit, sortBy = "createdAt", sortOrder = "desc", status } = opts;
     const offset = (page - 1) * limit;
     const orderFn = sortOrder === "desc" ? desc : asc;
     const sortByColumn = sortBy === "createdAt" ? orders.createdAt : orders.totalAmount;
 
+    const conditions: SQL[] = [eq(orders.userId, userId)];
+    if (status) conditions.push(eq(orders.status, status as any));
+
     return db
       .select()
       .from(orders)
-      .where(eq(orders.userId, userId))
+      .where(and(...conditions))
       .orderBy(orderFn(sortByColumn))
       .limit(limit)
       .offset(offset);
   }
 
-  static async countByUserId(userId: string): Promise<number> {
+  static async countByUserId(userId: string, status?: string): Promise<number> {
+    const conditions: SQL[] = [eq(orders.userId, userId)];
+    if (status) conditions.push(eq(orders.status, status as any));
+
     const [result] = await db
       .select({ total: count() })
       .from(orders)
-      .where(eq(orders.userId, userId));
+      .where(and(...conditions));
     return result?.total ?? 0;
   }
 
