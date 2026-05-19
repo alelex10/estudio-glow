@@ -15,7 +15,7 @@ export function EmptyCartState({ onNavigate }: EmptyCartStateProps) {
       </div>
       <h2 className="text-xl sm:text-2xl font-semibold text-primary-900 mb-2">Tu carrito está vacío</h2>
       <p className="text-gray-500 mb-6 text-sm sm:text-base px-4">¡Explora nuestro catálogo y encuentra productos increíbles!</p>
-      <Button variant="primary" size="lg" className="max-w-xs mx-auto" onClick={onNavigate}>
+      <Button variant="primary" size="lg" className="w-full max-w-xs mx-auto" onClick={onNavigate}>
         Explorar catálogo
         <ArrowRight className="w-5 h-5" />
       </Button>

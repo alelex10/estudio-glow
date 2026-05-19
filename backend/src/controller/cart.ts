@@ -4,8 +4,12 @@ import { asyncHandler } from "../middleware/async-handler";
 import { validateBody, validateParams } from "../middleware/validation";
 import { successResponse } from "../utils/crud-helpers";
 import { CartService } from "../services/CartService";
-import { SyncCartSchema } from "../schemas/cart";
-import { ParamsIdSchema } from "../schemas/params";
+import {
+  SyncCartSchema,
+  AddCartItemSchema,
+  UpdateCartItemSchema,
+  CartItemProductIdParamSchema,
+} from "../schemas/cart";
 
 export const getCart = [
   asyncHandler(async (req: AuthRequest, res: Response) => {
@@ -23,10 +27,33 @@ export const syncCart = [
   }),
 ];
 
-export const removeCartItem = [
-  validateParams(ParamsIdSchema),
+export const addCartItem = [
+  validateBody(AddCartItemSchema),
   asyncHandler(async (req: AuthRequest, res: Response) => {
-    const productId = req.params.id;
+    const { productId, quantity } = req.body;
+    const cart = await CartService.addItem(req.user.id, { productId, quantity });
+    res.status(201).json(successResponse(cart, "Item added"));
+  }),
+];
+
+export const updateCartItemQuantity = [
+  validateParams(CartItemProductIdParamSchema),
+  validateBody(UpdateCartItemSchema),
+  asyncHandler(async (req: AuthRequest, res: Response) => {
+    const productId = req.params.productId;
+    if (!productId) {
+      throw new Error("productId required");
+    }
+    const { quantity } = req.body;
+    const cart = await CartService.updateItemQuantity(req.user.id, productId, quantity);
+    res.json(successResponse(cart, "Item updated"));
+  }),
+];
+
+export const removeCartItem = [
+  validateParams(CartItemProductIdParamSchema),
+  asyncHandler(async (req: AuthRequest, res: Response) => {
+    const productId = req.params.productId;
     if (!productId) {
       throw new Error("productId required");
     }

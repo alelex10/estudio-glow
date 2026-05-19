@@ -11,6 +11,7 @@ import { favoriteService } from "~/common/services/favoriteService";
 export interface LayoutLoaderData {
   user: User | null;
   favoriteIds: string[];
+  token: string | null;
 }
 
 export async function loader({ request }: Route.LoaderArgs): Promise<LayoutLoaderData> {
@@ -25,13 +26,13 @@ export async function loader({ request }: Route.LoaderArgs): Promise<LayoutLoade
       favoriteIds = [];
     }
   }
-  return { user, favoriteIds };
+  return { user, favoriteIds, token };
 }
 
 export default function Layout({ loaderData }: Route.ComponentProps) {
     return (
-        <FavoritesProvider serverFavoriteIds={loaderData.favoriteIds} isAuthenticated={!!loaderData.user}>
-            <CartProvider isAuthenticated={!!loaderData?.user}>
+        <FavoritesProvider serverFavoriteIds={loaderData.favoriteIds} isAuthenticated={!!loaderData.user} token={loaderData.token}>
+            <CartProvider isAuthenticated={!!loaderData?.user} token={loaderData.token}>
                 <div className="bg-primary-100" >
                     <Navbar />
                     <Outlet />

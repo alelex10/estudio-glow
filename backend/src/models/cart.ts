@@ -1,4 +1,4 @@
-import { pgTable, varchar, timestamp, integer, index } from "drizzle-orm/pg-core";
+import { pgTable, varchar, timestamp, integer, index, unique } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 import { users } from "./user";
 import { products } from "./product";
@@ -22,6 +22,7 @@ export const cartItems = pgTable("cart_item", {
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 }, (table) => [
   index("idx_cart_item_cart_id").on(table.cartId),
+  unique("cart_item_cart_product_unique").on(table.cartId, table.productId),
 ]);
 
 export type Cart = typeof carts.$inferSelect;

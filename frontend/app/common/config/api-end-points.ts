@@ -63,8 +63,10 @@ export const API_ENDPOINTS = {
   // Cart
   CART: {
     GET: "/cart",
-    SYNC: "/cart/sync",
+    ADD: "/cart/items",
+    UPDATE: (productId: string) => `/cart/items/${productId}`,
     REMOVE: (productId: string) => `/cart/${productId}`,
+    SYNC: "/cart/sync",
   },
   // Checkout
   CHECKOUT: {

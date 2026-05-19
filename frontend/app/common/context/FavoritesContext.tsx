@@ -19,6 +19,7 @@ interface FavoritesProviderProps {
   children: React.ReactNode;
   serverFavoriteIds?: string[];
   isAuthenticated?: boolean;
+  token?: string | null;
 }
 
 const FavoritesContext = createContext<FavoritesContextType | undefined>(
@@ -29,6 +30,7 @@ export function FavoritesProvider({
   children,
   serverFavoriteIds = [],
   isAuthenticated = false,
+  token,
 }: FavoritesProviderProps) {
   const [favoriteIds, setFavoriteIds] = useState<Set<string>>(
     new Set(serverFavoriteIds),
@@ -92,10 +94,10 @@ export function FavoritesProvider({
 
       try {
         if (adding) {
-          await favoriteService.add(productId);
+          await favoriteService.add(productId, token ?? undefined);
           toast("success", "Agregado a favoritos");
         } else {
-          await favoriteService.remove(productId);
+          await favoriteService.remove(productId, token ?? undefined);
           toast("success", "Eliminado de favoritos");
         }
 
@@ -112,7 +114,7 @@ export function FavoritesProvider({
         setIsLoading(false);
       }
     },
-    [favoriteIds, isLoading, isAuthenticated],
+    [favoriteIds, isLoading, isAuthenticated, token],
   );
 
   return (

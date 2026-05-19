@@ -1,10 +1,11 @@
 import { Link, useNavigate } from "react-router";
 import { useCart } from "../../common/context/CartContext";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, RefreshCw } from "lucide-react";
 import { Button } from "~/common/components/button/Button";
 import { EmptyCartState } from "~/common/components/cart/EmptyCartState";
 import { CartItemsList } from "~/common/components/cart/CartItemsList";
 import { OrderSummarySidebar } from "~/common/components/cart/OrderSummarySidebar";
+import { LoadingSpinner } from "~/common/components/admin/LoadingSpinner";
 import type { Route } from "./+types/cart";
 import { ROUTES } from "~/common/constants/routes";
 
@@ -16,8 +17,36 @@ export function meta({ }: Route.MetaArgs) {
 }
 
 export default function Cart() {
-  const { items, removeFromCart, updateQuantity, totalPrice, totalItems } = useCart();
+  const { items, removeFromCart, updateQuantity, totalPrice, totalItems, isLoading, error } = useCart();
   const navigate = useNavigate();
+
+  if (isLoading && items.length === 0) {
+    return (
+      <div className="container mx-auto px-4 pt-20 pb-6 sm:pb-8 min-h-screen max-w-7xl flex flex-col items-center justify-center">
+        <LoadingSpinner size="lg" />
+        <p className="mt-4 text-gray-600">Cargando tu carrito...</p>
+      </div>
+    );
+  }
+
+  if (error && items.length === 0) {
+    return (
+      <div className="container mx-auto px-4 pt-20 pb-6 sm:pb-8 min-h-screen max-w-7xl flex flex-col items-center justify-center">
+        <div className="bg-red-50 border border-red-200 rounded-lg p-6 max-w-md text-center">
+          <p className="text-red-700 mb-4">{error}</p>
+          <Button
+            variant="outline"
+            size="md"
+            onClick={() => window.location.reload()}
+            className="inline-flex items-center gap-2"
+          >
+            <RefreshCw className="w-4 h-4" />
+            Reintentar
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto px-4 pt-20 pb-6 sm:pb-8 min-h-screen max-w-7xl">
