@@ -29,23 +29,33 @@ export function ProductCard({
   };
 
   return (
-    <div className="p-2">
-      <Link to={`/product/${productId}`}>
-        <div
-          className={clsx(
-            "bg-white p-3 pb-4 max-w-[300px] mx-auto",
-            "border-5 border-primary-400",
-            "outline-2 outline-primary-400 outline-offset-2",
-            "flex flex-col gap-3",
+    <Link to={`/product/${productId}`}>
+      <div
+        className={clsx(
+          "bg-white p-3 pb-4 w-full rounded",
+          "border-5 border-primary-400",
+          "outline-2 outline-primary-400 outline-offset-2",
+          "flex flex-col gap-3",
+        )}
+      >
+        <div className="relative aspect-4/5 overflow-hidden bg-gray-50">
+          {/* Stock badge */}
+          {stock <= 0 && (
+            <span className="absolute top-2 left-2 z-10 px-3 py-1 text-xs font-semibold rounded-full bg-danger-100 text-danger-600">
+              Sin stock
+            </span>
           )}
-        >
-          <div className="relative aspect-4/5 overflow-hidden bg-gray-50">
-            <img
-              src={getCloudinaryUrl(imageUrl, 400)}
-              alt={name}
-              loading="lazy"
-              className="w-full h-full object-cover object-center hover:scale-105 transition-transform duration-500"
-            />
+          {stock > 0 && stock < 5 && (
+            <span className="absolute top-2 left-2 z-10 px-3 py-1 text-xs font-semibold rounded-full bg-warning-100 text-warning-600">
+              Poco stock
+            </span>
+          )}
+          <img
+            src={getCloudinaryUrl(imageUrl, 400)}
+            alt={name}
+            loading="lazy"
+            className="w-full h-full object-cover object-center hover:scale-105 transition-transform duration-500"
+          />
           </div>
 
           <div className="text-left flex flex-col gap-1">
@@ -67,6 +77,5 @@ export function ProductCard({
           </div>
         </div>
       </Link>
-    </div>
   );
 }

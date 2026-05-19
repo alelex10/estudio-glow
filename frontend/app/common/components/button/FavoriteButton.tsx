@@ -25,13 +25,13 @@ export function FavoriteButton({
 
   const sizeClasses = {
     sm: "w-8 h-8",
-    md: "w-10 h-10",
+    md: "w-11 h-11",
     lg: "w-12 h-12",
   };
 
   const iconSizes = {
     sm: "w-4 h-4",
-    md: "w-5 h-5",
+    md: "w-6 h-6",
     lg: "w-6 h-6",
   };
 

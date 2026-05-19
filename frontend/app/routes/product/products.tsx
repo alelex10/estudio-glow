@@ -42,13 +42,13 @@ export default function Products({ loaderData }: Route.ComponentProps) {
   const [searchParams, setSearchParams] = useSearchParams();
 
   return (
-    <>
+    <div>
       {products?.data.length === 0 && (
         <div className="flex justify-center w-full">
           <p className="text-2xl font-bold ">No hay productos</p>
         </div>
       )}
-      <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 ">
+      <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {products.data.map((product) => (
           <div key={product.id}>
             <ProductCard
@@ -74,6 +74,6 @@ export default function Products({ loaderData }: Route.ComponentProps) {
           }}
         />
       </div>
-    </>
+    </div>
   );
 }

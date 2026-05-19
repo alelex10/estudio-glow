@@ -46,7 +46,7 @@ export const Button = ({
     <button
       {...props}
       className={clsx(
-        "w-full text-primary-900 font-medium hover:cursor-pointer transition-colors",
+        "text-primary-900 font-medium hover:cursor-pointer transition-colors",
         roundedBtn[rounded],
         variants[variant],
         sizes[size],

@@ -15,9 +15,9 @@ import { useLoaderData, useNavigate, Link } from "react-router";
 import clsx from "clsx";
 import { useCart } from "~/common/context/CartContext";
 import { useState } from "react";
-import { getCloudinaryUrl } from "~/common/lib/utils";
 import { ROUTES } from "~/common/constants/routes";
 import { FavoriteButton } from "~/common/components/button/FavoriteButton";
+import ImageGallery from "~/common/components/ImageGallery";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -80,25 +80,25 @@ export default function ProductDetail() {
           {/* Back Button */}
           <button
             onClick={() => navigate(-1)}
-            className="absolute top-4 left-4 z-10 w-10 h-10 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center text-primary-700 hover:text-primary-900 hover:bg-white transition-all duration-200 shadow-lg hover:shadow-xl"
+            className="absolute top-[calc(1rem+env(safe-area-inset-top,0px))] left-4 z-10 w-11 h-11 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center text-primary-700 hover:text-primary-900 hover:bg-white transition-all duration-200 shadow-lg hover:shadow-xl"
           >
-            <ArrowLeft className="w-5 h-5" />
+            <ArrowLeft className="w-6 h-6" />
           </button>
 
           {/* Favorite Button */}
           <FavoriteButton
             productId={product.id}
             size="md"
-            className="absolute top-4 right-16 z-10"
+            className="absolute top-[calc(1rem+env(safe-area-inset-top,0px))] right-16 z-10"
           />
 
           {/* Cart Icon */}
           <Link
             to={ROUTES.CART}
-            className="absolute top-4 right-4 z-10 w-10 h-10 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center text-primary-700 hover:text-primary-900 hover:bg-white transition-all duration-200 shadow-lg hover:shadow-xl"
+            className="absolute top-[calc(1rem+env(safe-area-inset-top,0px))] right-4 z-10 w-11 h-11 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center text-primary-700 hover:text-primary-900 hover:bg-white transition-all duration-200 shadow-lg hover:shadow-xl"
           >
             <div className="relative">
-              <ShoppingBag className="w-5 h-5" />
+              <ShoppingBag className="w-6 h-6" />
               {totalItems > 0 && (
                 <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center">
                   {totalItems}
@@ -107,25 +107,21 @@ export default function ProductDetail() {
             </div>
           </Link>
 
-          <div className="lg:grid lg:grid-cols-2 lg:gap-12">
+          <div className="flex flex-col lg:grid lg:grid-cols-2 lg:gap-12">
             {/* Image Gallery */}
-            <div className="mb-8 lg:mb-0 lg:relative lg:top-auto absolute top-0 left-0 right-0">
-              <div className="space-y-4">
-                <img
-                  src={getCloudinaryUrl(product.imageUrl ?? "", 800)}
-                  alt={product.name}
-                  loading="lazy"
-                  className="w-full h-full object-cover lg:rounded-2xl lg:shadow-lg lg:max-h-[600px]"
-                />
-              </div>
+            <div className="lg:mb-0">
+              <ImageGallery
+                images={product.imageUrl ? [product.imageUrl] : []}
+                alt={product.name}
+              />
             </div>
 
             {/* Product Info */}
             <div
               className={clsx(
                 "bg-linear-to-b from-primary-300/40 to-primary-400/40 p-6 lg:p-8",
-                "rounded-2xl border border-primary-400 mx-3 lg:mx-0",
-                "backdrop-blur-xs mt-[80%] lg:mt-0 lg:self-center",
+                "rounded-t-2xl lg:rounded-2xl border border-primary-400 mx-3 lg:mx-0",
+                "backdrop-blur-xs -mt-8 lg:mt-0 lg:self-center",
               )}
             >
               {/* Title */}
@@ -145,7 +141,7 @@ export default function ProductDetail() {
               </div>
 
               {/* Description */}
-              <p className=" mb-6 leading-relaxed">{product.description}</p>
+              <p className="text-gray-900 mb-6 leading-relaxed">{product.description}</p>
 
               {/* Badges */}
               <div className="flex gap-3 mb-6 flex-wrap">
@@ -176,9 +172,9 @@ export default function ProductDetail() {
                     <button
                       onClick={() => handleQuantityChange(-1)}
                       disabled={quantity <= 1}
-                      className="w-10 h-10 rounded-full border-2 border-primary-400 flex items-center justify-center hover:bg-primary-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      className="w-11 h-11 rounded-full border-2 border-primary-400 flex items-center justify-center hover:bg-primary-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                     >
-                      <Minus className="w-4 h-4" />
+                      <Minus className="w-6 h-6" />
                     </button>
                     <span className="w-12 text-center font-semibold text-lg">
                       {quantity}
@@ -186,9 +182,9 @@ export default function ProductDetail() {
                     <button
                       onClick={() => handleQuantityChange(1)}
                       disabled={quantity >= product.stock}
-                      className="w-10 h-10 rounded-full border-2 border-primary-400 flex items-center justify-center hover:bg-primary-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      className="w-11 h-11 rounded-full border-2 border-primary-400 flex items-center justify-center hover:bg-primary-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                     >
-                      <Plus className="w-4 h-4" />
+                      <Plus className="w-6 h-6" />
                     </button>
                   </div>
                 </div>
